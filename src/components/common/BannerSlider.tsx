@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import promoBanner from '../../assets/image/banner1.jpg';
-import categoryBanner from '../../assets/image/banner2.jpg';
+import React, { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Image } from '../ui/image';
+import banner1 from '../../assets/image/banner1.jpg';
+import banner2 from '../../assets/image/banner2.jpg';
+import banner3 from '../../assets/image/banner3.jpg';
 
 interface BannerItem {
   id: string;
+  tag?: string;
   title: string;
   subtitle: string;
   imageUrl: string;
@@ -13,112 +18,142 @@ interface BannerItem {
 const BANNERS: BannerItem[] = [
   {
     id: '1',
+    tag: 'Exclusive Collection',
     title: 'THE NEW MERCEDES-BENZ',
     subtitle: 'Định nghĩa lại chuẩn mực xa xỉ và công nghệ hỗ trợ thông minh.',
-    imageUrl: promoBanner,
+    imageUrl: banner1,
     linkText: 'Khám phá ngay',
   },
   {
     id: '2',
+    tag: 'Bespoke Experience',
     title: 'BMW & NGUYỄN SĨ CƯƠNG',
     subtitle: 'Đặc quyền trải nghiệm dịch vụ Bespoke chuyên biệt cùng chuyên viên 24/7.',
-    imageUrl: categoryBanner,
+    imageUrl: banner2,
+    linkText: 'Khám phá ngay',
+  },
+   {
+    id: '3',
+    tag: 'Bespoke Experience',
+    title: 'BMW & NGUYỄN SĨ CƯƠNG',
+    subtitle: 'Đặc quyền trải nghiệm dịch vụ Bespoke chuyên biệt cùng chuyên viên 24/7.',
+    imageUrl: banner3,
     linkText: 'Khám phá ngay',
   },
 ];
 
 export const BannerSlider: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % BANNERS.length);
-    }, 5000);
-    return () => clearInterval(timer);
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % BANNERS.length);
   }, []);
 
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev === 0 ? BANNERS.length - 1 : prev - 1));
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(handleNext, 5000);
+    return () => clearInterval(timer);
+  }, [isPaused, handleNext]);
+
   return (
-    <div className="relative w-full h-[520px] sm:h-[620px] lg:h-[720px] overflow-hidden bg-black select-none">
-      {/* Slider Container */}
+    <section
+      aria-label="Car Highlights Slider"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      className="relative w-full h-[520px] sm:h-[620px] lg:h-[720px] overflow-hidden bg-black select-none"
+    >
+      {/* Slider Reel */}
       <div
-        className="flex h-full transition-transform duration-1000 ease-out"
+        className="flex h-full transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform"
         style={{ transform: `translateX(-${currentIndex * 100}%)` }}
       >
         {BANNERS.map((banner, idx) => (
           <div key={banner.id} className="relative h-full min-w-full flex-shrink-0">
-            {/* Ảnh Banner tràn viền kết hợp lớp phủ chuyển mờ đen đáy */}
-            <img
+            {/* Ảnh nền tích hợp Image component (có skeleton/fade-in) */}
+            <Image
               src={banner.imageUrl}
               alt={banner.title}
+              aspectRatio="auto"
               className="h-full w-full object-cover brightness-[0.65]"
               loading={idx === 0 ? 'eager' : 'lazy'}
             />
-            {/* Lớp bóng đổ gradient từ trên xuống và từ dưới lên */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/60 pointer-events-none" />
 
-            {/* Nội dung Banner: Giữ nguyên size, đổi sang font Merriweather */}
+            {/* Gradient Overlay tối màu */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/60 pointer-events-none" />
+
+            {/* Nội dung Banner */}
             <div className="absolute inset-0 flex flex-col justify-center px-8 sm:px-16 lg:px-24 text-white pt-16">
-              <span
-                style={{ fontFamily: "'Merriweather', serif" }}
-                className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#b8955a] mb-2"
-              >
-                Exclusive Collection
-              </span>
-              <h2
-                style={{ fontFamily: "'Merriweather', serif" }}
-                className="text-3xl sm:text-5xl lg:text-6xl font-bold max-w-2xl leading-tight tracking-wider uppercase"
-              >
+              {banner.tag && (
+                <span className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#b8955a] font-serif mb-2">
+                  {banner.tag}
+                </span>
+              )}
+
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold max-w-3xl leading-tight tracking-wider uppercase font-serif">
                 {banner.title}
               </h2>
-              <p
-                style={{ fontFamily: "'Merriweather', serif" }}
-                className="mt-4 text-xs sm:text-sm text-gray-300 max-w-lg leading-relaxed font-light"
-              >
+
+              <p className="mt-4 text-xs sm:text-sm text-zinc-300 max-w-lg leading-relaxed font-light font-serif">
                 {banner.subtitle}
               </p>
+
+              {/* Nút hành động dùng Button component */}
               <div className="mt-8 flex items-center gap-4">
-                <button className="rounded-full bg-[#b8955a] px-7 py-3 text-xs font-semibold tracking-wider uppercase text-black transition-all hover:bg-[#d4ad6e] hover:shadow-lg hover:shadow-[#b8955a]/20">
+                <Button variant="brand" size="default" className="rounded-full px-8">
                   {banner.linkText}
-                </button>
-                <button className="rounded-full border border-white/40 px-6 py-3 text-xs font-semibold tracking-wider uppercase text-white transition hover:border-white hover:bg-white/10 backdrop-blur-sm">
+                </Button>
+                <Button
+                  variant="outline"
+                  size="default"
+                  className="rounded-full px-7 border-white/40 text-white hover:border-white hover:bg-white/10 backdrop-blur-sm"
+                >
                   Yêu cầu tư vấn
-                </button>
+                </Button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Mũi tên chuyển slide */}
+      {/* Mũi tên điều hướng Previous/Next */}
       <button
-        onClick={() => setCurrentIndex((prev) => (prev === 0 ? BANNERS.length - 1 : prev - 1))}
-        className="absolute left-6 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-3 text-white backdrop-blur-sm transition hover:border-[#b8955a] hover:text-[#b8955a] hover:bg-black/70"
+        type="button"
+        onClick={handlePrev}
+        className="absolute left-6 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-3 text-white backdrop-blur-sm transition-all hover:border-[#b8955a] hover:text-[#b8955a] hover:bg-black/70 cursor-pointer"
         aria-label="Previous Slide"
       >
-        ❮
-      </button>
-      <button
-        onClick={() => setCurrentIndex((prev) => (prev + 1) % BANNERS.length)}
-        className="absolute right-6 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-3 text-white backdrop-blur-sm transition hover:border-[#b8955a] hover:text-[#b8955a] hover:bg-black/70"
-        aria-label="Next Slide"
-      >
-        ❯
+        <ChevronLeft className="h-5 w-5" />
       </button>
 
-      {/* Dấu chấm phân trang */}
-      <div className="absolute bottom-8 left-1/2 flex -translate-x-1/2 gap-2.5 z-10">
+      <button
+        type="button"
+        onClick={handleNext}
+        className="absolute right-6 top-1/2 -translate-y-1/2 rounded-full border border-white/20 bg-black/40 p-3 text-white backdrop-blur-sm transition-all hover:border-[#b8955a] hover:text-[#b8955a] hover:bg-black/70 cursor-pointer"
+        aria-label="Next Slide"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </button>
+
+      {/* Dấu chấm phân trang (Indicators) */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2.5 z-10">
         {BANNERS.map((_, idx) => (
           <button
             key={idx}
+            type="button"
             onClick={() => setCurrentIndex(idx)}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
+            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
               currentIndex === idx ? 'w-8 bg-[#b8955a]' : 'w-2 bg-white/40 hover:bg-white/70'
             }`}
-            aria-label={`Slide ${idx + 1}`}
+            aria-label={`Đi tới slide ${idx + 1}`}
           />
         ))}
       </div>
-    </div>
+    </section>
   );
 };
 
