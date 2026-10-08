@@ -2,13 +2,30 @@ import * as React from 'react';
 import { cn } from '../../lib/utils';
 
 export interface IconProps extends React.SVGAttributes<SVGSVGElement> {
-  name: 'logo' | 'cart' | 'menu' | 'user' | 'car' | 'logout';
+  // 1. Thêm 'avatar' vào union type
+  name: 'logo' | 'cart' | 'menu' | 'user' | 'car' | 'logout' | 'avatar';
 }
 
 export const Icon: React.FC<IconProps> = ({ name, className = '', ...props }) => {
   switch (name) {
+    case 'avatar':
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={cn('stroke-current', className)}
+          {...props}
+        >
+          <circle cx="12" cy="8" r="4" />
+          <path d="M20 21a8 8 0 0 0-16 0" />
+        </svg>
+      );
+
     case 'logo':
-      // Logo biểu tượng ngôi sao 3 cánh xe Mercedes
       return (
         <svg
           viewBox="0 0 24 24"

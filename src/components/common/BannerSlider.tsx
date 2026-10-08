@@ -32,7 +32,7 @@ const BANNERS: BannerItem[] = [
     imageUrl: banner2,
     linkText: 'Khám phá ngay',
   },
-   {
+  {
     id: '3',
     tag: 'Bespoke Experience',
     title: 'BMW & NGUYỄN SĨ CƯƠNG',
@@ -56,7 +56,7 @@ export const BannerSlider: React.FC = () => {
 
   useEffect(() => {
     if (isPaused) return;
-    const timer = setInterval(handleNext, 5000);
+    const timer = setInterval(handleNext, 3000);
     return () => clearInterval(timer);
   }, [isPaused, handleNext]);
 
@@ -65,7 +65,7 @@ export const BannerSlider: React.FC = () => {
       aria-label="Car Highlights Slider"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="relative w-full h-[520px] sm:h-[620px] lg:h-[720px] overflow-hidden bg-black select-none"
+      className="relative w-full h-[560px] sm:h-[650px] lg:h-[750px] overflow-hidden bg-black select-none"
     >
       {/* Slider Reel */}
       <div
@@ -146,9 +146,8 @@ export const BannerSlider: React.FC = () => {
             key={idx}
             type="button"
             onClick={() => setCurrentIndex(idx)}
-            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-              currentIndex === idx ? 'w-8 bg-[#b8955a]' : 'w-2 bg-white/40 hover:bg-white/70'
-            }`}
+            className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${currentIndex === idx ? 'w-8 bg-[#b8955a]' : 'w-2 bg-white/40 hover:bg-white/70'
+              }`}
             aria-label={`Đi tới slide ${idx + 1}`}
           />
         ))}

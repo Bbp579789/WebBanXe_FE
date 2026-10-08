@@ -2,11 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Search } from 'lucide-react';
 import { Input } from '../../ui/input';
 import { useClickOutside } from '../../../hooks/useClickOutside';
-
-interface HeaderSearchProps {
-  isSolid: boolean;
-  onSearch?: (keyword: string) => void;
-}
+import type { HeaderSearchProps } from '../../../types/header.types';
 
 export const HeaderSearch: React.FC<HeaderSearchProps> = ({ isSolid, onSearch }) => {
   const [keyword, setKeyword] = useState('');
@@ -21,8 +17,8 @@ export const HeaderSearch: React.FC<HeaderSearchProps> = ({ isSolid, onSearch })
     setKeyword(val);
     if (val.trim().length >= 2) {
       setSuggestions([
-        `Tìm "${val.trim()}" trong danh mục`,
-        `Gợi ý từ trợ lý AI cho "${val.trim()}"`,
+        `Tìm "${val.trim()}" trong danh mục sản phẩm`,
+        `Gợi ý "${val.trim()}"`,
       ]);
       setShowSuggestions(true);
     } else {

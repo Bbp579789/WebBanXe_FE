@@ -123,7 +123,7 @@ export const Footer: React.FC = () => {
               Nhận thư mời các sự kiện ra mắt xe độc quyền và thông tin phân bổ hạn mức mua trước.
             </p>
 
-            <form onSubmit={handleSubscribe} className="pt-1">
+            {/* <form onSubmit={handleSubscribe} className="pt-1">
               <div className="flex items-center gap-2">
                 <Input
                   type="email"
@@ -141,7 +141,7 @@ export const Footer: React.FC = () => {
                   Gửi
                 </Button>
               </div>
-            </form>
+            </form> */}
           </div>
         </div>
 
