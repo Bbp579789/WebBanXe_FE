@@ -3,7 +3,7 @@ import { cn } from '../../lib/utils';
 
 export interface IconProps extends React.SVGAttributes<SVGSVGElement> {
   // 1. Thêm 'avatar' vào union type
-  name: 'logo' | 'cart' | 'menu' | 'user' | 'car' | 'logout' | 'avatar';
+  name: 'logo' | 'cart' | 'menu' | 'user' | 'car' | 'logout' | 'avatar' | 'home' | 'eye' | 'eye-off' |'chevron-down' |'info'|'globe';
 }
 
 export const Icon: React.FC<IconProps> = ({ name, className = '', ...props }) => {

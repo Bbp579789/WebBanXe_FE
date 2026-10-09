@@ -4,7 +4,7 @@ import { HomePage } from '../pages/HomePage';
 // import { ProductDetailPage } from '../pages/ProductDetailPage';
 // import { CartPage } from '../pages/CartPage';
 // import { ProfilePage } from '../pages/ProfilePage';
-// import { RegisterPage } from '../pages/RegisterPage';
+import { RegisterPage } from '../pages/RegisterPage';
 import { VehiclePage } from '../pages/VehiclePage';
 // import { PaymentPage } from '../pages/PaymentPage';
 
@@ -41,14 +41,15 @@ export const router = createBrowserRouter([
       //   path: 'profile',
       //   element: <ProfilePage />,
       // },
-      // {
-      //   path: 'register',
-      //   element: <RegisterPage />,
-      // },
-      {
-        path: '*',
-        element: <Navigate to="/" replace />,
-      },
+
     ],
+  },
+  {
+    path: 'register',
+    element: <RegisterPage />,
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
   },
 ]);
