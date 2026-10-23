@@ -20,6 +20,7 @@ export interface CategoryItem {
 export interface HeaderProps {
   cartCount?: number;
   onSearch?: (keyword: string) => void;
+  forceSolid?: boolean;
 }
 
 export interface HeaderSearchProps {

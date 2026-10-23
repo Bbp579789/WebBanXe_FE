@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../../ui/icon';
+import { cartService } from '../../../services/api/cartService';
 
 export interface HeaderCartProps {
     cartCount?: number;
@@ -9,17 +10,40 @@ export interface HeaderCartProps {
 }
 
 export const HeaderCart: React.FC<HeaderCartProps> = ({
-    cartCount = 0,
+    cartCount: propCartCount = 0,
     userName,
     onRequireLogin,
 }) => {
     const navigate = useNavigate();
+    const [totalCount, setTotalCount] = useState<number>(propCartCount);
 
-    const handleCartClick = () => {
-        if (!userName) {
+    // Tự động lắng nghe sự kiện thay đổi giỏ hàng để cập nhật badge real-time
+    useEffect(() => {
+        const updateCartCount = () => {
+            const items = cartService.getCartItems();
+            const count = items.reduce((sum, item) => sum + item.quantity, 0);
+            setTotalCount(count > 0 ? count : propCartCount);
+        };
+
+        updateCartCount();
+        window.addEventListener('cartChange', updateCartCount);
+        return () => {
+            window.removeEventListener('cartChange', updateCartCount);
+        };
+    }, [propCartCount]);
+
+   const handleCartClick = () => {
+        const activeUser = userName || localStorage.getItem('userName');
+        
+        console.log("Kiểm tra đăng nhập khi bấm Cart:", { userName, activeUser });
+
+        if (!activeUser) {
+            console.warn("Chưa đăng nhập -> Bật popup đăng nhập");
             onRequireLogin();
             return;
         }
+
+        console.log("Đã đăng nhập -> Tiến hành chuyển hướng sang /cart");
         navigate('/cart');
     };
 
@@ -33,9 +57,9 @@ export const HeaderCart: React.FC<HeaderCartProps> = ({
         >
             <Icon name="cart" className="size-5" />
 
-            {cartCount > 0 && (
-                <span className="absolute top-1 right-1 size-4 bg-[#b8955a] text-black text-[10px] font-bold rounded-full flex items-center justify-center">
-                    {cartCount > 99 ? '99+' : cartCount}
+            {totalCount > 0 && (
+                <span className="absolute top-1 right-1 size-4 bg-[#b8955a] text-black text-[10px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    {totalCount > 99 ? '99+' : totalCount}
                 </span>
             )}
         </button>

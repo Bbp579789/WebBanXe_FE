@@ -9,7 +9,7 @@ import { useScrollThreshold } from '../../hooks/useScrollThreshold';
 import type { HeaderProps } from '../../types/header.types';
 import { Link, useNavigate } from 'react-router-dom';
 
-export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch }) => {
+export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSolid = false }) => {
   const navigate = useNavigate();
   const isSolid = useScrollThreshold(20);
   const [isHovered, setIsHovered] = useState(false);
@@ -47,15 +47,23 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch }) => {
     window.dispatchEvent(new Event('authChange'));
   };
 
-  // 4. Xử lý khi đăng xuất
-  const handleLogout = () => {
-    localStorage.removeItem('userName');
-    setUserName(null);
-    window.dispatchEvent(new Event('authChange'));
-    navigate('/');
-  };
+const handleLogout = () => {
+  // 1. Xóa toàn bộ thông tin phiên đăng nhập
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('userName');
+  
+  // (Nếu muốn xóa luôn giỏ hàng của tài khoản khách khi đăng xuất thì mở cmt dòng dưới)
+  // localStorage.removeItem('valoir_cart_guest');
 
-  const active = isSolid || isHovered;
+  // 2. QUAN TRỌNG: Phát sự kiện để báo cho Header và useCart biết tài khoản đã thay đổi
+  window.dispatchEvent(new Event('authChange'));
+  window.dispatchEvent(new Event('cartChange'));
+
+  // 3. (Tùy chọn) Chuyển hướng người dùng về trang chủ
+  // navigate('/');
+};
+
+  const active = isSolid || isHovered || forceSolid;
 
   return (
     <>

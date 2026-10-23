@@ -109,12 +109,12 @@ export const AccountAvatar: React.FC<AccountAvatarProps> = ({
 
           {/* SERVICE */}
           <Link
-            to="/service-booking"
+            to="/order"
             onClick={() => setIsOpen(false)}
             className="w-full flex items-center gap-3 px-4 py-3 text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
           >
-            <Icon name="car" className="size-4 text-[#b8955a]" />
-            <span>Lịch hẹn lái thử</span>
+            <Icon name="order" className="size-4 text-[#b8955a]" />
+            <span>Đơn hàng</span>
           </Link>
 
           {/* DIVIDER */}

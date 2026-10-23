@@ -18,10 +18,10 @@ export interface ChatMessage {
 // 1. DATABASE ENTITIES (KHỚP ERD)
 // ==========================================
 
-export type VehicleStatus = 'AVAILABLE' | 'RESERVED' | 'SOLD' | 'MAINTENANCE';
 export type TestDriveStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
 export type UserRole = 'CUSTOMER' | 'SALES' | 'ACCOUNTANT' | 'ADMIN';
 export type PurchaseType = 'FULL_PAYMENT' | 'INSTALLMENT' | 'DEPOSIT';
+export type VehicleStatus = 'new' | 'used' | 'sold' | 'reserved' | string;
 
 export interface Vehicle {
   id: number;
@@ -30,14 +30,26 @@ export interface Vehicle {
   brand: string;
   model: string;
   year: number;
+  image_url: string;
   exterior_color: string;
   interior_color: string;
-  cost_price: number;
-  price: number;
+  cost_price: number | string;
+  price: number | string;
   status: VehicleStatus;
   created_at?: string;
   updated_at?: string;
+
+  // Các trường bổ trợ UI (tùy chọn - nếu Backend có join thêm)
+  deposit_amount?: number | string;
+  badge_top?: string;
+  badge_sub?: string;
+  category_label?: string;
+  location_status?: string;
+  description?: string;
+  specs?: Array<{ label?: string; value: string }>;
 }
+
+export type VehicleCardItem = Vehicle;
 
 export interface User {
   id: number;
@@ -74,16 +86,7 @@ export interface CartItem {
 // 2. UI EXTENDED TYPES (HIỂN THỊ SHOWCASE)
 // ==========================================
 
-export interface VehicleCardItem extends Vehicle {
-  badge_top: string;
-  badge_sub?: string;
-  category_label: string;
-  location_status: string;
-  description: string;
-  image_url: string;
-  specs: { label: string; value: string }[];
-  deposit_amount: number;
-}
+
 
 export interface TestDriveFormData {
   user_name: string;

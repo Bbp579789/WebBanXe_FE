@@ -27,7 +27,7 @@ const BANNERS: BannerItem[] = [
   {
     id: '2',
     tag: 'Bespoke Experience',
-    title: 'BMW & NGUYỄN SĨ CƯƠNG',
+    title: 'BMW BESPOKE COLLECTION',
     subtitle: 'Đặc quyền trải nghiệm dịch vụ Bespoke chuyên biệt cùng chuyên viên 24/7.',
     imageUrl: banner2,
     linkText: 'Khám phá ngay',
@@ -35,7 +35,7 @@ const BANNERS: BannerItem[] = [
   {
     id: '3',
     tag: 'Bespoke Experience',
-    title: 'BMW & NGUYỄN SĨ CƯƠNG',
+    title: 'BMW Buworld Bespoke Collection',
     subtitle: 'Đặc quyền trải nghiệm dịch vụ Bespoke chuyên biệt cùng chuyên viên 24/7.',
     imageUrl: banner3,
     linkText: 'Khám phá ngay',

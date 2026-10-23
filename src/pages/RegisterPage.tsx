@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent } from '../components/ui/card';
@@ -15,15 +16,19 @@ export const RegisterPage: React.FC = () => {
     confirmPassword: '',
     firstName: '',
     lastName: '',
+    phone: '', // Thêm trường phone để gửi lên backend
     country: 'Vietnam',
     agreeTerms: false,
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // XỬ LÝ LOGIC ĐĂNG KÝ KHỚP VỚI SWAGGER BACKEND
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!formData.agreeTerms) {
       alert('Vui lòng đồng ý với Điều khoản dịch vụ.');
       return;
@@ -33,12 +38,53 @@ export const RegisterPage: React.FC = () => {
       return;
     }
 
-    const fullName = `${formData.firstName} ${formData.lastName}`.trim() || formData.email.split('@')[0];
-    localStorage.setItem('userName', fullName);
-    window.dispatchEvent(new Event('authChange'));
+    setLoading(true);
 
-    alert('Đăng ký tài khoản thành công!');
-    navigate('/');
+    try {
+      const cleanEmail = formData.email.trim();
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      
+      // Tạo username độc nhất (chỉ lấy chữ và số từ email + 4 số ngẫu nhiên) để tránh lỗi duplicate
+      const emailPrefix = cleanEmail.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+      const uniqueUsername = `${emailPrefix}${Math.floor(1000 + Math.random() * 9000)}`;
+
+      // 1. Gọi API đăng ký tài khoản với payload chuẩn
+      await axios.post('http://localhost:3000/api/v1/auth/register', {
+        username: uniqueUsername,
+        email: cleanEmail,
+        full_name: fullName,
+        phone: formData.phone.trim() || '0900000000', // Đảm bảo có số điện thoại
+        password: formData.password,
+        address: formData.country
+      });
+
+      // 2. Đăng ký thành công -> KHÔNG tự động đăng nhập, mà điều hướng qua trang Login
+      // Truyền theo email để trang Login tự điền sẵn
+     // 2. Đăng ký thành công -> Lưu email vào Storage và về trang chủ
+      sessionStorage.setItem('registeredEmail', cleanEmail);
+      sessionStorage.setItem('registerSuccess', 'Đăng ký tài khoản thành công! Vui lòng đăng nhập.');
+      
+      // Chuyển về trang chủ
+      navigate('/');
+      
+      // (Tùy chọn) Kích hoạt event để Header mở luôn LoginDialog
+      setTimeout(() => {
+        window.dispatchEvent(new Event('openLoginDialog'));
+      }, 500);
+
+    } catch (error: any) {
+      console.error('Chi tiết lỗi từ Backend:', error?.response?.data);
+      
+      const backendMessage = 
+        error?.response?.data?.error || 
+        error?.response?.data?.message || 
+        JSON.stringify(error?.response?.data) ||
+        'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin!';
+
+      alert(`Lỗi đăng ký: ${backendMessage}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,7 +98,7 @@ export const RegisterPage: React.FC = () => {
         }}
       />
 
-      {/* Nút Home / Register cố định ở góc trên cùng bên trái */}
+      {/* Nút Home / Register cố định */}
       <nav
         aria-label="Breadcrumb"
         className="fixed top-6 left-6 z-40 inline-flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-900/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 shadow-lg"
@@ -111,7 +157,6 @@ export const RegisterPage: React.FC = () => {
                 />
               </div>
 
-
               <div>
                 <label className="block font-medium text-zinc-700 mb-1">
                   Password <span className="text-rose-500">*</span>
@@ -130,11 +175,7 @@ export const RegisterPage: React.FC = () => {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-zinc-900" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-zinc-400" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4 text-zinc-900" /> : <Eye className="h-4 w-4 text-zinc-400" />}
                   </button>
                 </div>
               </div>
@@ -156,20 +197,11 @@ export const RegisterPage: React.FC = () => {
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
-                    aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                   >
-                    {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 text-zinc-900 transition-colors" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-zinc-400 transition-colors" />
-                    )}
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4 text-zinc-900 transition-colors" /> : <Eye className="h-4 w-4 text-zinc-400 transition-colors" />}
                   </button>
                 </div>
               </div>
-
-              <p className="text-[11px] leading-relaxed text-zinc-500">
-                Your login credentials are required to secure your account. A 6-digit verification code will be sent to the provided email to complete setup.
-              </p>
 
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div>
@@ -185,7 +217,6 @@ export const RegisterPage: React.FC = () => {
                     className="rounded-xl bg-zinc-100 border-transparent text-zinc-900 focus:bg-white focus:border-zinc-300"
                   />
                 </div>
-
                 <div>
                   <label className="block font-medium text-zinc-700 mb-1">
                     Last Name <span className="text-rose-500">*</span>
@@ -201,6 +232,21 @@ export const RegisterPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Bổ sung trường Phone để backend lưu đúng chuẩn */}
+              <div>
+                <label className="block font-medium text-zinc-700 mb-1">
+                  Phone Number <span className="text-rose-500">*</span>
+                </label>
+                <Input
+                  type="text"
+                  required
+                  placeholder="0988 123 456"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="rounded-xl bg-zinc-100 border-transparent text-zinc-900 focus:bg-white focus:border-zinc-300"
+                />
+              </div>
+
               <div className="pt-2">
                 <div className="flex items-center gap-2.5">
                   <label htmlFor="terms" className="relative flex items-center justify-center cursor-pointer select-none">
@@ -213,49 +259,31 @@ export const RegisterPage: React.FC = () => {
                       }
                       className="peer sr-only"
                     />
-
-                    {/* Ô vuông viền hiển thị trạng thái */}
                     <div className={`size-4 rounded border flex items-center justify-center transition-all ${formData.agreeTerms
                         ? 'bg-[#0284c7] border-[#0284c7] text-white'
                         : 'border-zinc-500 bg-transparent hover:border-zinc-300'
                       }`}>
-                      {/* Icon dấu tích khi được chọn */}
                       {formData.agreeTerms && (
-                        <svg
-                          className="size-3 stroke-current stroke-[2.5] fill-none"
-                          viewBox="0 0 24 24"
-                        >
+                        <svg className="size-3 stroke-current stroke-[2.5] fill-none" viewBox="0 0 24 24">
                           <polyline points="20 6 9 17 4 12" />
                         </svg>
                       )}
                     </div>
                   </label>
-
-                  <label htmlFor="terms" className="text-[12px] text-zinc-300 cursor-pointer select-none flex items-center gap-1">
+                  <label htmlFor="terms" className="text-[12px] text-zinc-600 cursor-pointer select-none flex items-center gap-1">
                     <span>I agree to the following</span>
-                    <a href="#terms" className="text-sky-500 hover:underline font-medium">
-                      Terms of Use
-                    </a>
+                    <a href="#terms" className="text-sky-500 hover:underline font-medium">Terms of Use</a>
                     <span className="text-rose-500">*</span>
                   </label>
                 </div>
-
-                <p className="text-[10px] text-zinc-400 mt-2 leading-normal">
-                  Your personal data will be used to support your experience throughout this website. Read our{' '}
-                  <a href="#privacy" className="text-sky-600 underline font-medium">
-                    Privacy Policy
-                  </a>{' '}
-                  for details.
-                </p>
-
-
               </div>
 
               <Button
                 type="submit"
-                className="w-full mt-3 h-11 rounded-xl bg-[#b8955a] hover:bg-[#a47f48] active:scale-[0.99] text-white font-medium text-xs tracking-wider transition-all shadow-md cursor-pointer"
+                disabled={loading}
+                className="w-full mt-3 h-11 rounded-xl bg-[#b8955a] hover:bg-[#a47f48] active:scale-[0.99] text-white font-medium text-xs tracking-wider transition-all shadow-md cursor-pointer disabled:opacity-50"
               >
-                Create Account
+                {loading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </form>
           </CardContent>
@@ -263,7 +291,7 @@ export const RegisterPage: React.FC = () => {
 
         <p className="mt-5 text-xs text-zinc-400">
           Already have an account?{' '}
-          <Link to="/" className="text-white font-medium underline hover:text-[#b8955a] transition">
+          <Link to="/login" className="text-white font-medium underline hover:text-[#b8955a] transition">
             Log in
           </Link>
         </p>

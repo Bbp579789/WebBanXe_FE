@@ -1,35 +1,59 @@
-import React, { useState, useMemo } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, CheckCircle2, ShoppingBag } from 'lucide-react';
 import { useVehicles } from '../../hooks/useVehicles';
 import { ProductCard } from '../../components/product/ProductCard';
 import { LoginDialog } from '../../components/common/header/LoginDialog';
-import type { VehicleCardItem } from '../../types';
+import { cartService } from '../../services/api/cartService';
+import type { Vehicle } from '../../types';
 
 interface VehicleListGridProps {
-  itemsPerPage?: number; // Số lượng xe trên 1 trang (mặc định 6 xe)
+  itemsPerPage?: number;
 }
 
 export const VehicleListGrid: React.FC<VehicleListGridProps> = ({ itemsPerPage = 6 }) => {
-  // Lấy toàn bộ xe từ hook
-  const { allVehicles, favorites, toggleFavorite } = useVehicles();
+  const { allVehicles = [], favorites = [], toggleFavorite, isLoading } = useVehicles();
+  const safeVehicles = Array.isArray(allVehicles) ? allVehicles : [];
 
-  // State quản lý trang hiện tại
   const [currentPage, setCurrentPage] = useState<number>(1);
-
-  // State đăng nhập
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<string | null>(() => {
+    return localStorage.getItem('userName');
+  });
 
-  // Tính toán tổng số trang
-  const totalPages = Math.ceil(allVehicles.length / itemsPerPage) || 1;
+  // State quản lý thông báo Toast
+  const [toast, setToast] = useState<{ show: boolean; message: string; carName: string } | null>(null);
 
-  // Cắt danh sách xe hiển thị cho trang hiện tại
+  useEffect(() => {
+    const syncUser = () => {
+      setCurrentUser(localStorage.getItem('userName'));
+    };
+
+    window.addEventListener('authChange', syncUser);
+    window.addEventListener('storage', syncUser);
+
+    return () => {
+      window.removeEventListener('authChange', syncUser);
+      window.removeEventListener('storage', syncUser);
+    };
+  }, []);
+
+  // Tự động ẩn thông báo sau 3 giây
+  useEffect(() => {
+    if (toast?.show) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  const totalPages = Math.ceil(safeVehicles.length / itemsPerPage) || 1;
+
   const currentVehicles = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return allVehicles.slice(startIndex, startIndex + itemsPerPage);
-  }, [allVehicles, currentPage, itemsPerPage]);
+    return safeVehicles.slice(startIndex, startIndex + itemsPerPage);
+  }, [safeVehicles, currentPage, itemsPerPage]);
 
-  // Đổi trang và cuộn nhẹ lên đầu danh sách sản phẩm
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
@@ -38,25 +62,42 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({ itemsPerPage =
     }
   };
 
-  const handleAddToCart = (car: VehicleCardItem) => {
+  // Xử lý Thêm giỏ hàng + Hiện Toast Thông Báo
+  const handleAddToCart = (car: Vehicle) => {
     if (!currentUser) {
       setIsLoginOpen(true);
       return;
     }
-    alert(`Đã thêm xe ${car.brand} ${car.model} vào giỏ hàng thành công!`);
+
+    cartService.addToCart(car, 1);
+
+    // Bật thông báo Toast
+    setToast({
+      show: true,
+      message: 'Đã thêm thành công vào giỏ hàng!',
+      carName: `${car.brand || 'Mercedes-Benz'} ${car.model || ''}`,
+    });
   };
 
-  const handleDeposit = (car: VehicleCardItem) => {
+  const handleDeposit = (car: Vehicle) => {
     if (!currentUser) {
       setIsLoginOpen(true);
       return;
     }
-    alert(`Tiến hành làm hợp đồng bảo lưu & đặt cọc xe: ${car.model} (VIN: ${car.vin})`);
+
+    cartService.addToCart(car, 1);
+    
+    setToast({
+      show: true,
+      message: 'Đã thêm xe vào cấu hình cọc thành công!',
+      carName: `${car.brand || 'Mercedes-Benz'} ${car.model || ''}`,
+    });
   };
 
   return (
-    <section id="vehicle-grid-top" className="container mx-auto px-6 sm:px-10 lg:px-12 max-w-7xl py-14">
-      {/* 1. KHU VỰC TIÊU ĐỀ "SẢN PHẨM CỦA CHÚNG TÔI" */}
+    <section id="vehicle-grid-top" className="container mx-auto px-6 sm:px-10 lg:px-12 max-w-7xl py-14 select-none relative">
+      
+      {/* 1. KHU VỰC TIÊU ĐỀ */}
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-zinc-200/80 pb-6 mb-10 gap-4">
         <div>
           <span className="text-[11px] font-mono tracking-[0.25em] text-[#b8955a] uppercase font-bold">
@@ -70,21 +111,25 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({ itemsPerPage =
         <p className="text-xs font-mono text-zinc-500 uppercase tracking-wider">
           Hiển thị{' '}
           <span className="text-zinc-950 font-bold">
-            {allVehicles.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} -{' '}
-            {Math.min(currentPage * itemsPerPage, allVehicles.length)}
+            {safeVehicles.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} -{' '}
+            {Math.min(currentPage * itemsPerPage, safeVehicles.length)}
           </span>{' '}
-          / {allVehicles.length} cỗ máy
+          / {safeVehicles.length} cỗ máy
         </p>
       </div>
 
       {/* 2. LƯỚI THẺ SẢN PHẨM */}
-      {currentVehicles.length > 0 ? (
+      {isLoading ? (
+        <div className="py-24 text-center font-mono text-xs text-zinc-400">
+          Đang đồng bộ dữ liệu từ kho xe...
+        </div>
+      ) : currentVehicles.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {currentVehicles.map((car) => (
+          {currentVehicles.map((car, index) => (
             <ProductCard
-              key={car.id}
+              key={car?.id ? `vehicle-${car.id}` : `vehicle-fallback-${index}`}
               car={car}
-              isFavorite={favorites.includes(car.id)}
+              isFavorite={favorites.includes(Number(car?.id))}
               onToggleFavorite={toggleFavorite}
               onAddToCart={handleAddToCart}
               onDeposit={handleDeposit}
@@ -92,15 +137,14 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({ itemsPerPage =
           ))}
         </div>
       ) : (
-        <div className="py-20 text-center text-zinc-400 font-mono text-sm">
+        <div className="py-24 text-center text-zinc-400 font-mono text-xs">
           Hiện chưa có sản phẩm nào trong kho lưu trữ.
         </div>
       )}
 
-      {/* 3. THANH ĐIỀU HƯỚNG PHÂN TRANG (PAGINATION) */}
-      {totalPages > 1 && (
+      {/* 3. PHÂN TRANG */}
+      {!isLoading && totalPages > 1 && (
         <div className="mt-14 flex items-center justify-center gap-2 select-none">
-          {/* Nút Prev */}
           <button
             type="button"
             onClick={() => handlePageChange(currentPage - 1)}
@@ -111,7 +155,6 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({ itemsPerPage =
             <ChevronLeft className="size-4" />
           </button>
 
-          {/* Danh sách các số trang */}
           {Array.from({ length: totalPages }, (_, index) => {
             const pageNum = index + 1;
             const isActive = pageNum === currentPage;
@@ -131,7 +174,6 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({ itemsPerPage =
             );
           })}
 
-          {/* Nút Next */}
           <button
             type="button"
             onClick={() => handlePageChange(currentPage + 1)}
@@ -144,17 +186,30 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({ itemsPerPage =
         </div>
       )}
 
-      {/* Popup Đăng nhập */}
-    <LoginDialog
-            isOpen={isLoginOpen}
-            onClose={() => setIsLoginOpen(false)}
-            onLoginSuccess={(name) => {
-              setCurrentUser(name);
-              setIsLoginOpen(false);
-              localStorage.setItem('userName', name);
-        window.dispatchEvent(new Event('authChange'));
-            }}
-          />
+     {/* TOAST THÔNG BÁO Ở GÓC TRÊN CÙNG BÊN PHẢI */}
+      {toast?.show && (
+        <div className="fixed top-6 right-6 z-50 flex items-center gap-3 bg-zinc-950/95 backdrop-blur-md text-white px-5 py-4 rounded-2xl shadow-2xl border border-zinc-800 animate-in slide-in-from-top-5 fade-in duration-300">
+          <div className="size-9 rounded-full bg-[#b8955a]/20 text-[#b8955a] flex items-center justify-center shrink-0">
+            <CheckCircle2 className="size-5" />
+          </div>
+          <div className="text-left">
+            <h4 className="text-xs font-bold font-sans text-white">{toast.message}</h4>
+            <p className="text-[11px] font-mono text-zinc-400 mt-0.5">{toast.carName}</p>
+          </div>
+        </div>
+      )}
+
+      {/* 5. MODAL ĐĂNG NHẬP */}
+      <LoginDialog
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        onLoginSuccess={(name) => {
+          localStorage.setItem('userName', name);
+          setCurrentUser(name);
+          setIsLoginOpen(false);
+          window.dispatchEvent(new Event('authChange'));
+        }}
+      />
     </section>
   );
 };

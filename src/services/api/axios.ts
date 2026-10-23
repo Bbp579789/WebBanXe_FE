@@ -1,10 +1,13 @@
-import axios from "axios";
+import axios from 'axios';
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+// Dùng baseURL là '/api' để request đi qua proxy Vite, tránh bị lỗi CORS
+export const api = axios.create({
+  baseURL: '/api',
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
-export default api;
+// Ví dụ các hàm gọi endpoint:
+export const getVehicles = () => api.get('/vehicles');
+export const getUsers = () => api.get('/users');

@@ -129,89 +129,71 @@
 
 // export default MaybachShowcase;
 
-
-
-import React, { useState } from 'react';
-import { Compass, Disc } from 'lucide-react';
-import type { VehicleCardItem } from '../../types';
-import { ProductCard } from '../../components/product/ProductCard';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import type { Vehicle } from '../../types';
+import { ProductCard } from '../../components/product/ProductCard'; // Đường dẫn import ProductCard chuẩn
 import { LoginDialog } from '../../components/common/header/LoginDialog';
-import { useVehicles } from '../../hooks/useVehicles';
+import { vehicleService } from '../../services/api/vehicleService';
+import { cartService } from '../../services/api/cartService';
 
 export const MaybachShowcase: React.FC = () => {
-  // Sử dụng trực tiếp logic filter và favorites từ custom hook
-  const { vehicles, activeBrand, setActiveBrand, favorites, toggleFavorite } = useVehicles('maybach');
+  const navigate = useNavigate();
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   // Quản lý trạng thái tài khoản & Modal đăng nhập
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<string | null>(() => localStorage.getItem('userName'));
 
-  // 1. Logic Thêm vào giỏ hàng
-  const handleAddToCart = (car: VehicleCardItem) => {
-    if (!currentUser) {
-      setIsLoginOpen(true);
-      return;
-    }
-    alert(`Đã thêm xe ${car.model} vào giỏ hàng thành công!`);
+  // 1. Gọi API lấy dữ liệu thực tế từ Backend và lọc xe Maybach
+useEffect(() => {
+    const fetchMaybachVehicles = async () => {
+      try {
+        const allCars = await vehicleService.getAllVehicles();
+        
+        // 1. Lọc ra xe Maybach
+        const maybachCars = allCars.filter(car => 
+          car.brand?.toLowerCase().includes('maybach') || 
+          car.model?.toLowerCase().includes('maybach')
+        );
+        
+        // 2. Chỉ lấy 3 chiếc đầu tiên bằng slice(0, 3)
+        setVehicles(maybachCars.slice(0, 3));
+      } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu xe:", error);
+      }
+    };
+
+    fetchMaybachVehicles();
+
+    // Lắng nghe thay đổi đăng nhập
+    const syncAuth = () => setCurrentUser(localStorage.getItem('userName'));
+    window.addEventListener('authChange', syncAuth);
+    return () => window.removeEventListener('authChange', syncAuth);
+  }, []);
+
+  const toggleFavorite = (id: number) => {
+    setFavorites(prev => 
+      prev.includes(id) ? prev.filter(fId => fId !== id) : [...prev, id]
+    );
   };
 
-  // 2. Logic Đặt cọc
-  const handleDeposit = (car: VehicleCardItem) => {
-    if (!currentUser) {
-      setIsLoginOpen(true);
-      return;
-    }
-    alert(
-      `[HỢP ĐỒNG ĐẶT CỌC BẢO LƯU]\n- Khách hàng: ${currentUser}\n- Xe: ${car.model} (VIN: ${car.vin})\n- Giá xe: $${car.price.toLocaleString('en-US')}\n- Đặt cọc đợt 1: $${car.deposit_amount.toLocaleString('en-US')}`
-    );
+  // 2. Logic Thêm vào giỏ hàng đồng bộ với cartService
+  const handleAddToCart = (car: Vehicle) => {
+    cartService.addToCart(car, 1);
+    alert(`Đã thêm ${car.brand} ${car.model} vào giỏ hàng thành công!`);
+  };
+
+  // 3. Logic Đặt cọc (Thêm vào giỏ và chuyển thẳng sang Payment)
+  const handleDeposit = (car: Vehicle) => {
+    cartService.addToCart(car, 1);
+    navigate('/payment');
   };
 
   return (
     <>
       <section className="container mx-auto px-6 sm:px-10 lg:px-12 max-w-7xl pt-12">
-        {/* Brand Switcher */}
-        <div className="flex justify-center mb-14">
-          <div className="inline-flex items-center p-1.5 rounded-full bg-white border border-zinc-200/90 shadow-xs">
-            <button
-              type="button"
-              onClick={() => setActiveBrand('mercedes')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all text-xs font-mono tracking-wider cursor-pointer ${
-                activeBrand === 'mercedes'
-                  ? 'bg-zinc-900 text-white shadow-sm'
-                  : 'text-zinc-500 hover:text-zinc-900'
-              }`}
-            >
-              <Compass className="size-3.5" />
-              <span>MERCEDES-BENZ</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveBrand('amg')}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full transition-all text-xs font-mono tracking-wider cursor-pointer ${
-                activeBrand === 'amg'
-                  ? 'bg-zinc-900 text-white shadow-sm'
-                  : 'text-zinc-500 hover:text-zinc-900'
-              }`}
-            >
-              <Disc className="size-3.5" />
-              <span>MERCEDES-AMG</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveBrand('maybach')}
-              className={`flex items-center gap-2 px-6 py-2.5 rounded-full transition-all text-xs font-mono font-semibold tracking-wider cursor-pointer ${
-                activeBrand === 'maybach'
-                  ? 'bg-[#b8955a] text-black shadow-sm'
-                  : 'text-zinc-500 hover:text-zinc-900'
-              }`}
-            >
-              <span>MAYBACH</span>
-            </button>
-          </div>
-        </div>
-
         {/* Tiêu đề giới thiệu */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div className="max-w-2xl">
@@ -227,22 +209,28 @@ export const MaybachShowcase: React.FC = () => {
           </p>
         </div>
 
-        {/* Danh sách thẻ xe (sử dụng mảng vehicles đã lọc từ useVehicles) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {vehicles.map((car) => (
-            <ProductCard
-              key={car.id}
-              car={car}
-              isFavorite={favorites.includes(car.id)}
-              onToggleFavorite={toggleFavorite}
-              onAddToCart={handleAddToCart}
-              onDeposit={handleDeposit}
-            />
-          ))}
-        </div>
+        {/* Danh sách thẻ xe */}
+        {vehicles.length === 0 ? (
+          <div className="flex items-center justify-center py-20 text-xs font-mono text-zinc-400 border border-zinc-200/60 rounded-3xl bg-zinc-50 border-dashed">
+            Đang tải dữ liệu hoặc chưa có xe Maybach nào trong kho...
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {vehicles.map((car, index) => (
+              <ProductCard
+                key={car?.id ? `showcase-${car.id}` : `showcase-fallback-${index}`}
+                car={car}
+                isFavorite={favorites.includes(Number(car?.id))}
+                onToggleFavorite={toggleFavorite}
+                onAddToCart={handleAddToCart}
+                onDeposit={handleDeposit}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
-      {/* Popup Đăng nhập khi người dùng thao tác mà chưa đăng nhập */}
+      {/* Popup Đăng nhập */}
       <LoginDialog
         isOpen={isLoginOpen}
         onClose={() => setIsLoginOpen(false)}
@@ -250,7 +238,7 @@ export const MaybachShowcase: React.FC = () => {
           setCurrentUser(name);
           setIsLoginOpen(false);
           localStorage.setItem('userName', name);
-    window.dispatchEvent(new Event('authChange'));
+          window.dispatchEvent(new Event('authChange'));
         }}
       />
     </>

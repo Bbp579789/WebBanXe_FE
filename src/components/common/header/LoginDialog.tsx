@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Eye, Info, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Eye, EyeOff, Info, X, CheckCircle2 } from 'lucide-react';
+import axios from 'axios';
 import { Icon } from '../../ui/icon';
 import type { LoginDialogProps } from '../../../types/header.types';
 import { Link } from 'react-router-dom';
@@ -13,20 +14,86 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Tự động điền email nếu người dùng vừa đăng ký xong
+  useEffect(() => {
+    if (isOpen) {
+      const savedEmail = sessionStorage.getItem('registeredEmail');
+      const savedMsg = sessionStorage.getItem('registerSuccess');
+      
+      if (savedEmail) {
+        setAccount(savedEmail);
+        sessionStorage.removeItem('registeredEmail'); // Dùng xong thì xóa
+      }
+      if (savedMsg) {
+        setSuccessMsg(savedMsg);
+        sessionStorage.removeItem('registerSuccess');
+      }
+    } else {
+      // Reset state khi đóng Dialog
+      setError(null);
+      setSuccessMsg(null);
+      setAccount('');
+      setPassword('');
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // XỬ LÝ GỌI API BACKEND ĐĂNG NHẬP
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!account.trim() || !password.trim()) {
       setError('Vui lòng nhập đầy đủ thông tin');
       return;
     }
-    onLoginSuccess(account.trim());
-    setAccount('');
-    setPassword('');
+
+    setLoading(true);
     setError(null);
-    onClose();
+    setSuccessMsg(null);
+
+    try {
+      const res = await axios.post('http://localhost:3000/api/v1/auth/login', {
+        email: account.trim(),
+        password: password.trim()
+      });
+
+    // Lấy Token và User từ Response (Tùy cấu trúc Backend trả về)
+      const token = res.data?.token || res.data?.data?.token;
+      const user = res.data?.user || res.data?.data?.user;
+
+      if (token) {
+        localStorage.setItem('access_token', token);
+      }
+      
+      // 1. Lấy thông tin Tên
+      const userName = user?.full_name || user?.name || account.trim().split('@')[0];
+      localStorage.setItem('userName', userName);
+
+      // 2. LƯU THÊM EMAIL VÀ PHONE ĐỂ TỰ ĐỘNG ĐIỀN Ở TRANG THANH TOÁN
+      localStorage.setItem('userEmail', user?.email || account.trim());
+      localStorage.setItem('userPhone', user?.phone || '');
+
+      // 3. Cập nhật lại UI Header (Đổi nút Đăng nhập thành Avatar/Tên)
+      window.dispatchEvent(new Event('authChange'));
+      
+      // 4. Cập nhật lại Giỏ hàng (Đổi từ giỏ hàng khách sang giỏ hàng của user này)
+      window.dispatchEvent(new Event('cartChange'));
+ 
+      onLoginSuccess(userName);
+      onClose();
+    } catch (err: any) {
+      console.error('Lỗi đăng nhập:', err?.response?.data);
+      const backendMessage = 
+        err?.response?.data?.error || 
+        err?.response?.data?.message || 
+        'Tài khoản hoặc mật khẩu không chính xác!';
+      setError(backendMessage);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -76,13 +143,22 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
             </button>
           </div>
 
+          {/* Thông báo đăng ký thành công */}
+          {successMsg && !error && (
+            <div className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-start gap-2.5 text-emerald-700 text-xs">
+              <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
+              <p className="font-medium leading-relaxed">{successMsg}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
               <input
-                type="text"
+                type="email" // Chuyển thành type="email" cho chuẩn xác
                 value={account}
                 onChange={(e) => setAccount(e.target.value)}
-                placeholder="Email/PhoneNumber"
+                placeholder="Email Address"
+                required
                 className="w-full h-13 px-4 text-sm rounded-xl bg-zinc-100/90 text-zinc-900 placeholder:text-zinc-500 border border-transparent focus:border-zinc-300 focus:bg-white focus:outline-none transition"
               />
             </div>
@@ -106,8 +182,10 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className={`w-full h-13 pl-4 pr-12 text-sm rounded-xl bg-zinc-100/90 text-zinc-900 placeholder:text-zinc-500 border border-transparent focus:border-zinc-300 focus:bg-white focus:outline-none transition [&::-ms-reveal]:hidden [&::-ms-clear]:hidden ${showPassword ? 'tracking-normal font-sans' : 'tracking-widest font-mono'
-                    }`}
+                  required
+                  className={`w-full h-13 pl-4 pr-12 text-sm rounded-xl bg-zinc-100/90 text-zinc-900 placeholder:text-zinc-500 border border-transparent focus:border-zinc-300 focus:bg-white focus:outline-none transition [&::-ms-reveal]:hidden [&::-ms-clear]:hidden ${
+                    showPassword ? 'tracking-normal font-sans' : 'tracking-widest font-mono'
+                  }`}
                 />
                 <button
                   type="button"
@@ -120,11 +198,16 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
                   className="absolute right-3.5 z-10 p-1 text-zinc-400 hover:text-zinc-700 transition cursor-pointer select-none"
                   aria-label="Ẩn hiện mật khẩu"
                 >
-                  <Eye className={`h-4 w-4 transition-colors ${showPassword ? 'text-zinc-900' : 'text-zinc-400'}`} />
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4 text-zinc-900 transition-colors" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-zinc-400 transition-colors" />
+                  )}
                 </button>
               </div>
             </div>
 
+            {/* Báo lỗi từ Backend */}
             {error && (
               <p className="text-xs text-rose-500 font-medium px-1 pt-1">{error}</p>
             )}
@@ -132,9 +215,10 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
             <div className="pt-2">
               <button
                 type="submit"
-                className="w-full h-12 rounded-full bg-[#af8d55] hover:bg-[#9d7d49] active:scale-[0.99] text-white font-semibold text-sm transition-all duration-200 shadow-md shadow-[#af8d55]/20 cursor-pointer"
+                disabled={loading}
+                className="w-full h-12 rounded-full bg-[#af8d55] hover:bg-[#9d7d49] active:scale-[0.99] text-white font-semibold text-sm transition-all duration-200 shadow-md shadow-[#af8d55]/20 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Log In
+                {loading ? 'Authenticating...' : 'Log In'}
               </button>
             </div>
 
