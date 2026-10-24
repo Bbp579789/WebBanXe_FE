@@ -8,8 +8,10 @@ import { RegisterPage } from '../pages/RegisterPage';
 import { VehiclePage } from '../pages/VehiclePage';
 import { PaymentPage } from '../pages/PaymentPage';
 import { OrderPage } from '../pages/OrderPage';
+import AdminLoginPage from '../pages/admin/adminLoginPage';
 
 export const router = createBrowserRouter([
+  // CÁC ROUTE CHO WEB USER
   {
     path: '/',
     element: <CustomerLayout />,
@@ -61,6 +63,16 @@ export const router = createBrowserRouter([
     path: 'register',
     element: <RegisterPage />,
   },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
+  },
+
+  {
+    path: '/admin/login',
+    element: <AdminLoginPage />,
+  },
+
   {
     path: '*',
     element: <Navigate to="/" replace />,
