@@ -8,7 +8,7 @@ import { RegisterPage } from '../pages/RegisterPage';
 import { VehiclePage } from '../pages/VehiclePage';
 import { PaymentPage } from '../pages/PaymentPage';
 import { OrderPage } from '../pages/OrderPage';
-import AdminLoginPage from '../pages/admin/adminLoginPage';
+import AdminLoginPage from '../pages/admin/AdminLoginPage';
 
 export const router = createBrowserRouter([
   // CÁC ROUTE CHO WEB USER
