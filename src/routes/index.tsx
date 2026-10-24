@@ -8,7 +8,11 @@ import { RegisterPage } from '../pages/RegisterPage';
 import { VehiclePage } from '../pages/VehiclePage';
 import { PaymentPage } from '../pages/PaymentPage';
 import { OrderPage } from '../pages/OrderPage';
+
+// import admin
 import AdminLoginPage from '../pages/admin/AdminLoginPage';
+import { AdminLayout } from '../layouts/admin/AdminLayout';
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 
 export const router = createBrowserRouter([
   // CÁC ROUTE CHO WEB USER
@@ -72,9 +76,19 @@ export const router = createBrowserRouter([
     path: '/admin/login',
     element: <AdminLoginPage />,
   },
+{
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      {
+        path: 'dashboard',
+        element: <AdminDashboardPage />,
+      },
 
+    ]},
   {
     path: '*',
     element: <Navigate to="/" replace />,
   },
-]);
+  
+]); 
