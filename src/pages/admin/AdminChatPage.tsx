@@ -368,11 +368,8 @@ export const AdminChatPage: React.FC = () => {
   return (
     <div className="flex flex-1 w-full h-full overflow-hidden bg-[#18181b] text-zinc-100 select-none min-w-0">
       {/* ================= 1. CỘT DỌC CÁC ỨNG DỤNG (Luxury Dock Bar) ================= */}
-      <aside className="w-[72px] bg-[#0c0d0e] border-r border-zinc-800/80 flex flex-col items-center py-5 justify-between shrink-0 z-20 shadow-2xl">
+      <aside className="w-[72px] bg-[#0c0d0e] border-r border-zinc-800/80 flex flex-col items-center pt-8 pb-5 justify-between shrink-0 z-20 shadow-2xl">
         <div className="flex flex-col items-center space-y-4 w-full">
-          {/* Subtle logo dot */}
-          <div className="size-2 rounded-full bg-[#b8955a] shadow-[0_0_10px_#b8955a] mb-2" />
-
           {platforms.map((p) => {
             const isActive = p.id === selectedPlatform;
             return (
@@ -493,14 +490,6 @@ export const AdminChatPage: React.FC = () => {
                       )}
                     </div>
 
-                    {/* Dòng xe quan tâm (nếu có) */}
-                    {item.carInterest && (
-                      <div className="flex items-center gap-1 text-[10px] text-[#f8e5c6] font-medium truncate mb-0.5">
-                        <Car className="size-3 shrink-0" />
-                        <span className="truncate">{item.carInterest.model}</span>
-                      </div>
-                    )}
-
                     {/* Tin nhắn gần nhất */}
                     {item.lastMessage && (
                       <p
@@ -578,7 +567,7 @@ export const AdminChatPage: React.FC = () => {
               <Phone className="size-4" />
             </button>
             <button
-              title="Gọi video tư vấn xe"
+              title="Gọi video tư vấn"
               className="p-2.5 rounded-xl bg-white/80 hover:bg-white text-zinc-700 hover:text-[#b8955a] border border-zinc-300 shadow-sm transition-all hover:scale-105"
             >
               <Video className="size-4" />
@@ -591,36 +580,6 @@ export const AdminChatPage: React.FC = () => {
             </button>
           </div>
         </header>
-
-        {/* Thanh Card thông tin xe quan tâm (Nổi bật phong cách VIP Mercedes) */}
-        {selectedCustomer.carInterest && (
-          <div className="mx-6 mt-3 px-4 py-2.5 bg-gradient-to-r from-[#202022] via-[#2a2723] to-[#18181b] text-white rounded-2xl shadow-md border border-[#b8955a]/30 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="size-8 rounded-xl bg-[#b8955a]/20 border border-[#b8955a]/40 text-[#dfc399] flex items-center justify-center">
-                <Car className="size-4" />
-              </div>
-              <div>
-                <p className="text-[11px] text-zinc-400 uppercase tracking-widest font-mono">Dòng xe quan tâm</p>
-                <p className="text-sm font-bold text-white tracking-wide">
-                  {selectedCustomer.carInterest.model}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 text-right">
-              {selectedCustomer.carInterest.budget && (
-                <div>
-                  <p className="text-[10px] text-zinc-400 font-mono">Dự toán</p>
-                  <p className="text-xs font-bold text-[#e5be79]">
-                    {selectedCustomer.carInterest.budget}
-                  </p>
-                </div>
-              )}
-              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-[#b8955a]/20 text-[#e5be79] border border-[#b8955a]/40">
-                {selectedCustomer.carInterest.status}
-              </span>
-            </div>
-          </div>
-        )}
 
         {/* Nội dung tin nhắn chat */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
