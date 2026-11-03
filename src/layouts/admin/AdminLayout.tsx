@@ -9,7 +9,7 @@ export const AdminLayout: React.FC = () => {
       <AdminSidebar />
       
       {/* Khung nội dung bên phải (chiếm toàn bộ phần còn lại) */}
-      <div className="flex-1 ml-64 h-full flex flex-col overflow-hidden min-w-0">
+      <div className="flex-1 ml-64 h-full flex flex-col overflow-hidden min-w-0 min-h-0">
         <Outlet />
       </div>
     </div>

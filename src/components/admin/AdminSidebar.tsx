@@ -7,7 +7,7 @@ import { Icon } from '../ui/icon';
 export const AdminSidebar: React.FC = () => {
   const navigate = useNavigate();
   const adminName = localStorage.getItem('adminName') || 'Admin Mercedes';
-  
+
   // State để quản lý việc ẩn/hiện menu Đăng xuất
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -26,7 +26,7 @@ export const AdminSidebar: React.FC = () => {
 
   return (
     <aside className="w-64 bg-[#0a0a0a] text-white flex flex-col h-screen fixed left-0 top-0 border-r border-zinc-800/50 z-50">
-      
+
       {/* LOTO & THƯƠNG HIỆU (Căn giữa, ngay ngắn) */}
       <div className="h-20 flex items-center gap-3 px-6 border-b border-zinc-800/50">
         <div className="size-10 shrink-0 rounded-full border border-[#b8955a] p-1.5 text-[#b8955a] flex items-center justify-center bg-zinc-950 shadow-[0_0_15px_rgba(184,149,90,0.1)]">
@@ -46,10 +46,9 @@ export const AdminSidebar: React.FC = () => {
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
-                isActive
-                  ? 'bg-zinc-900/80 text-[#b8955a] font-medium border border-[#b8955a]/20'
-                  : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
+              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${isActive
+                ? 'bg-zinc-900/80 text-[#b8955a] font-medium border border-[#b8955a]/20'
+                : 'text-zinc-400 hover:text-white hover:bg-zinc-900/50'
               }`
             }
           >
@@ -62,7 +61,7 @@ export const AdminSidebar: React.FC = () => {
 
       {/* USER PROFILE & LOGOUT MENU */}
       <div className="relative p-4 border-t border-zinc-800/50">
-        
+
         {/* Pop-up Menu (Về trang chủ / Đăng xuất) */}
         {isUserMenuOpen && (
           <div className="absolute bottom-[calc(100%-8px)] left-4 right-4 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-200 z-50">
@@ -75,9 +74,9 @@ export const AdminSidebar: React.FC = () => {
               </div>
               <span className="text-xs font-medium text-zinc-300">Về trang chủ</span>
             </button>
-            
+
             <div className="h-px w-full bg-zinc-800/80" />
-            
+
             <button
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-800 transition-colors text-left group"
@@ -91,9 +90,8 @@ export const AdminSidebar: React.FC = () => {
         {/* Nút User Profile (Bấm vào để mở Pop-up) */}
         <button
           onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-          className={`w-full flex items-center gap-3 p-2 rounded-xl transition-all duration-200 ${
-            isUserMenuOpen ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
-          }`}
+          className={`w-full flex items-center gap-3 p-2 rounded-xl transition-all duration-200 ${isUserMenuOpen ? 'bg-zinc-900' : 'hover:bg-zinc-900/50'
+            }`}
         >
           <div className="size-10 shrink-0 rounded-xl bg-gradient-to-br from-[#b8955a] to-[#8a6e3d] text-black font-bold flex items-center justify-center shadow-lg">
             {adminName.substring(0, 2).toUpperCase()}
@@ -102,11 +100,11 @@ export const AdminSidebar: React.FC = () => {
             <h4 className="text-sm font-bold text-white truncate">{adminName}</h4>
             <p className="text-[10px] text-zinc-400">admin@mercedes.vn</p>
           </div>
-          <ChevronUp 
-            className={`size-4 text-zinc-500 transition-transform duration-300 ${isUserMenuOpen ? 'rotate-180' : ''}`} 
+          <ChevronUp
+            className={`size-4 text-zinc-500 transition-transform duration-300 ${isUserMenuOpen ? 'rotate-180' : ''}`}
           />
         </button>
-        
+
       </div>
     </aside>
   );

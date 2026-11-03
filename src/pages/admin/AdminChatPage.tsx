@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Search,
   Send,
@@ -11,7 +11,6 @@ import {
   Smile,
   ShieldCheck,
   Car,
-  ChevronRight,
   Sparkles,
 } from 'lucide-react';
 
@@ -271,10 +270,16 @@ const quickReplies = [
 ];
 
 export const AdminChatPage: React.FC = () => {
+  const [isMounted, setIsMounted] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformType>('telegram');
   const [selectedId, setSelectedId] = useState<string>('tg-1');
   const [searchQuery, setSearchQuery] = useState('');
   const [inputText, setInputText] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsMounted(true), 40);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [messages, setMessages] = useState<Record<string, Message[]>>({
     'tg-1': [
@@ -368,12 +373,22 @@ export const AdminChatPage: React.FC = () => {
   return (
     <div className="flex flex-1 w-full h-full overflow-hidden bg-[#18181b] text-zinc-100 select-none min-w-0">
       {/* ================= 1. CỘT DỌC CÁC ỨNG DỤNG (Luxury Dock Bar) ================= */}
-      <aside className="w-[72px] bg-[#0c0d0e] border-r border-zinc-800/80 flex flex-col items-center pt-8 pb-5 justify-between shrink-0 z-20 shadow-2xl">
+      <aside
+        className={`w-[72px] bg-[#0c0d0e] border-r border-zinc-800/80 flex flex-col items-center pt-8 pb-5 justify-between shrink-0 z-20 shadow-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] transform ${
+          isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-full'
+        }`}
+      >
         <div className="flex flex-col items-center space-y-4 w-full">
-          {platforms.map((p) => {
+          {platforms.map((p, idx) => {
             const isActive = p.id === selectedPlatform;
             return (
-              <div key={p.id} className="relative group w-full flex justify-center">
+              <div
+                key={p.id}
+                style={{ transitionDelay: `${isMounted ? 80 + idx * 60 : 0}ms` }}
+                className={`relative group w-full flex justify-center transition-all duration-500 ease-out transform ${
+                  isMounted ? 'opacity-100 translate-x-0 scale-100' : 'opacity-0 -translate-x-4 scale-90'
+                }`}
+              >
                 {/* Active Indicator bar */}
                 {isActive && (
                   <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[#b8955a] rounded-r-full shadow-[0_0_12px_#b8955a]" />
@@ -410,9 +425,17 @@ export const AdminChatPage: React.FC = () => {
       </aside>
 
       {/* ================= 2. CỘT DANH SÁCH KHÁCH HÀNG (Tra cứu khách hàng) ================= */}
-      <aside className="w-72 md:w-80 lg:w-92 bg-[#8c8983] border-r border-[#7a7772] flex flex-col h-full shrink-0 shadow-inner">
+      <aside
+        className={`w-72 md:w-80 lg:w-92 bg-[#8c8983] border-r border-[#7a7772] flex flex-col h-full shrink-0 shadow-inner z-10 transition-all duration-700 delay-150 ease-[cubic-bezier(0.22,1,0.36,1)] transform ${
+          isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-12'
+        }`}
+      >
         {/* Header Search Box */}
-        <div className="p-4 bg-[#7a7771]/60 backdrop-blur-sm border-b border-[#6e6b66]/50">
+        <div
+          className={`p-4 bg-[#7a7771]/60 backdrop-blur-sm border-b border-[#6e6b66]/50 transition-all duration-500 delay-250 ease-out transform ${
+            isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-6'
+          }`}
+        >
           <div className="relative flex items-center">
             <Search className="absolute left-3.5 size-4 text-zinc-400 pointer-events-none" />
             <input
@@ -441,13 +464,16 @@ export const AdminChatPage: React.FC = () => {
               <span>Không tìm thấy khách hàng nào</span>
             </div>
           ) : (
-            filteredConversations.map((item) => {
+            filteredConversations.map((item, idx) => {
               const isSelected = item.id === selectedCustomer.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => setSelectedId(item.id)}
-                  className={`w-full group relative flex items-center gap-3.5 p-3 rounded-2xl text-left transition-all duration-200 ${
+                  style={{ transitionDelay: `${isMounted ? 200 + Math.min(idx, 8) * 40 : 0}ms` }}
+                  className={`w-full group relative flex items-center gap-3.5 p-3 rounded-2xl text-left transition-all duration-500 ease-out transform ${
+                    isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+                  } ${
                     isSelected
                       ? 'bg-[#c5a97d] shadow-[0_4px_16px_rgba(184,149,90,0.35)] border border-[#e2cca4]/60 text-white translate-x-1'
                       : 'hover:bg-black/15 text-zinc-100 hover:translate-x-0.5'
@@ -516,9 +542,17 @@ export const AdminChatPage: React.FC = () => {
       </aside>
 
       {/* ================= 3. CỘT PHẢI: KHUNG CHAT CHI TIẾT ================= */}
-      <main className="flex-1 min-w-0 flex flex-col h-full bg-[#f8f7f5] text-zinc-900 relative overflow-hidden">
+      <main
+        className={`flex-1 min-w-0 flex flex-col h-full bg-[#f8f7f5] text-zinc-900 relative overflow-hidden transition-all duration-700 delay-300 ease-[cubic-bezier(0.22,1,0.36,1)] transform ${
+          isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-16'
+        }`}
+      >
         {/* Header người đang chat */}
-        <header className="h-18 px-6 bg-[#ded6cd] border-b border-[#cfc4b8] flex items-center justify-between shadow-sm shrink-0 z-10">
+        <header
+          className={`h-18 px-6 bg-[#ded6cd] border-b border-[#cfc4b8] flex items-center justify-between shadow-sm shrink-0 z-10 transition-all duration-500 delay-[350ms] ease-out transform ${
+            isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+          }`}
+        >
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="size-12 rounded-full bg-gradient-to-br from-[#dfc399] to-[#ab8b54] text-zinc-950 flex items-center justify-center font-bold text-base shrink-0 shadow-md border border-[#9d7d45]">
@@ -582,7 +616,11 @@ export const AdminChatPage: React.FC = () => {
         </header>
 
         {/* Nội dung tin nhắn chat */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div
+          className={`flex-1 overflow-y-auto p-6 space-y-4 transition-all duration-500 delay-[450ms] ease-out transform ${
+            isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+          }`}
+        >
           {currentMessages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-zinc-400">
               <div className="size-16 rounded-3xl bg-[#ded6cd] flex items-center justify-center mb-3 text-zinc-600 shadow-inner">
@@ -634,7 +672,11 @@ export const AdminChatPage: React.FC = () => {
         </div>
 
         {/* Khung Gợi ý câu trả lời nhanh (Quick Replies) */}
-        <div className="px-6 pb-2 pt-1 flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <div
+          className={`px-6 pb-2 pt-1 flex items-center gap-2 overflow-x-auto no-scrollbar transition-all duration-500 delay-[550ms] ease-out transform ${
+            isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+          }`}
+        >
           <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-1 shrink-0">
             <Sparkles className="size-3 text-[#b8955a]" /> Gợi ý nhanh:
           </span>
@@ -650,7 +692,11 @@ export const AdminChatPage: React.FC = () => {
         </div>
 
         {/* Khung nhập văn bản chat ở đáy */}
-        <footer className="p-4 bg-[#e2ded9] border-t border-[#cfc4b8] shrink-0">
+        <footer
+          className={`p-4 bg-[#e2ded9] border-t border-[#cfc4b8] shrink-0 transition-all duration-500 delay-[650ms] ease-out transform ${
+            isMounted ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'
+          }`}
+        >
           <form
             onSubmit={(e) => {
               e.preventDefault();

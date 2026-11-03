@@ -7,12 +7,9 @@ import { DashboardRecentOrders } from '../../sections/admin/dashboard/DashboardR
 
 export const AdminDashboardPage: React.FC = () => {
   return (
-    <div className="flex-1 flex flex-col h-full bg-zinc-50 overflow-y-auto">
-      {/* Header thanh công cụ trên cùng */}
-      {/* <AdminHeader /> */}
-
+    <div className="flex-1 h-full overflow-y-auto min-h-0 bg-zinc-50">
       {/* Khung chứa các Section chính */}
-      <main className="p-8 overflow-hidden space-y-6">
+      <main className="p-8 pb-16 space-y-6">
         <DashboardTitle />
         <DashboardStatCards />
         <DashboardCharts />

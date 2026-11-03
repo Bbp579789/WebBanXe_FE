@@ -15,6 +15,9 @@ import { AdminLayout } from '../layouts/admin/AdminLayout';
 import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
 import { AdminChatPage } from '../pages/admin/AdminChatPage';
 
+import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
+import AdminCustomersPage from '../pages/admin/AdminCustomersPage';
+
 export const router = createBrowserRouter([
   // CÁC ROUTE CHO WEB USER
   {
@@ -84,6 +87,14 @@ export const router = createBrowserRouter([
       {
         path: 'dashboard',
         element: <AdminDashboardPage />,
+      },
+      {
+        path: 'orders',
+        element: <AdminOrdersPage />,
+      },
+      {
+        path: 'customers',
+        element: <AdminCustomersPage />,
       },
       {
         path: 'chat',
