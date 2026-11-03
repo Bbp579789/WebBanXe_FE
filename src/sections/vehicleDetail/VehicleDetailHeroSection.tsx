@@ -17,14 +17,16 @@ import { LoginDialog } from '../../components/common/header/LoginDialog';
 import { cartService } from '../../services/api/cartService';
 
 export const VehicleDetailHeroSection: React.FC = () => {
-  const {
-    vehicle,
-    isLoginOpen,
-    closeLogin,
-    handleBookTestDrive,
-    handleLoginSuccess,
-  } = useVehicleDetail(); // Đã xóa onDeposit, car ở đây để tránh trùng lặp biến
-  
+ const {
+  vehicle,
+  isLoginOpen,
+  closeLogin,
+  handleAddToCart,
+  handleBookTestDrive,
+  handleLoginSuccess,
+  cartLoading,
+} = useVehicleDetail();
+
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [selectedExterior, setSelectedExterior] = useState(
@@ -66,34 +68,42 @@ export const VehicleDetailHeroSection: React.FC = () => {
     { label: 'AMG Plaque', icon: 'shield', sub: 'AMG Plaque' },
   ];
 
-  // 1. LUỒNG XỬ LÝ: THÊM GIỎ HÀNG
-  const handleAddToCartClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (vehicle) {
-      cartService.addToCart(vehicle, quantity); // Truyền kèm quantity
-      setToast({
-        show: true,
-        message: 'Đã thêm thành công vào giỏ hàng!',
-        carName: `${brandName} ${modelName}`,
-      });
-    }
-  };
+    // Thêm xe vào giỏ hàng
+const handleAddToCartClick = async (e: React.MouseEvent) => {
+  e.stopPropagation();
 
- // LUỒNG XỬ LÝ: ĐẶT CỌC (MUA NGAY)
-  const handleDepositClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    
-    if (vehicle) {
-      // 1. Xóa sạch giỏ hàng cũ (để không bị dính các xe đã thêm trước đó)
-      cartService.clearCart();
-      
-      // 2. Thêm duy nhất chiếc xe này vào giỏ
-      cartService.addToCart(vehicle, quantity); 
-    }
-    
-    // 3. Chuyển thẳng sang trang thanh toán
-    navigate('/payment'); 
-  };
+  if (!vehicle) return;
+
+  const success = await handleAddToCart(vehicle, quantity);
+
+  if (success) {
+    setToast({
+      show: true,
+      message: 'Đã thêm thành công vào giỏ hàng!',
+      carName: `${brandName} ${modelName}`,
+    });
+  }
+};
+
+// Đặt cọc (mua ngay)
+const handleDepositClick = async (e: React.MouseEvent) => {
+  e.stopPropagation();
+
+  if (!vehicle) return;
+
+  // Chỉ chuyển sang thanh toán nếu thêm xe thành công
+  const success = await handleAddToCart(vehicle, quantity);
+
+  if (success) {
+    navigate('/payment', {
+      state: {
+        vehicle,
+        quantity,
+        depositAmount,
+      },
+    });
+  }
+};
 
   return (
     <>
@@ -304,23 +314,9 @@ export const VehicleDetailHeroSection: React.FC = () => {
             {/* Bộ chọn số lượng + Nút hành động */}
             <div className="space-y-3 pt-3 border-t border-zinc-100">
               <div className="flex items-center justify-between border border-zinc-200 rounded-xl px-4 py-2 bg-zinc-50 text-xs">
-                <span className="text-zinc-500 font-medium">Số lượng xe:</span>
+               
                 <div className="flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="text-zinc-500 hover:text-black font-bold px-2 py-0.5 rounded bg-white border border-zinc-200 transition cursor-pointer"
-                  >
-                    -
-                  </button>
-                  <span className="font-medium font-mono text-sm">{quantity} xe</span>
-                  <button
-                    type="button"
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="text-zinc-500 hover:text-black font-bold px-2 py-0.5 rounded bg-white border border-zinc-200 transition cursor-pointer"
-                  >
-                    +
-                  </button>
+                  
                 </div>
               </div>
 

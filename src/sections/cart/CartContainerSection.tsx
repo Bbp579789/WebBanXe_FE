@@ -206,29 +206,7 @@ export const CartContainerSection: React.FC = () => {
                   {/* CỤM NÚT TĂNG GIẢM SỐ LƯỢNG VÀ THÔNG TIN GIÁ */}
                   <div className="flex items-center gap-6 sm:gap-8 flex-wrap">
                     
-                    {/* Nút điều chỉnh số lượng */}
-                    <div>
-                      <span className="block text-[9px] font-mono text-zinc-400 uppercase tracking-widest font-semibold mb-1.5">
-                        SỐ LƯỢNG (XE)
-                      </span>
-                      <div className="flex items-center gap-1 border border-zinc-200/80 rounded-xl px-1 bg-white shadow-2xs h-10 w-max">
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateQuantity(vehicle, -1)}
-                          className="w-8 h-full flex items-center justify-center text-zinc-500 hover:text-black hover:bg-zinc-50 font-bold rounded-lg transition cursor-pointer"
-                        >
-                          -
-                        </button>
-                        <span className="font-medium font-mono text-sm w-6 text-center">{quantity}</span>
-                        <button
-                          type="button"
-                          onClick={() => handleUpdateQuantity(vehicle, 1)}
-                          className="w-8 h-full flex items-center justify-center text-zinc-500 hover:text-black hover:bg-zinc-50 font-bold rounded-lg transition cursor-pointer"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
+                    
 
                     {/* Tổng giá niêm yết */}
                     <div className="border-l border-zinc-200 pl-6 sm:pl-8">

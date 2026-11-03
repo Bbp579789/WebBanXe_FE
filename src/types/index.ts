@@ -30,7 +30,7 @@ export interface Vehicle {
   brand: string;
   model: string;
   year: number;
-  image_url: string;
+  image_url?: string | null;
   exterior_color: string;
   interior_color: string;
   cost_price: number | string;

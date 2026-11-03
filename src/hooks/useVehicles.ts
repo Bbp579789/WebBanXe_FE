@@ -46,7 +46,7 @@
 // }
 
 import { useState, useEffect, useMemo } from 'react';
-import { vehicleService } from '../services/api/vehicleService';
+import { getVehicles } from '../services/api/vehicleService';
 import type { VehicleCardItem } from '../types';
 
 export function useVehicles(initialBrand: 'mercedes' | 'amg' | 'maybach' = 'maybach') {
@@ -59,8 +59,7 @@ export function useVehicles(initialBrand: 'mercedes' | 'amg' | 'maybach' = 'mayb
   let isMounted = true;
   setIsLoading(true);
 
-  vehicleService
-    .getAllVehicles()
+  getVehicles()
     .then((data: any) => {
       if (isMounted) {
         const rawList = Array.isArray(data) ? data : data?.data || [];
