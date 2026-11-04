@@ -22,9 +22,17 @@ export const getAllContracts = async () => {
 
 // GET /api/v1/contracts/me
 // Lấy hợp đồng của user hiện tại
+// export const getMyContracts = async (): Promise<Contract[]> => {
+//   const response = await api.get("/contracts/me");
+//   return response.data.data;
+// };
+
 export const getMyContracts = async (): Promise<Contract[]> => {
   const response = await api.get("/contracts/me");
-  return response.data.data;
+
+  console.log("GET MY CONTRACTS:", response.data);
+
+  return response.data.data?.contracts ?? [];
 };
 
 // GET /api/v1/contracts/:id

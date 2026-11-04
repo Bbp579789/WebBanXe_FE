@@ -260,7 +260,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </span>
 
               <span className="font-sans text-xl font-bold text-zinc-950">
-                ${numericPrice.toLocaleString("en-US")}
+                {numericPrice.toLocaleString("en-US")} đ
               </span>
             </div>
 
@@ -270,7 +270,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </span>
 
               <span className="font-mono text-sm font-semibold text-[#b8955a]">
-                ${numericDeposit.toLocaleString("en-US")}
+                {numericDeposit.toLocaleString("en-US")} đ
               </span>
             </div>
           </div>
