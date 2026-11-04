@@ -1,9 +1,9 @@
 import React from 'react';
-import Header from '../components/common/Header';
-import Footer from '../components/common/Footer';
-import AIChatWidget from '../components/ai-chat/AIChatWidget';
-import { CartHeroSection } from '../sections/cart/CartHeroSection';
-import { CartContainerSection } from '../sections/cart/CartContainerSection';
+import Header from '../../components/common/Header';
+import Footer from '../../components/common/Footer';
+import AIChatWidget from '../../components/ai-chat/AIChatWidget';
+import { CartHeroSection } from '../../sections/cart/CartHeroSection';
+import { CartContainerSection } from '../../sections/cart/CartContainerSection';
 
 export const CartPage: React.FC = () => {
   return (

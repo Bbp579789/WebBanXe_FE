@@ -1,6 +1,6 @@
 import React from 'react';
-import { BannerSlider } from '../components/common/BannerSlider';
-import { VehicleListGrid } from '../sections/vehicle/VehicleListGrid';
+import { BannerSlider } from '../../components/common/BannerSlider';
+import { VehicleListGrid } from '../../sections/vehicle/VehicleListGrid';
 
 
 export const VehiclePage: React.FC = () => {

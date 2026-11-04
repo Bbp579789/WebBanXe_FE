@@ -76,7 +76,7 @@
 
 // src/hooks/useCart.ts
 import { useState, useEffect, useCallback } from 'react';
-import { cartService } from '../services/api/cartService';
+import { cartService } from '../services/api/user/cartService';
 import type { CartItem, Vehicle } from '../types';
 
 export const useCart = () => {

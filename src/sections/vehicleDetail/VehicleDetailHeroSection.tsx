@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { useVehicleDetail } from '../../hooks/useVehicleDetail';
 import { LoginDialog } from '../../components/common/header/LoginDialog';
-import { cartService } from '../../services/api/cartService';
+import { cartService } from '../../services/api/user/cartService';
 
 export const VehicleDetailHeroSection: React.FC = () => {
  const {

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Order } from '../../services/api/orderService';
+import type { Order } from '../../services/api/user/orderService';
 
 export const OrderListSection: React.FC<{ orders: Order[] }> = ({ orders }) => {
   if (orders.length === 0) {

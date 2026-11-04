@@ -72,8 +72,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "../../ui/icon";
-import { cartService } from "../../../services/api/cartService";
-import type { CartItem, CartResponse } from "../../../services/api/cartService";
+import { cartService } from "../../../services/api/user/cartService";
+import type { CartItem, CartResponse } from "../../../services/api/user/cartService";
 
 export interface HeaderCartProps {
   cartCount?: number;

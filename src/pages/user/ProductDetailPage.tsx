@@ -1,10 +1,10 @@
 // src/pages/ProductDetailPage.tsx
 import React from 'react';
-import Header from '../components/common/Header';
-import Footer from '../components/common/Footer';
-import AIChatWidget from '../components/ai-chat/AIChatWidget';
-import { VehicleDetailHeroSection } from '../sections/vehicleDetail/VehicleDetailHeroSection';
-import { VehicleDetailSpecsSection } from '../sections/vehicleDetail/VehicleDetailSpecsSection';
+import Header from '../../components/common/Header';
+import Footer from '../../components/common/Footer';
+import AIChatWidget from '../../components/ai-chat/AIChatWidget';
+import { VehicleDetailHeroSection } from '../../sections/vehicleDetail/VehicleDetailHeroSection';
+import { VehicleDetailSpecsSection } from '../../sections/vehicleDetail/VehicleDetailSpecsSection';
 
 export const ProductDetailPage: React.FC = () => {
   return (

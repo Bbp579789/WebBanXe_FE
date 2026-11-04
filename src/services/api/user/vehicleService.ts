@@ -17,8 +17,8 @@
 // export default vehicleService;
 
 
-import api from "./axios";
-import type { Vehicle } from "../../types";
+import api from "../axios";
+import type { Vehicle } from "../../../types";
 
 interface VehiclesResponse {
   message: string;

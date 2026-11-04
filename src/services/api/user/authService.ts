@@ -91,7 +91,7 @@
 // export default authService;
 
 
-import { apiClient } from "./apiClient";
+import { apiClient } from "./user/apiClient";
 
 export interface RegisterDTO {
   username?: string;

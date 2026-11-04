@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useVehicles } from './useVehicles';
 import type { Vehicle } from '../types';
-import { cartService } from '../services/api/cartService';
+import { cartService } from '../services/api/user/cartService';
 
 export function useVehicleDetail() {
   const { id } = useParams<{ id: string }>();

@@ -1,51 +1,39 @@
-import { useState } from 'react';
-import { askAiConcierge } from '../services/api/chatService';
-import type { ChatMessage } from '../types';
+import { useState } from "react";
+import type { ChatMessage } from "../types";
 
 export function useAIChat() {
-const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const sendMessage = async (text: string) => {
-    if (!text.trim() || isLoading) return;
+  // Phản hồi mẫu để kiểm tra giao diện, chưa gọi API
+  const sendMessage = (text: string) => {
+    const trimmedText = text.trim();
 
-    const timeString = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (!trimmedText || isLoading) return;
 
-    // 1. Thêm tin nhắn của khách vào UI
+    const timeString = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    // Tin nhắn khách hàng
     const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      sender: 'user',
-      content: text.trim(),
+      id: crypto.randomUUID(),
+      sender: "user",
+      content: trimmedText,
       timestamp: timeString,
     };
 
-    setMessages((prev) => [...prev, userMsg]);
-    setIsLoading(true);
+    // Phản hồi mẫu của chatbot
+    const botMsg: ChatMessage = {
+      id: crypto.randomUUID(),
+      sender: "bot",
+      content:
+        "Cảm ơn Quý khách đã quan tâm đến Maybach Atelier. Hiện tại tôi đang ở chế độ giới thiệu giao diện. Chức năng tư vấn AI sẽ sớm được cập nhật.",
+      timestamp: timeString,
+    };
 
-    try {
-      // 2. Gửi request đến AI backend
-      const reply = await askAiConcierge(text);
-
-      const botMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: 'bot',
-        content: reply || 'Hệ thống đang đồng bộ dữ liệu Atelier. Quý khách vui lòng thử lại sau.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-
-      setMessages((prev) => [...prev, botMsg]);
-    } catch (error) {
-      console.error('Lỗi phản hồi chatbot:', error);
-      const errorMsg: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: 'bot',
-        content: 'Chuyên viên AI đang bảo trì kết nối. Quý khách vui lòng liên hệ hotline để được hỗ trợ.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages((prev) => [...prev, errorMsg]);
-    } finally {
-      setIsLoading(false);
-    }
+    setMessages((prev) => [...prev, userMsg, botMsg]);
   };
 
   return {

@@ -134,8 +134,8 @@ import { useNavigate } from "react-router-dom";
 import type { Vehicle } from "../../types";
 import { ProductCard } from "../../components/product/ProductCard";
 import { LoginDialog } from "../../components/common/header/LoginDialog";
-import { getVehicles } from "../../services/api/vehicleService";
-import { cartService } from "../../services/api/cartService";
+import { getVehicles } from "../../services/api/user/vehicleService";
+import { cartService } from "../../services/api/user/cartService";
 
 export const MaybachShowcase: React.FC = () => {
   const navigate = useNavigate();

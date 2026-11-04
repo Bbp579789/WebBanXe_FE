@@ -46,7 +46,7 @@
 // }
 
 import { useState, useEffect, useMemo } from 'react';
-import { getVehicles } from '../services/api/vehicleService';
+import { getVehicles } from '../services/api/user/vehicleService';
 import type { VehicleCardItem } from '../types';
 
 export function useVehicles(initialBrand: 'mercedes' | 'amg' | 'maybach' = 'maybach') {

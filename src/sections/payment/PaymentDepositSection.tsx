@@ -1,215 +1,625 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { QrCode, Banknote, ShieldCheck, X, Loader2 } from 'lucide-react';
-import { cartService } from '../../services/api/cartService';
-import { orderService } from '../../services/api/orderService';
+// import React, { useState } from "react";
+// import {
+//   Loader2,
+//   CreditCard,
+//   ShieldCheck,
+//   AlertCircle,
+// } from "lucide-react";
 
-export const PaymentDepositSection: React.FC = () => {
-  const navigate = useNavigate();
-  
-  // 1. Khởi tạo giá trị null để mặc định chưa chọn phương thức nào
-  const [method, setMethod] = useState<'vnpay' | 'cash' | null>(null);
-  
-  // 2. Các State quản lý Popup VNPay
-  const [showVnpayPopup, setShowVnpayPopup] = useState(false);
-  const [loadingQr, setLoadingQr] = useState(false);
-  const [qrData, setQrData] = useState<string | null>(null);
+// import { useCart } from "../../hooks/useCart";
+// import { createContract } from "../../services/api/user/contractUserService";
+// import { createVNPayUrl } from "../../services/api/user/paymentUserService";
 
-  // Hàm xử lý khi click chọn VNPay
-  const handleSelectVnpay = async () => {
-    setMethod('vnpay');
-    setShowVnpayPopup(true);
+// interface Props {
+//   shippingAddress: string;
+//   customerName: string;
+//   customerEmail: string;
+//   customerPhone: string;
+//   purchaseType?: "cash" | "transaction";
+//   description?: string;
+//   onProcessingChange?: (processing: boolean, message: string) => void;
+// }
 
-    // Nếu đã có QR rồi thì không gọi lại API nữa để tránh giật lag
-    if (!qrData) {
-      setLoadingQr(true);
-      try {
-        // Dùng setTimeout để giả lập thời gian chờ Backend trả về QR Code (1.5 giây)
-        setTimeout(() => {
-          setQrData('https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg');
-          setLoadingQr(false);
-        }, 1500);
+// const extractContractId = (value: unknown): number | null => {
+//   if (!value || typeof value !== "object") return null;
+//   const data = value as Record<string, unknown>;
+//   const id = data.id ?? data.contract_id ?? data.contractId;
 
-      } catch (error) {
-        console.error("Lỗi lấy mã QR từ server", error);
-        setLoadingQr(false);
-      }
-    }
-  };
+//   if (typeof id === "number" && Number.isInteger(id) && id > 0) return id;
+//   if (typeof id === "string" && /^\d+$/.test(id)) {
+//     const parsed = Number(id);
+//     if (parsed > 0) return parsed;
+//   }
+//   return extractContractId(data.data) ?? extractContractId(data.contract);
+// };
 
-  // 3. HÀM QUAN TRỌNG: Hoàn tất đặt cọc, lưu đơn hàng, dọn giỏ hàng và chuyển sang trang Order
-  const handleCompletePayment = () => {
-    const cartItems = cartService.getCartItems();
-    if (cartItems.length === 0) {
-      alert("Giỏ hàng của bạn đang trống!");
+// const extractPaymentUrl = (value: unknown): string | null => {
+//   if (typeof value === "string" && value.trim()) return value.trim();
+//   if (!value || typeof value !== "object") return null;
+//   const data = value as Record<string, unknown>;
+//   const url = data.paymentUrl ?? data.payment_url ?? data.url;
+//   if (typeof url === "string" && url.trim()) return url.trim();
+//   return extractPaymentUrl(data.data);
+// };
+
+// export const PaymentDepositSection: React.FC<Props> = ({
+//   shippingAddress,
+//   customerName,
+//   customerEmail,
+//   customerPhone,
+//   purchaseType = "cash",
+//   description = "Đặt cọc mua xe",
+//   onProcessingChange,
+// }) => {
+//   const { cartItems } = useCart();
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+
+//   const handlePayment = async () => {
+//     if (loading) return;
+//     setError("");
+
+//     if (!cartItems?.length) {
+//       setError("Giỏ hàng đang trống.");
+//       return;
+//     }
+//     if (!shippingAddress.trim()) {
+//       setError("Vui lòng nhập địa chỉ nhận xe.");
+//       return;
+//     }
+
+//     const vehicleIds = cartItems.map((item) => Number(item.vehicle_id));
+//     if (vehicleIds.some((id) => !Number.isInteger(id) || id <= 0)) {
+//       setError("ID xe trong giỏ hàng không hợp lệ.");
+//       return;
+//     }
+
+//     const uniqueVehicleIds = [...new Set(vehicleIds)];
+
+//     try {
+//       setLoading(true);
+//       onProcessingChange?.(true, "Đang tạo hợp đồng...");
+
+//       // Backend là nơi tính tổng tiền và số tiền đặt cọc.
+//       const contractResponse = await createContract({
+//         vehicle_ids: uniqueVehicleIds,
+//         shipping_address: shippingAddress.trim(),
+//         purchase_type: purchaseType,
+//         description: [
+//           description,
+//           customerName.trim() ? `Khách hàng: ${customerName.trim()}` : "",
+//           customerPhone.trim() ? `SĐT: ${customerPhone.trim()}` : "",
+//           customerEmail.trim() ? `Email: ${customerEmail.trim()}` : "",
+//         ].filter(Boolean).join(" | "),
+//       });
+
+//       const contractId = extractContractId(contractResponse);
+//       if (!contractId) {
+//         throw new Error("Không lấy được ID hợp đồng từ phản hồi API.");
+//       }
+
+//       onProcessingChange?.(true, "Đang tạo URL thanh toán VNPay...");
+//       // paymentUserService nhận contractId kiểu number.
+//       const paymentResponse = await createVNPayUrl(contractId);
+//       const paymentUrl = extractPaymentUrl(paymentResponse);
+
+//       if (!paymentUrl) {
+//         throw new Error("Backend không trả về URL thanh toán VNPay.");
+//       }
+
+//       const parsedUrl = new URL(paymentUrl);
+//       if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+//         throw new Error("URL thanh toán không hợp lệ.");
+//       }
+
+//       onProcessingChange?.(true, "Đang chuyển hướng đến VNPay...");
+//       window.location.assign(parsedUrl.toString());
+//     } catch (err: unknown) {
+//       console.error("Payment error:", err);
+//       setError(
+//         err instanceof Error
+//           ? err.message
+//           : "Có lỗi xảy ra khi tạo thanh toán."
+//       );
+//       setLoading(false);
+//       onProcessingChange?.(false, "");
+//     }
+//   };
+
+//   return (
+//     <section className="rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-xs">
+//       <div className="mb-5 flex items-center gap-3">
+//         <div className="rounded-xl bg-amber-50 p-3">
+//           <CreditCard className="h-6 w-6 text-amber-600" />
+//         </div>
+//         <div>
+//           <h2 className="font-serif text-xl font-bold text-zinc-950">
+//             Đặt cọc trực tuyến
+//           </h2>
+//           <p className="text-sm text-zinc-500">
+//             Thanh toán an toàn qua cổng VNPay
+//           </p>
+//         </div>
+//       </div>
+
+//       <div className="mb-5 rounded-2xl bg-zinc-50 p-4">
+//         <div className="flex items-center gap-2">
+//           <ShieldCheck className="h-5 w-5 text-emerald-600" />
+//           <span className="text-sm font-semibold text-zinc-800">
+//             Thanh toán được bảo vệ
+//           </span>
+//         </div>
+//         <p className="mt-2 text-sm leading-6 text-zinc-500">
+//           Hệ thống tạo hợp đồng trước, sau đó yêu cầu backend tính số tiền
+//           đặt cọc và tạo liên kết thanh toán VNPay. Số tiền chính thức do
+//           backend xác định.
+//         </p>
+//       </div>
+
+//       <div className="mb-5 flex justify-between text-sm">
+//         <span className="text-zinc-500">Số xe trong giỏ hàng</span>
+//         <span className="font-semibold text-zinc-900">{cartItems.length}</span>
+//       </div>
+
+//       {error && (
+//         <div className="mb-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-700">
+//           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+//           <span>{error}</span>
+//         </div>
+//       )}
+
+//       <button
+//         type="button"
+//         onClick={handlePayment}
+//         disabled={loading || cartItems.length === 0}
+//         className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#b8955a] px-5 py-3.5 font-semibold text-white transition hover:bg-[#a17e45] disabled:cursor-not-allowed disabled:opacity-60"
+//       >
+//         {loading ? (
+//           <>
+//             <Loader2 className="h-5 w-5 animate-spin" />
+//             Đang xử lý...
+//           </>
+//         ) : (
+//           <>
+//             <CreditCard className="h-5 w-5" />
+//             Tạo hợp đồng và thanh toán VNPay
+//           </>
+//         )}
+//       </button>
+//     </section>
+//   );
+// };
+
+
+
+import React, { useState } from "react";
+import { useCart } from "../../hooks/useCart";
+import {
+  QrCode,
+  Banknote,
+  ShieldCheck,
+  Loader2,
+  AlertCircle,
+  CreditCard,
+} from "lucide-react";
+
+import { createContract } from "../../services/api/user/contractUserService";
+import { createVNPayUrl } from "../../services/api/user/paymentUserService";
+
+interface Props {
+  shippingAddress: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  purchaseType?: "cash" | "transaction";
+  description?: string;
+  onProcessingChange?: (processing: boolean, message: string) => void;
+}
+
+type PaymentMethod = "vnpay" | "cash" | null;
+
+const extractContractId = (value: unknown): number | null => {
+  if (!value || typeof value !== "object") return null;
+
+  const data = value as Record<string, unknown>;
+  const id = data.id ?? data.contract_id ?? data.contractId;
+
+  if (typeof id === "number" && Number.isInteger(id) && id > 0) {
+    return id;
+  }
+
+  if (typeof id === "string" && /^\d+$/.test(id)) {
+    const parsed = Number(id);
+    if (parsed > 0) return parsed;
+  }
+
+  return (
+    extractContractId(data.data) ??
+    extractContractId(data.contract)
+  );
+};
+
+const extractPaymentUrl = (value: unknown): string | null => {
+  if (typeof value === "string" && value.trim()) {
+    return value.trim();
+  }
+
+  if (!value || typeof value !== "object") return null;
+
+  const data = value as Record<string, unknown>;
+  const url = data.paymentUrl ?? data.payment_url ?? data.url;
+
+  if (typeof url === "string" && url.trim()) {
+    return url.trim();
+  }
+
+  return extractPaymentUrl(data.data);
+};
+
+export const PaymentDepositSection: React.FC<Props> = ({
+  shippingAddress,
+  customerName,
+  customerEmail,
+  customerPhone,
+  purchaseType = "cash",
+  description = "Đặt cọc mua xe",
+  onProcessingChange,
+}) => {
+  const { cartItems } = useCart();
+
+  const [method, setMethod] = useState<PaymentMethod>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Tạo hợp đồng và chuyển hướng sang VNPay
+  const handlePayment = async () => {
+    if (loading) return;
+
+    setError("");
+
+    if (method !== "vnpay") {
+      setError(
+        "Vui lòng chọn thanh toán VNPay. Thanh toán tiền mặt hiện chưa được tích hợp."
+      );
       return;
     }
 
-    // Tính tổng tiền giỏ hàng
-    const subtotal = cartItems.reduce((sum: number, item: any) => {
-      const vehicleObj = item?.vehicle || item?.car || item;
-      const price = Number(vehicleObj?.price) || 0;
-      return sum + (price * Number(item.quantity || 1));
-    }, 0);
-    
-    // Lưu đơn hàng chuẩn ERD vào storage của account hiện tại
-    orderService.createOrder(cartItems, method === 'vnpay' ? 'VNPAY' : 'CASH', subtotal);
+    if (!cartItems?.length) {
+      setError("Giỏ hàng của bạn đang trống.");
+      return;
+    }
 
-    // Dọn sạch giỏ hàng hiện tại sau khi đã tạo hợp đồng thành công
-    cartService.clearCart();
-    window.dispatchEvent(new Event('cartChange'));
+    if (!shippingAddress.trim()) {
+      setError("Vui lòng nhập địa chỉ nhận xe.");
+      return;
+    }
 
-    // Đóng popup và chuyển hướng sang trang OrderPage
-    setShowVnpayPopup(false);
-    navigate('/order');
+    const vehicleIds = cartItems.map((item) =>
+      Number(item.vehicle_id)
+    );
+
+    if (
+      vehicleIds.some(
+        (id) => !Number.isInteger(id) || id <= 0
+      )
+    ) {
+      setError("ID xe trong giỏ hàng không hợp lệ.");
+      return;
+    }
+
+    const uniqueVehicleIds = [...new Set(vehicleIds)];
+
+    try {
+      setLoading(true);
+      onProcessingChange?.(true, "Đang tạo hợp đồng...");
+
+      const contractResponse = await createContract({
+        vehicle_ids: uniqueVehicleIds,
+        shipping_address: shippingAddress.trim(),
+        purchase_type: purchaseType,
+        description: [
+          description,
+          customerName.trim()
+            ? `Khách hàng: ${customerName.trim()}`
+            : "",
+          customerPhone.trim()
+            ? `SĐT: ${customerPhone.trim()}`
+            : "",
+          customerEmail.trim()
+            ? `Email: ${customerEmail.trim()}`
+            : "",
+        ]
+          .filter(Boolean)
+          .join(" | "),
+      });
+
+      const contractId = extractContractId(contractResponse);
+
+      if (!contractId) {
+        throw new Error(
+          "Không lấy được ID hợp đồng từ phản hồi API."
+        );
+      }
+
+      onProcessingChange?.(
+        true,
+        "Đang tạo liên kết thanh toán VNPay..."
+      );
+
+      const paymentResponse = await createVNPayUrl(contractId);
+      const paymentUrl = extractPaymentUrl(paymentResponse);
+
+      if (!paymentUrl) {
+        throw new Error(
+          "Backend không trả về URL thanh toán VNPay."
+        );
+      }
+
+      const parsedUrl = new URL(paymentUrl);
+
+      if (
+        parsedUrl.protocol !== "https:" &&
+        parsedUrl.protocol !== "http:"
+      ) {
+        throw new Error("URL thanh toán không hợp lệ.");
+      }
+
+      onProcessingChange?.(
+        true,
+        "Đang chuyển hướng đến VNPay..."
+      );
+
+      window.location.assign(parsedUrl.toString());
+    } catch (err: unknown) {
+      console.error("Payment error:", err);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Có lỗi xảy ra khi tạo thanh toán."
+      );
+
+      setLoading(false);
+      onProcessingChange?.(false, "");
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* 1. Xác nhận xe */}
-      <div className="bg-white rounded-3xl border border-zinc-200/90 p-6 sm:p-8 shadow-xs">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="px-2 py-1 bg-zinc-100 text-[10px] font-mono font-bold text-zinc-800 rounded">MỤC 01 / 02</span>
-          <span className="text-[11px] font-mono text-[#b8955a] font-bold uppercase tracking-widest">Khóa số VIN</span>
+      {/* MỤC 01: XÁC NHẬN HỒ SƠ */}
+      <section className="rounded-3xl border border-zinc-200/90 bg-white p-6 shadow-xs sm:p-8">
+        <div className="mb-6 flex items-center gap-3">
+          <span className="rounded bg-zinc-100 px-2 py-1 text-[10px] font-mono font-bold text-zinc-800">
+            MỤC 01 / 02
+          </span>
+
+          <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#b8955a]">
+            Khóa số VIN
+          </span>
         </div>
-        <h2 className="text-xl font-serif font-bold text-zinc-950 mb-1">
+
+        <h2 className="mb-1 font-serif text-xl font-bold text-zinc-950">
           1. Xác Nhận Hồ Sơ Đặt Cọc
         </h2>
-        <div className="mt-4 p-4 border border-emerald-200 bg-emerald-50 rounded-xl flex items-center gap-3 text-xs text-emerald-800">
-          <ShieldCheck className="size-4 shrink-0" />
-          <span>Đã khóa độc quyền số khung VIN trong 14 ngày làm việc trên toàn hệ thống nhà máy Valoir Atelier.</span>
-        </div>
-      </div>
 
-      {/* 2. Thanh toán */}
-      <div className="bg-white rounded-3xl border border-zinc-200/90 p-6 sm:p-8 shadow-xs">
-        <div className="flex items-center gap-3 mb-6">
-          <span className="px-2 py-1 bg-zinc-100 text-[10px] font-mono font-bold text-zinc-800 rounded">MỤC 02 / 02</span>
-          <span className="text-[11px] font-mono text-[#b8955a] font-bold uppercase tracking-widest">Ký quỹ bảo lãnh</span>
-        </div>
-        <h2 className="text-xl font-serif font-bold text-zinc-950 mb-6">2. Phương Thức Thanh Toán Ký Quỹ</h2>
+        <p className="mb-5 text-xs text-zinc-500">
+          Kiểm tra thông tin trước khi tiến hành thanh toán.
+        </p>
 
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          {/* Nút VNPay */}
-          <div 
-            onClick={handleSelectVnpay}
-            className={`p-4 rounded-2xl border-2 cursor-pointer transition ${method === 'vnpay' ? 'border-zinc-900 bg-white shadow-sm' : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'}`}
-          >
-            <QrCode className={`size-6 mb-2 ${method === 'vnpay' ? 'text-zinc-900' : 'text-zinc-400'}`} />
-            <h3 className={`text-sm font-bold ${method === 'vnpay' ? 'text-zinc-900' : 'text-zinc-600'}`}>Chuyển khoản VNPay</h3>
-            <p className="text-[10px] text-zinc-500 mt-1">Khớp tự động trong 30 giây</p>
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800">
+          <ShieldCheck className="size-5 shrink-0" />
+
+          <span>
+            Thông tin xe và hồ sơ đặt cọc sẽ được gửi đến hệ thống
+            để tạo hợp đồng.
+          </span>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          <div className="flex justify-between border-b border-zinc-100 pb-3 text-sm">
+            <span className="text-zinc-500">
+              Số xe trong giỏ hàng
+            </span>
+
+            <span className="font-semibold text-zinc-900">
+              {cartItems.length} xe
+            </span>
           </div>
 
-          {/* Nút Tiền mặt */}
-          <div 
-            onClick={() => setMethod('cash')}
-            className={`p-4 rounded-2xl border-2 cursor-pointer transition ${method === 'cash' ? 'border-zinc-900 bg-white shadow-sm' : 'border-zinc-200 bg-zinc-50 hover:border-zinc-300'}`}
-          >
-            <Banknote className={`size-6 mb-2 ${method === 'cash' ? 'text-zinc-900' : 'text-zinc-400'}`} />
-            <h3 className={`text-sm font-bold ${method === 'cash' ? 'text-zinc-900' : 'text-zinc-600'}`}>Thanh toán Tiền mặt</h3>
-            <p className="text-[10px] text-zinc-500 mt-1">Tại Showroom Atelier</p>
+          <div className="flex justify-between border-b border-zinc-100 pb-3 text-sm">
+            <span className="text-zinc-500">
+              Người đứng tên
+            </span>
+
+            <span className="max-w-[60%] text-right font-semibold text-zinc-900">
+              {customerName || "Chưa cập nhật"}
+            </span>
+          </div>
+
+          <div className="flex justify-between text-sm">
+            <span className="text-zinc-500">
+              Phương thức nhận xe
+            </span>
+
+            <span className="max-w-[60%] text-right font-semibold text-zinc-900">
+              {shippingAddress || "Chưa cập nhật"}
+            </span>
           </div>
         </div>
+      </section>
 
-        {/* Khối hiển thị chi tiết theo Method được chọn (hiển thị trên trang) */}
-        <div className="p-6 rounded-2xl bg-zinc-50 border border-zinc-200/80 min-h-[160px] flex items-center justify-center">
-          {!method && (
-            <p className="text-sm text-zinc-400">Vui lòng chọn 1 trong 2 phương thức thanh toán ở trên.</p>
-          )}
+      {/* MỤC 02: PHƯƠNG THỨC THANH TOÁN */}
+      <section className="rounded-3xl border border-zinc-200/90 bg-white p-6 shadow-xs sm:p-8">
+        <div className="mb-6 flex items-center gap-3">
+          <span className="rounded bg-zinc-100 px-2 py-1 text-[10px] font-mono font-bold text-zinc-800">
+            MỤC 02 / 02
+          </span>
 
-          {method === 'vnpay' && (
-            <div className="text-center w-full">
-              <QrCode className="size-10 text-zinc-900 mx-auto mb-3" />
-              <h3 className="text-sm font-bold text-zinc-900">Đã chọn Chuyển khoản VNPay</h3>
-              <p className="text-xs text-zinc-500 mt-2 mb-4">Mã QR đã được tạo cho đơn hàng của bạn.</p>
-              <button 
-                onClick={() => setShowVnpayPopup(true)}
-                className="px-5 py-2 bg-zinc-900 text-white text-xs font-bold rounded-lg hover:bg-zinc-800 transition cursor-pointer"
-              >
-                Hiển thị lại mã QR
-              </button>
-            </div>
-          )}
-
-          {method === 'cash' && (
-            <div className="text-center w-full py-4">
-              <Banknote className="size-10 text-zinc-300 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-zinc-900">Thanh toán trực tiếp bằng Tiền mặt</h3>
-              <p className="text-xs text-zinc-500 mt-2 mb-4 max-w-sm mx-auto">
-                Vui lòng xác nhận đơn hàng, sau đó đến trực tiếp Atelier Lounge để thực hiện thủ tục đóng cọc bằng tiền mặt và ký hợp đồng.
-              </p>
-              {/* NÚT XÁC NHẬN CHO TIỀN MẶT */}
-              {/* <button 
-                
-                className="px-6 py-2.5 bg-zinc-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-zinc-800 transition cursor-pointer"
-              >
-                Xác Nhận Đặt Hàng (Tiền Mặt)
-              </button> */}
-            </div>
-          )}
+          <span className="text-[11px] font-mono font-bold uppercase tracking-widest text-[#b8955a]">
+            Ký quỹ bảo lãnh
+          </span>
         </div>
-      </div>
 
-      {/* POPUP HIỂN THỊ MÃ QR VNPAY KHI ĐƯỢC KÍCH HOẠT */}
-      {showVnpayPopup && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div 
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity" 
-            onClick={() => setShowVnpayPopup(false)}
-          ></div>
-          
-          <div className="relative bg-white w-full max-w-md rounded-[28px] p-8 shadow-2xl z-10 animate-in fade-in zoom-in-95 duration-200">
-            {/* Nút đóng Popup */}
-            <button 
-              onClick={() => setShowVnpayPopup(false)}
-              className="absolute top-5 right-5 text-zinc-400 hover:text-zinc-800 transition"
+        <h2 className="mb-6 font-serif text-xl font-bold text-zinc-950">
+          2. Phương Thức Thanh Toán Ký Quỹ
+        </h2>
+
+        {/* LỰA CHỌN PHƯƠNG THỨC */}
+        <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          {/* VNPAY */}
+          <button
+            type="button"
+            onClick={() => {
+              setMethod("vnpay");
+              setError("");
+            }}
+            aria-pressed={method === "vnpay"}
+            className={`rounded-2xl border-2 p-4 text-left transition ${
+              method === "vnpay"
+                ? "border-zinc-900 bg-white shadow-sm"
+                : "border-zinc-200 bg-zinc-50 hover:border-zinc-300"
+            }`}
+          >
+            <QrCode
+              className={`mb-2 size-6 ${
+                method === "vnpay"
+                  ? "text-zinc-900"
+                  : "text-zinc-400"
+              }`}
+            />
+
+            <h3
+              className={`text-sm font-bold ${
+                method === "vnpay"
+                  ? "text-zinc-900"
+                  : "text-zinc-600"
+              }`}
             >
-              <X className="size-5" />
-            </button>
+              Chuyển khoản VNPay
+            </h3>
 
-            <div className="text-center mb-6">
-              <h3 className="text-xl font-serif font-bold text-zinc-900">Quét Mã VNPay</h3>
-              <p className="text-xs text-zinc-500 mt-1">Sử dụng App Ngân hàng hoặc VNPay để thanh toán</p>
-            </div>
+            <p className="mt-1 text-[10px] text-zinc-500">
+              Thanh toán trực tuyến an toàn
+            </p>
+          </button>
 
-            {loadingQr ? (
-              <div className="h-64 flex flex-col items-center justify-center bg-zinc-50 rounded-2xl border border-zinc-200 border-dashed">
-                <Loader2 className="size-8 text-zinc-900 animate-spin mb-3" />
-                <p className="text-xs font-medium text-zinc-500">Đang khởi tạo mã QR từ Backend...</p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center space-y-5">
-                <div className="size-56 bg-white p-3 rounded-2xl border border-zinc-200 shadow-md">
-                  <img src={qrData!} alt="QR VNPay" className="w-full h-full object-contain" />
-                </div>
-                
-                <div className="w-full space-y-3 bg-zinc-50 p-5 rounded-2xl border border-zinc-100">
-                  <div className="flex justify-between items-center border-b border-zinc-200/60 pb-2">
-                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wide">Ngân hàng</span>
-                    <span className="text-xs font-bold text-zinc-900">Vietcombank - VNPay</span>
-                  </div>
-                  <div className="flex justify-between items-center border-b border-zinc-200/60 pb-2">
-                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wide">Số tài khoản</span>
-                    <span className="text-sm font-mono font-bold text-zinc-900">9999 8888 6868</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-wide">Nội dung</span>
-                    <span className="text-xs font-mono font-bold text-[#b8955a] bg-[#b8955a]/10 px-2 py-0.5 rounded">VLX DEP 9921</span>
-                  </div>
-                </div>
+          {/* TIỀN MẶT */}
+          <button
+            type="button"
+            onClick={() => {
+              setMethod("cash");
+              setError("");
+            }}
+            aria-pressed={method === "cash"}
+            className={`rounded-2xl border-2 p-4 text-left transition ${
+              method === "cash"
+                ? "border-zinc-900 bg-white shadow-sm"
+                : "border-zinc-200 bg-zinc-50 hover:border-zinc-300"
+            }`}
+          >
+            <Banknote
+              className={`mb-2 size-6 ${
+                method === "cash"
+                  ? "text-zinc-900"
+                  : "text-zinc-400"
+              }`}
+            />
 
-                {/* NÚT KHI ĐÃ QUÉT VÀ THANH TOÁN XONG QUA VNPAY */}
-                {/* <button 
-            
-                  className="w-full h-12 bg-zinc-900 text-white rounded-full text-xs font-bold uppercase tracking-widest hover:bg-zinc-800 transition cursor-pointer"
-                >
-                  Tôi đã thanh toán xong
-                </button> */}
-              </div>
-            )}
-          </div>
+            <h3
+              className={`text-sm font-bold ${
+                method === "cash"
+                  ? "text-zinc-900"
+                  : "text-zinc-600"
+              }`}
+            >
+              Thanh toán tiền mặt
+            </h3>
+
+            <p className="mt-1 text-[10px] text-zinc-500">
+              Tại Showroom Atelier
+            </p>
+          </button>
         </div>
-      )}
+
+        {/* CHI TIẾT PHƯƠNG THỨC */}
+        <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-zinc-200/80 bg-zinc-50 p-6">
+          {!method && (
+            <p className="text-center text-sm text-zinc-400">
+              Vui lòng chọn một trong hai phương thức thanh toán.
+            </p>
+          )}
+
+          {method === "vnpay" && (
+            <div className="w-full text-center">
+              <QrCode className="mx-auto mb-3 size-10 text-zinc-900" />
+
+              <h3 className="text-sm font-bold text-zinc-900">
+                Đã chọn Chuyển khoản VNPay
+              </h3>
+
+              <p className="mb-4 mt-2 text-xs leading-relaxed text-zinc-500">
+                Hệ thống sẽ tạo hợp đồng, sau đó chuyển Quý khách
+                đến cổng thanh toán VNPay.
+              </p>
+
+              <div className="mx-auto flex max-w-sm items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-left text-xs text-emerald-800">
+                <ShieldCheck className="size-4 shrink-0" />
+                Thanh toán được xử lý qua cổng VNPay.
+              </div>
+            </div>
+          )}
+
+          {method === "cash" && (
+            <div className="w-full py-4 text-center">
+              <Banknote className="mx-auto mb-3 size-10 text-zinc-300" />
+
+              <h3 className="text-base font-bold text-zinc-900">
+                Thanh toán trực tiếp bằng tiền mặt
+              </h3>
+
+              <p className="mx-auto mb-4 mt-2 max-w-sm text-xs leading-relaxed text-zinc-500">
+                Quý khách vui lòng đến Atelier Lounge để thực hiện
+                thủ tục đặt cọc bằng tiền mặt và ký hợp đồng.
+              </p>
+
+              <p className="text-[11px] font-medium text-amber-700">
+                Chức năng xác nhận thanh toán tiền mặt chưa được
+                tích hợp với backend.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* LỖI */}
+        {error && (
+          <div className="mt-4 flex items-start gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-700">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* NÚT THANH TOÁN */}
+        <button
+          type="button"
+          onClick={handlePayment}
+          disabled={loading || cartItems.length === 0 || method !== "vnpay"}
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#b8955a] px-5 py-3.5 font-semibold text-white transition hover:bg-[#a17e45] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="size-5 animate-spin" />
+              Đang xử lý...
+            </>
+          ) : (
+            <>
+              <CreditCard className="size-5" />
+              Xác Nhận Và Thanh Toán VNPay
+            </>
+          )}
+        </button>
+      </section>
     </div>
   );
 };
+
+export default PaymentDepositSection;

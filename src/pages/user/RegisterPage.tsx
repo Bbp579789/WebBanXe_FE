@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Card, CardContent } from '../components/ui/card';
-import { Icon } from '../components/ui/icon';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Card, CardContent } from '../../components/ui/card';
+import { Icon } from '../../components/ui/icon';
 import { Eye, EyeOff } from 'lucide-react';
 
 export const RegisterPage: React.FC = () => {
@@ -49,7 +49,7 @@ export const RegisterPage: React.FC = () => {
       const uniqueUsername = `${emailPrefix}${Math.floor(1000 + Math.random() * 9000)}`;
 
       // 1. Gọi API đăng ký tài khoản với payload chuẩn
-      await axios.post('http://localhost:3000/api/v1/auth/register', {
+      await axios.post('https://api.mercedezstudy.net/api/v1/auth/register', {
         username: uniqueUsername,
         email: cleanEmail,
         full_name: fullName,
