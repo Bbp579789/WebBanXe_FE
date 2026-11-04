@@ -9,7 +9,7 @@ import { VehiclePage } from '../pages/user/VehiclePage';
 import { PaymentPage } from '../pages/user/PaymentPage';
 import { OrderPage } from '../pages/user/OrderPage';
 import { CheckoutPage } from '../pages/user/CheckoutPage';
-import { VNPayReturnPage } from '../pages/user/VNPayReturnPage';
+import VNPayReturnPage from '../pages/user/VNPayReturnPage';
 
 export const router = createBrowserRouter([
   {
@@ -51,7 +51,7 @@ export const router = createBrowserRouter([
     element: <CheckoutPage />,
   },
   {
-    path: 'vnpay-return',
+    path: "/payments/vnpay/return",
     element: <VNPayReturnPage />,
   },
   {

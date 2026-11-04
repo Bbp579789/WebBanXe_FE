@@ -363,6 +363,14 @@ export const PaymentDepositSection: React.FC<Props> = ({
       ) {
         throw new Error("URL thanh toán không hợp lệ.");
       }
+      
+      // KIỂM TRA URL RETURN CỦA VNPAY
+      const returnUrl = parsedUrl.searchParams.get("vnp_ReturnUrl");
+
+console.log("========== VNPAY DEBUG ==========");
+console.log("Payment URL:", parsedUrl.origin + parsedUrl.pathname);
+console.log("VNPay Return URL:", returnUrl);
+console.log("=================================");
 
       onProcessingChange?.(
         true,
