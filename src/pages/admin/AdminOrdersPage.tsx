@@ -584,11 +584,40 @@ useEffect(() => {
   };
 
   // Chỉ cập nhật UI, chưa gọi API cập nhật trạng thái Backend.
-  const handleUpdateOrderStatus = (
-    orderId: string,
-    newStatus: Exclude<AdminOrderStatus, 'all'>,
-    timelineStep: 1 | 2 | 3 | 4
-  ) => {
+  const handleUpdateOrderStatus = async (
+  orderId: string,
+  newStatus: Exclude<AdminOrderStatus, 'all'>,
+  timelineStep: 1 | 2 | 3 | 4
+) => {
+  try {
+    const statusPayload = {
+      deposited: {
+        contract_status: 'pending',
+        delivery_state: 'in_progress',
+      },
+      delivering: {
+        contract_status: 'active',
+        delivery_state: 'shipping',
+      },
+      completed: {
+        contract_status: 'completed',
+        delivery_state: 'delivered',
+      },
+      cancelled: {
+        contract_status: 'cancelled',
+        delivery_state: 'cancelled',
+      },
+    } as const;
+
+    const payload = statusPayload[newStatus];
+
+    // Cập nhật trạng thái xuống Backend
+    await contractService.updateContract(
+      Number(orderId),
+      payload
+    );
+
+    // Chỉ cập nhật giao diện sau khi Backend thành công
     setOrders((previous) =>
       previous.map((order) =>
         order.id === orderId
@@ -610,7 +639,19 @@ useEffect(() => {
           }
         : previous
     );
-  };
+
+    // Tải lại dữ liệu từ Backend để đồng bộ
+    await fetchOrders();
+
+  } catch (error: any) {
+    console.error('Update order status error:', error);
+
+    alert(
+      error?.response?.data?.message ||
+      'Không thể cập nhật trạng thái đơn hàng.'
+    );
+  }
+};
 
   // ==========================================================
   // STAT CARDS

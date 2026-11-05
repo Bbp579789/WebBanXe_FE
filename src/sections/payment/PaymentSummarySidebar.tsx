@@ -62,7 +62,7 @@ export const PaymentSummarySidebar: React.FC<Props> = ({
         )}
       </div>
 
-      <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200/80 space-y-2 text-center mb-6">
+      {/* <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200/80 space-y-2 text-center mb-6">
         <div className="text-[11px] font-mono text-zinc-500 uppercase font-bold tracking-wider">
           SỐ TIỀN ĐẶT CỌC
         </div>
@@ -72,7 +72,7 @@ export const PaymentSummarySidebar: React.FC<Props> = ({
         <p className="text-[10px] text-zinc-500">
           Số tiền chính thức được backend xác định khi tạo hợp đồng.
         </p>
-      </div>
+      </div> */}
 
       <div className="space-y-3">
         {step === 1 ? (

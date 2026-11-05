@@ -505,7 +505,7 @@ const OrderListSection: React.FC<Props> = ({
 
             {/* Footer */}
             <div className="flex justify-end px-5 py-4 border-t border-gray-100">
-              <button
+              {/* <button
                 type="button"
                 onClick={() =>
                   navigate(`/contracts/${contract.id}`)
@@ -514,7 +514,7 @@ const OrderListSection: React.FC<Props> = ({
               >
                 <Eye size={16} />
                 Xem chi tiết
-              </button>
+              </button> */}
             </div>
           </div>
         );

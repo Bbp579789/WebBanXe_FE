@@ -590,10 +590,7 @@ console.log("=================================");
                 thủ tục đặt cọc bằng tiền mặt và ký hợp đồng.
               </p>
 
-              <p className="text-[11px] font-medium text-amber-700">
-                Chức năng xác nhận thanh toán tiền mặt chưa được
-                tích hợp với backend.
-              </p>
+              
             </div>
           )}
         </div>

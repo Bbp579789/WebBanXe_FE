@@ -22,7 +22,7 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
     if (isOpen) {
       const savedEmail = sessionStorage.getItem('registeredEmail');
       const savedMsg = sessionStorage.getItem('registerSuccess');
-      
+
       if (savedEmail) {
         setAccount(savedEmail);
         sessionStorage.removeItem('registeredEmail'); // Dùng xong thì xóa
@@ -60,14 +60,14 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
         password: password.trim()
       });
 
-    // Lấy Token và User từ Response (Tùy cấu trúc Backend trả về)
+      // Lấy Token và User từ Response (Tùy cấu trúc Backend trả về)
       const token = res.data?.token || res.data?.data?.token;
       const user = res.data?.user || res.data?.data?.user;
 
       if (token) {
         localStorage.setItem('access_token', token);
       }
-      
+
       // 1. Lấy thông tin Tên
       const userName = user?.full_name || user?.name || account.trim().split('@')[0];
       localStorage.setItem('userName', userName);
@@ -78,17 +78,17 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
 
       // 3. Cập nhật lại UI Header (Đổi nút Đăng nhập thành Avatar/Tên)
       window.dispatchEvent(new Event('authChange'));
-      
+
       // 4. Cập nhật lại Giỏ hàng (Đổi từ giỏ hàng khách sang giỏ hàng của user này)
       window.dispatchEvent(new Event('cartChange'));
- 
+
       onLoginSuccess(userName);
       onClose();
     } catch (err: any) {
       console.error('Lỗi đăng nhập:', err?.response?.data);
-      const backendMessage = 
-        err?.response?.data?.error || 
-        err?.response?.data?.message || 
+      const backendMessage =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
         'Tài khoản hoặc mật khẩu không chính xác!';
       setError(backendMessage);
     } finally {
@@ -183,9 +183,8 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
                   required
-                  className={`w-full h-13 pl-4 pr-12 text-sm rounded-xl bg-zinc-100/90 text-zinc-900 placeholder:text-zinc-500 border border-transparent focus:border-zinc-300 focus:bg-white focus:outline-none transition [&::-ms-reveal]:hidden [&::-ms-clear]:hidden ${
-                    showPassword ? 'tracking-normal font-sans' : 'tracking-widest font-mono'
-                  }`}
+                  className={`w-full h-13 pl-4 pr-12 text-sm rounded-xl bg-zinc-100/90 text-zinc-900 placeholder:text-zinc-500 border border-transparent focus:border-zinc-300 focus:bg-white focus:outline-none transition [&::-ms-reveal]:hidden [&::-ms-clear]:hidden ${showPassword ? 'tracking-normal font-sans' : 'tracking-widest font-mono'
+                    }`}
                 />
                 <button
                   type="button"
@@ -212,13 +211,55 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
               <p className="text-xs text-rose-500 font-medium px-1 pt-1">{error}</p>
             )}
 
-            <div className="pt-2">
+            {/* <div className="pt-2">
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full h-12 rounded-full bg-[#af8d55] hover:bg-[#9d7d49] active:scale-[0.99] text-white font-semibold text-sm transition-all duration-200 shadow-md shadow-[#af8d55]/20 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {loading ? 'Authenticating...' : 'Log In'}
+              </button>
+            </div>
+             */}
+
+
+            <div className="pt-2 space-y-4">
+              {/* Nút đăng nhập bằng Email */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 rounded-full bg-[#af8d55] hover:bg-[#9d7d49] active:scale-[0.99] text-white font-semibold text-sm transition-all duration-200 shadow-md shadow-[#af8d55]/20 cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Authenticating...' : 'Đăng nhập'}
+              </button>
+
+              {/* Đường phân cách */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 h-px bg-zinc-200" />
+                <span className="text-[10px] font-semibold tracking-wider text-zinc-400 uppercase whitespace-nowrap">
+                  Hoặc đăng nhập qua
+                </span>
+                <div className="flex-1 h-px bg-zinc-200" />
+              </div>
+
+              {/* Nút Telegram */}
+              <button
+                type="button"
+                onClick={() => {
+                  // TODO: Gọi hàm xử lý đăng nhập Telegram
+                }}
+                className="w-full h-12 rounded-full border border-[#229ED9]/30 bg-[#229ED9]/5 hover:bg-[#229ED9]/10 hover:border-[#229ED9] text-[#229ED9] font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.99] cursor-pointer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path d="M21.8 3.2a1.5 1.5 0 0 0-1.6-.2L2.7 9.8c-1.2.5-1.2 1.3-.2 1.6l4.5 1.4 1.7 5.3c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.2-2.2 4.6 3.4c.9.5 1.5.2 1.7-.8l3-14.1c.2-.8-.1-1.3-.1-1.5ZM8.2 12.5l9.5-6c.5-.3.9-.1.5.2l-7.8 7.1-.3 3.2-1.9-4.5Z" />
+                </svg>
+
+                <span>Đăng nhập với Telegram</span>
               </button>
             </div>
 

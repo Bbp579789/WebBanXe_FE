@@ -12,7 +12,7 @@ export function useContracts() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [loading, setLoading] = useState(true);
 
-  // Kiểm tra đăng nhập và lấy danh sách hợp đồng
+  // Kiểm tra đăng nhập và tự động đồng bộ danh sách hợp đồng
   useEffect(() => {
     const userName = localStorage.getItem("userName");
 
@@ -23,31 +23,51 @@ export function useContracts() {
         window.dispatchEvent(new Event("openLoginDialog"));
       }, 300);
 
+      setLoading(false);
       return;
     }
 
-   const fetchContracts = async () => {
-  try {
-    setLoading(true);
+    let isMounted = true;
+    let isFetching = false;
 
-    const data = await getMyContracts();
+    const fetchContracts = async () => {
+      // Tránh gọi API chồng chéo khi lần trước chưa hoàn thành
+      if (isFetching) return;
 
-    console.log("CONTRACTS ARRAY:", data);
+      isFetching = true;
 
-    setContracts(data);
-  } catch (error: any) {
-    console.error(
-      "Lỗi lấy danh sách hợp đồng:",
-      error.response?.data || error
-    );
+      try {
+        const data = await getMyContracts();
 
-    setContracts([]);
-  } finally {
-    setLoading(false);
-  }
-};
+        if (isMounted) {
+          console.log("CONTRACTS ARRAY:", data);
 
+          setContracts(Array.isArray(data) ? data : []);
+        }
+      } catch (error: any) {
+        console.error(
+          "Lỗi lấy danh sách hợp đồng:",
+          error.response?.data || error
+        );
+      } finally {
+        isFetching = false;
+
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    // Tải dữ liệu ngay khi mở trang
     fetchContracts();
+
+    // Tự động đồng bộ sau mỗi 10 giây
+    const interval = window.setInterval(fetchContracts, 10000);
+
+    return () => {
+      isMounted = false;
+      window.clearInterval(interval);
+    };
   }, [navigate]);
 
   // Lọc hợp đồng
