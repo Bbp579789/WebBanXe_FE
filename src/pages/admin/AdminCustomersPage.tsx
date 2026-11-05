@@ -572,7 +572,7 @@
 // export default AdminCustomersPage;
 
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect  } from "react";
 import {
   Plus,
   Search,
@@ -606,6 +606,8 @@ const AdminCustomersPage: React.FC = () => {
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+const [pageSize, setPageSize] = useState(10);
 
   const [selectedCustomer, setSelectedCustomer] =
     useState<AdminCustomer | null>(null);
@@ -627,7 +629,42 @@ const AdminCustomersPage: React.FC = () => {
         .includes(keyword)
     );
   }, [customers, search]);
+const totalCustomers = filteredCustomers.length;
 
+const totalPages = Math.max(
+  1,
+  Math.ceil(totalCustomers / pageSize)
+);
+
+const paginatedCustomers = useMemo(() => {
+  const startIndex = (currentPage - 1) * pageSize;
+
+  return filteredCustomers.slice(
+    startIndex,
+    startIndex + pageSize
+  );
+}, [filteredCustomers, currentPage, pageSize]);
+
+const startItem =
+  totalCustomers === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+
+const endItem = Math.min(
+  currentPage * pageSize,
+  totalCustomers
+);
+
+// Khi tìm kiếm hoặc thay đổi bộ lọc, quay về trang đầu
+useEffect(() => {
+  setCurrentPage(1);
+}, [search, pageSize]);
+
+// Nếu xóa khách hàng khiến trang hiện tại không còn dữ liệu,
+// tự động quay về trang hợp lệ gần nhất.
+useEffect(() => {
+  if (currentPage > totalPages) {
+    setCurrentPage(totalPages);
+  }
+}, [currentPage, totalPages]);
   const handleAddCustomer = (customer: AdminCustomer) => {
     setCustomers((prev) => [...prev, customer]);
   };
@@ -813,7 +850,7 @@ const AdminCustomersPage: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                filteredCustomers.map((customer) => (
+                paginatedCustomers.map((customer) => (
                   <tr
                     key={customer.id}
                     className="transition-colors hover:bg-zinc-50"
@@ -878,9 +915,110 @@ const AdminCustomersPage: React.FC = () => {
           </table>
         </div>
 
-        <div className="border-t border-zinc-100 px-5 py-4 text-xs text-zinc-500">
-          Hiển thị {filteredCustomers.length} / {customers.length} khách hàng
-        </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-100 px-5 py-4">
+  {/* Thông tin số lượng */}
+  <div className="text-xs text-zinc-500">
+    Hiển thị{" "}
+    <span className="font-semibold text-zinc-900">
+      {startItem}-{endItem}
+    </span>{" "}
+    trên tổng số{" "}
+    <span className="font-semibold text-zinc-900">
+      {totalCustomers}
+    </span>{" "}
+    khách hàng
+    <span className="ml-1 text-zinc-400">
+      (Tổng: {customers.length})
+    </span>
+  </div>
+
+  <div className="flex flex-wrap items-center gap-3">
+    {/* Chọn số dòng mỗi trang */}
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-zinc-500 whitespace-nowrap">
+        Số dòng:
+      </span>
+
+      <select
+        value={pageSize}
+        onChange={(e) => {
+          setPageSize(Number(e.target.value));
+          setCurrentPage(1);
+        }}
+        className="h-8 rounded-lg border border-zinc-200 bg-white px-2 text-xs font-medium text-zinc-700 outline-none focus:border-[#b8955a]"
+      >
+        <option value={5}>5</option>
+        <option value={10}>10</option>
+        <option value={20}>20</option>
+        <option value={50}>50</option>
+      </select>
+    </div>
+
+    {/* Nút phân trang */}
+    <div className="flex items-center gap-1">
+      <button
+        type="button"
+        onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+        disabled={currentPage === 1}
+        className="flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-600 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Trước
+      </button>
+
+      {/* Các số trang */}
+      {Array.from({ length: totalPages }, (_, index) => index + 1)
+        .filter((page) => {
+          return (
+            page === 1 ||
+            page === totalPages ||
+            Math.abs(page - currentPage) <= 1
+          );
+        })
+        .reduce<(number | "...")[]>((pages, page, index, array) => {
+          if (index > 0 && page - array[index - 1] > 1) {
+            pages.push("...");
+          }
+
+          pages.push(page);
+          return pages;
+        }, [])
+        .map((page, index) =>
+          page === "..." ? (
+            <span
+              key={`ellipsis-${index}`}
+              className="px-1 text-xs text-zinc-400"
+            >
+              ...
+            </span>
+          ) : (
+            <button
+              key={page}
+              type="button"
+              onClick={() => setCurrentPage(page)}
+              className={`flex size-8 items-center justify-center rounded-lg text-xs font-semibold transition-all ${
+                currentPage === page
+                  ? "bg-zinc-950 text-white shadow-sm"
+                  : "border border-zinc-200 text-zinc-600 hover:bg-zinc-100"
+              }`}
+            >
+              {page}
+            </button>
+          )
+        )}
+
+      <button
+        type="button"
+        onClick={() =>
+          setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+        }
+        disabled={currentPage === totalPages}
+        className="flex h-8 items-center justify-center rounded-lg border border-zinc-200 px-3 text-xs font-semibold text-zinc-600 transition-colors hover:bg-zinc-100 disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        Sau
+      </button>
+    </div>
+  </div>
+</div>
       </div>
 
       <AddCustomerModal
