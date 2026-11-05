@@ -1,4 +1,4 @@
-import { apiClient } from '../apiClient';
+import { apiClient } from '../admin/apiClient';
 
 export interface AdminLoginPayload {
   email: string;
