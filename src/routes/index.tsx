@@ -11,7 +11,18 @@ import { OrderPage } from '../pages/user/OrderPage';
 import { CheckoutPage } from '../pages/user/CheckoutPage';
 import VNPayReturnPage from '../pages/user/VNPayReturnPage';
 
+
+// import admin
+import AdminLoginPage from '../pages/admin/AdminLoginPage';
+import { AdminLayout } from '../layouts/admin/AdminLayout';
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
+import { AdminChatPage } from '../pages/admin/AdminChatPage';
+
+import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
+import AdminCustomersPage from '../pages/admin/AdminCustomersPage';
+
 export const router = createBrowserRouter([
+  // CÁC ROUTE CHO WEB USER
   {
     path: '/',
     element: <CustomerLayout />,
@@ -62,4 +73,38 @@ export const router = createBrowserRouter([
     path: '*',
     element: <Navigate to="/" replace />,
   },
+
+
+
+  {
+    path: '/admin/login',
+    element: <AdminLoginPage />,
+  },
+{
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      {
+        path: 'dashboard',
+        element: <AdminDashboardPage />,
+      },
+      {
+        path: 'orders',
+        element: <AdminOrdersPage />,
+      },
+      {
+        path: 'customers',
+        element: <AdminCustomersPage />,
+      },
+      {
+        path: 'chat',
+        element: <AdminChatPage />,
+      },
+
+    ]},
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
+  },
+  
 ]);
