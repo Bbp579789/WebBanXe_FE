@@ -3,7 +3,7 @@ export type CustomerMembership = 'maybach_club' | 'diamond' | 'platinum' | 'stan
 export type CustomerStatus = 'active' | 'locked' | 'pending';
 
 export interface AdminCustomer {
-  id: string; // e.g. MB-CUST-001
+  id: string; 
   fullName: string;
   phone: string;
   email: string;
