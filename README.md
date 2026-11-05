@@ -49,13 +49,6 @@ cd <project-folder>
 npm install
 ```
 
-### Step 4: Configure environment variables
-
-Tạo file `.env` tại thư mục gốc của dự án:
-
-```env
-VITE_API_URL=http://localhost:3000/api
-```
 
 Trong đó:
 
