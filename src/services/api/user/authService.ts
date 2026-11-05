@@ -123,12 +123,33 @@ interface AuthResponse {
   data?: AuthResponse;
 }
 
+const getAuthData = (response: any): AuthResponse => {
+  let result = response;
+
+  // Bóc các lớp data lồng nhau nếu Backend trả về.
+  while (
+    result?.data &&
+    typeof result.data === "object" &&
+    !Array.isArray(result.data)
+  ) {
+    result = result.data;
+  }
+
+  return result;
+};
+
 export const authService = {
+  // Đăng ký
   register: async (payload: RegisterDTO) => {
-    const response = await apiClient.post("/auth/register", payload);
-    return response.data;
+    const response = await apiClient.post(
+      "/auth/register",
+      payload
+    );
+
+    return response;
   },
 
+  // Đăng nhập
   login: async (credentials: {
     email: string;
     password: string;
@@ -138,45 +159,58 @@ export const authService = {
       credentials
     );
 
-    const body = response.data;
-    const authData = body.data?.data ?? body.data ?? body;
+    console.log("LOGIN RESPONSE:", response);
+
+    const authData = getAuthData(response);
 
     const token =
-      authData.token ??
-      authData.accessToken ??
+      authData.token ||
+      authData.accessToken ||
       authData.access_token;
 
-    const user = authData.user ?? body.user;
+    const user = authData.user;
 
-    if (token) {
-      // Lưu cả hai key để tương thích với các API client hiện tại.
-      localStorage.setItem("access_token", token);
-      localStorage.setItem("accessToken", token);
-
-      localStorage.setItem(
-        "userName",
-        user?.full_name ||
-          user?.username ||
-          credentials.email.split("@")[0]
+    if (!token) {
+      console.error("Không tìm thấy JWT trong response:", response);
+      throw new Error(
+        "Đăng nhập thành công nhưng Backend không trả về access token."
       );
-
-      localStorage.setItem(
-        "userEmail",
-        user?.email || credentials.email
-      );
-
-      localStorage.setItem("userPhone", user?.phone || "");
-
-      window.dispatchEvent(new Event("authChange"));
-      window.dispatchEvent(new Event("cartChange"));
     }
 
-    return body;
+    // Lưu JWT để tương thích với các Axios instance hiện tại.
+    localStorage.setItem("access_token", token);
+    localStorage.setItem("accessToken", token);
+
+    // Lưu thông tin người dùng.
+    localStorage.setItem(
+      "userName",
+      user?.full_name ||
+        user?.username ||
+        credentials.email.split("@")[0]
+    );
+
+    localStorage.setItem(
+      "userEmail",
+      user?.email || credentials.email
+    );
+
+    localStorage.setItem(
+      "userPhone",
+      user?.phone || ""
+    );
+
+    // Thông báo cho các component cập nhật trạng thái.
+    window.dispatchEvent(new Event("authChange"));
+    window.dispatchEvent(new Event("cartChange"));
+
+    return response;
   },
 
+  // Đăng xuất
   logout: () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("accessToken");
+
     localStorage.removeItem("userName");
     localStorage.removeItem("userEmail");
     localStorage.removeItem("userPhone");

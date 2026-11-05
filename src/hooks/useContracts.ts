@@ -26,20 +26,26 @@ export function useContracts() {
       return;
     }
 
-    const fetchContracts = async () => {
-      try {
-        setLoading(true);
+   const fetchContracts = async () => {
+  try {
+    setLoading(true);
 
-        const data = await getMyContracts();
+    const data = await getMyContracts();
 
-        setContracts(Array.isArray(data) ? data : []);
-      } catch (error) {
-        console.error("Lỗi lấy danh sách hợp đồng:", error);
-        setContracts([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    console.log("CONTRACTS ARRAY:", data);
+
+    setContracts(data);
+  } catch (error: any) {
+    console.error(
+      "Lỗi lấy danh sách hợp đồng:",
+      error.response?.data || error
+    );
+
+    setContracts([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchContracts();
   }, [navigate]);

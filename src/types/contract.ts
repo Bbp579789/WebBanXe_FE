@@ -1,3 +1,15 @@
+export interface ContractDetail {
+  id: number;
+  image_url?: string;
+  brand?: string;
+  model?: string;
+  year?: number;
+  vin?: string;
+  variant?: string;
+  unit_price?: number | string;
+  price?: number | string;
+}
+
 export interface ContractVehicle {
   vin: any;
   variant: string;
@@ -41,4 +53,5 @@ export interface Contract {
   updated_at: string | null;
 
   vehicles?: ContractVehicle[];
+  contractDetails?: ContractDetail[];
 }

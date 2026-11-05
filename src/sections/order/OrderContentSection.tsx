@@ -82,7 +82,7 @@ import { useContracts } from "../../hooks/useContracts";
 
 import { OrderHeaderSection } from "./OrderHeaderSection";
 import { OrderFilterSection } from "./OrderFilterSection";
-import { OrderListSection } from "./OrderListSection";
+import  OrderListSection  from "./OrderListSection";
 import { OrderPaginationSection } from "./OrderPaginationSection";
 
 export const OrderContentSection: React.FC = () => {

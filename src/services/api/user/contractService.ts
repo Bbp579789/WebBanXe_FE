@@ -30,9 +30,26 @@ export const getAllContracts = async () => {
 export const getMyContracts = async (): Promise<Contract[]> => {
   const response = await api.get("/contracts/me");
 
-  console.log("GET MY CONTRACTS:", response.data);
+  console.log("MY CONTRACTS RESPONSE:", response);
 
-  return response.data.data?.contracts ?? [];
+  // API trả về { data: [...] }
+  if (Array.isArray(response?.data)) {
+    return response.data;
+  }
+
+  // API trả về trực tiếp [...]
+  if (Array.isArray(response)) {
+    return response;
+  }
+
+  // API có thể bọc thêm một lớp data
+  if (Array.isArray(response?.data?.data)) {
+    return response.data.data;
+  }
+
+  console.warn("Không tìm thấy danh sách hợp đồng:", response);
+
+  return [];
 };
 
 // GET /api/v1/contracts/:id
