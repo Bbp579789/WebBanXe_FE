@@ -138,7 +138,7 @@ export const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                 Họ và tên khách hàng <span className="text-rose-500">*</span>
               </label>
               <input
-                type="text"
+                type="text" 
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -174,20 +174,10 @@ export const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
             </div>
 
             {/* CCCD / MST */}
-            <div>
-              <label className="font-bold text-zinc-700 block mb-1.5">
-                Số CCCD / Hộ chiếu / MST <span className="text-rose-500">*</span>
-              </label>
-              <input
-                type="text"
-                value={idCard}
-                onChange={(e) => setIdCard(e.target.value)}
-                className="w-full h-10 px-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-800 focus:bg-white focus:outline-none focus:border-[#b8955a] focus:ring-2 focus:ring-[#b8955a]/10 transition-all font-medium tabular-nums"
-              />
-            </div>
+          
 
             {/* Hạng thành viên */}
-            <div>
+            {/* <div>
               <label className="font-bold text-zinc-700 block mb-1.5">
                 Hạng thành viên VIP <span className="text-rose-500">*</span>
               </label>
@@ -201,7 +191,7 @@ export const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                 <option value="platinum">Platinum</option>
                 <option value="standard">Standard</option>
               </select>
-            </div>
+            </div> */}
 
             {/* Trạng thái tài khoản */}
             <div>
@@ -219,7 +209,7 @@ export const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
             </div>
 
             {/* Mẫu xe quan tâm */}
-            <div className="col-span-2">
+            {/* <div className="col-span-2">
               <label className="font-bold text-zinc-700 block mb-1.5">
                 Mẫu xe quan tâm / Đã mua <span className="text-rose-500">*</span>
               </label>
@@ -229,7 +219,7 @@ export const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                 onChange={(e) => setInterestedCar(e.target.value)}
                 className="w-full h-10 px-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-800 focus:bg-white focus:outline-none focus:border-[#b8955a] focus:ring-2 focus:ring-[#b8955a]/10 transition-all font-medium"
               />
-            </div>
+            </div> */}
 
             {/* Địa chỉ */}
             <div className="col-span-2">
@@ -245,7 +235,7 @@ export const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
             </div>
 
             {/* Ghi chú */}
-            <div className="col-span-2">
+            {/* <div className="col-span-2">
               <label className="font-bold text-zinc-700 block mb-1.5">
                 Ghi chú yêu cầu chăm sóc khách hàng (CSKH)
               </label>
@@ -255,7 +245,7 @@ export const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
                 onChange={(e) => setNotes(e.target.value)}
                 className="w-full p-3.5 rounded-xl bg-zinc-50 border border-zinc-200 text-xs text-zinc-800 focus:bg-white focus:outline-none focus:border-[#b8955a] focus:ring-2 focus:ring-[#b8955a]/10 transition-all font-medium resize-none"
               />
-            </div>
+            </div> */}
           </div>
 
           {/* Footer Modal Actions */}

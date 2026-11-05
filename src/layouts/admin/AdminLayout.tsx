@@ -1,17 +1,18 @@
-import React from 'react';
-import { Outlet } from 'react-router-dom';
-import { AdminSidebar } from '../../components/admin/AdminSidebar';
+
+import React from "react";
+import { Outlet } from "react-router-dom";
+import { AdminSidebar } from "../../components/admin/AdminSidebar";
 
 export const AdminLayout: React.FC = () => {
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-zinc-50 font-sans">
-      {/* Khung bên trái (Cố định w-64) */}
+    <div className="flex min-h-screen w-full bg-zinc-50 font-sans">
+      {/* Sidebar */}
       <AdminSidebar />
-      
-      {/* Khung nội dung bên phải (chiếm toàn bộ phần còn lại) */}
-      <div className="flex-1 ml-64 h-full flex flex-col overflow-hidden min-w-0 min-h-0">
+
+      {/* Nội dung bên phải */}
+      <main className="ml-64 min-w-0 flex-1 min-h-screen">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 };
