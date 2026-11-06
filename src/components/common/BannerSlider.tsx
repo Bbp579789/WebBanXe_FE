@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '../ui/button';
 import { Image } from '../ui/image';
 import banner1 from '../../assets/image/banner1.jpg';
 import banner2 from '../../assets/image/banner2.jpg';
@@ -12,34 +11,30 @@ interface BannerItem {
   title: string;
   subtitle: string;
   imageUrl: string;
-  linkText: string;
 }
 
 const BANNERS: BannerItem[] = [
   {
-    id: '1',
-    tag: 'Exclusive Collection',
-    title: 'THE NEW MERCEDES-BENZ',
-    subtitle: 'Định nghĩa lại chuẩn mực xa xỉ và công nghệ hỗ trợ thông minh.',
-    imageUrl: banner1,
-    linkText: 'Khám phá ngay',
-  },
-  {
-    id: '2',
-    tag: 'Bespoke Experience',
-    title: 'BMW BESPOKE COLLECTION',
-    subtitle: 'Đặc quyền trải nghiệm dịch vụ Bespoke chuyên biệt cùng chuyên viên 24/7.',
-    imageUrl: banner2,
-    linkText: 'Khám phá ngay',
-  },
-  {
-    id: '3',
-    tag: 'Bespoke Experience',
-    title: 'BMW Buworld Bespoke Collection',
-    subtitle: 'Đặc quyền trải nghiệm dịch vụ Bespoke chuyên biệt cùng chuyên viên 24/7.',
-    imageUrl: banner3,
-    linkText: 'Khám phá ngay',
-  },
+  id: '1',
+  tag: 'Exclusive Collection',
+  title: 'THE NEW MERCEDES-BENZ',
+  subtitle: 'Khám phá đỉnh cao sang trọng, công nghệ tiên phong và trải nghiệm lái xe khác biệt.',
+  imageUrl: banner1,
+},
+{
+  id: '2',
+  tag: 'Ultimate Prestige',
+  title: 'MERCEDES-MAYBACH',
+  subtitle: 'Biểu tượng của sự xa hoa, nơi từng chi tiết kiến tạo nên trải nghiệm thượng lưu.',
+  imageUrl: banner2,
+},
+{
+  id: '3',
+  tag: 'Performance & Passion',
+  title: 'MERCEDES-AMG',
+  subtitle: 'Bứt phá giới hạn tốc độ, chinh phục mọi cung đường bằng sức mạnh và bản lĩnh.',
+  imageUrl: banner3,
+},
 ];
 
 export const BannerSlider: React.FC = () => {
@@ -104,16 +99,7 @@ export const BannerSlider: React.FC = () => {
 
               {/* Nút hành động dùng Button component */}
               <div className="mt-8 flex items-center gap-4">
-                <Button variant="brand" size="default" className="rounded-full px-8">
-                  {banner.linkText}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="rounded-full px-7 border-white/40 text-white hover:border-white hover:bg-white/10 backdrop-blur-sm"
-                >
-                  Yêu cầu tư vấn
-                </Button>
+
               </div>
             </div>
           </div>
