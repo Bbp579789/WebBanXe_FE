@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Car, FileText, Users, MessageSquare, LogOut, ChevronUp } from 'lucide-react';
+import { LayoutDashboard, Car, FileText, Users, MessageSquare, BookOpen, LogOut, ChevronUp } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { adminAuthService } from '../../services/api/admin/adminAuthService';
 import { Icon } from '../ui/icon';
@@ -22,6 +22,7 @@ export const AdminSidebar: React.FC = () => {
     { name: 'Đơn hàng', path: '/admin/orders', icon: FileText },
     { name: 'Khách hàng', path: '/admin/customers', icon: Users },
     { name: 'Chat Message', path: '/admin/chat', icon: MessageSquare },
+    { name: 'Tài liệu AI', path: '/admin/knowledge', icon: BookOpen },
   ];
 
   return (
@@ -108,4 +109,4 @@ export const AdminSidebar: React.FC = () => {
       </div>
     </aside>
   );
-};
+};

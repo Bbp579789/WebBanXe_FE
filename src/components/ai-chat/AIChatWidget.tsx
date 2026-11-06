@@ -1,13 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, Calendar, Zap, ShieldCheck } from 'lucide-react';
+import { Sparkles, Calendar, Zap, ShieldCheck, Headset } from 'lucide-react';
 import botAvatar from '../../assets/icon/bot.svg';
 import { useAIChat } from '../../hooks/useAIChat';
 import ChatMessageItem from './ChatMessageItem';
 
 export const AIChatWidget: React.FC = () => {
-  const { messages, isLoading, sendMessage } = useAIChat();
-
   const [isOpen, setIsOpen] = useState(false);
+  const { messages, isLoading, status, sendMessage } = useAIChat(isOpen);
+
+  // Dòng trạng thái khi hội thoại đã chuyển sang nhân viên
+  let statusText = '';
+  if (status === 'escalated') statusText = 'Đang chờ nhân viên tư vấn, vui lòng đợi trong giây lát...';
+  if (status === 'admin_handling') statusText = 'Nhân viên tư vấn đang hỗ trợ Quý khách';
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -80,6 +84,13 @@ export const AIChatWidget: React.FC = () => {
             </button>
           </div>
 
+          {statusText && (
+            <div className="border-b border-[#26272e] bg-emerald-900/30 px-4 py-2 text-[11px] text-emerald-200 flex items-center gap-2">
+              <Headset className="size-3.5 shrink-0" />
+              <span>{statusText}</span>
+            </div>
+          )}
+
           {/* NỘI DUNG CHAT */}
           <div className="flex-1 space-y-4 overflow-y-auto p-4 bg-gradient-to-b from-[#0d0e11]/90 to-[#0a0a0c]">
 
@@ -128,6 +139,15 @@ export const AIChatWidget: React.FC = () => {
                 >
                   <Calendar className="size-3 text-[#b8955a] shrink-0" />
                   <span className="truncate">Đăng ký lịch hẹn lái thử tại Salon</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleQuickPrompt('Tôi muốn gặp nhân viên tư vấn')}
+                  className="flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2 text-left text-[11px] text-zinc-300 hover:bg-[#b8955a]/15 hover:text-[#b8955a] transition border border-transparent hover:border-[#b8955a]/30 cursor-pointer"
+                >
+                  <Headset className="size-3 text-[#b8955a] shrink-0" />
+                  <span className="truncate">Gặp nhân viên tư vấn</span>
                 </button>
               </div>
             </div>
@@ -202,4 +222,4 @@ export const AIChatWidget: React.FC = () => {
   );
 };
 
-export default AIChatWidget;
+export default AIChatWidget;

@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import AIChatWidget from '../components/ai-chat/AIChatWidget';
+import TelegramLinkHandler from '../components/ai-chat/TelegramLinkHandler';
 import Footer from '../components/common/Footer';
 import Header from '../components/common/Header';
 
@@ -11,6 +12,7 @@ export const CustomerLayout: React.FC = () => {
       <Footer />
       
       <AIChatWidget />
+      <TelegramLinkHandler />
     </div>
   );
-};
+};

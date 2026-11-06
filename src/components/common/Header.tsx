@@ -39,6 +39,13 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSo
     };
   }, []);
 
+  // Trang khác cần khách đăng nhập (ví dụ liên kết Telegram) thì mở hộp đăng nhập
+  useEffect(() => {
+    const handleOpenLogin = () => setIsLoginOpen(true);
+    window.addEventListener('openLoginDialog', handleOpenLogin);
+    return () => window.removeEventListener('openLoginDialog', handleOpenLogin);
+  }, []);
+
   // 3. Xử lý khi đăng nhập thành công ngay tại Header
   const handleLoginSuccess = (name: string) => {
     localStorage.setItem('userName', name);
@@ -140,4 +147,4 @@ const handleLogout = () => {
   );
 };
 
-export default Header;
+export default Header;

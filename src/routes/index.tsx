@@ -21,6 +21,7 @@ import { AdminChatPage } from '../pages/admin/AdminChatPage';
 import AdminOrdersPage from '../pages/admin/AdminOrdersPage';
 import AdminCustomersPage from '../pages/admin/AdminCustomersPage';
 import AdminVehiclesPage from '../pages/admin/AdminVehiclesPage';
+import AdminKnowledgePage from '../pages/admin/AdminKnowledgePage';
 
 export const router = createBrowserRouter([
   // CÁC ROUTE CHO WEB USER
@@ -105,6 +106,10 @@ export const router = createBrowserRouter([
         path: 'chat',
         element: <AdminChatPage />,
       },
+      {
+        path: 'knowledge',
+        element: <AdminKnowledgePage />,
+      },
 
     ]},
   {
@@ -112,4 +117,4 @@ export const router = createBrowserRouter([
     element: <Navigate to="/" replace />,
   },
   
-]);
+]);

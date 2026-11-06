@@ -1,3 +1,5 @@
+import type { AiProductCard, AiSource } from './ai.types';
+
 export interface Product {
   id: string;
   name: string;
@@ -9,9 +11,13 @@ export interface Product {
 
 export interface ChatMessage {
   id: string;
-  sender: 'user' | 'bot';
+  sender: 'user' | 'bot' | 'admin' | 'system';
   content: string;
   timestamp: string;
+  // Thẻ xe, nguồn trích dẫn, kiểu trả lời (chỉ có ở tin của bot)
+  products?: AiProductCard[];
+  sources?: AiSource[];
+  mode?: string;
 }
 
 // ==========================================
@@ -96,4 +102,4 @@ export interface TestDriveFormData {
   scheduled_at?: string;
   timeline?: number;
   note?: string;
-}
+}
