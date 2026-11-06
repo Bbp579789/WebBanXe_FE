@@ -11,9 +11,9 @@ export const CartContainerSection: React.FC = () => {
 
   // Tính toán số lượng & tài chính từ dữ liệu DB
   const totalVehiclesCount = cartItems.reduce((acc, item) => acc + (Number(item.quantity) || 1), 0);
-  
-  // Tiền cọc mặc định 50.000.000 VNĐ / xe
-  const depositPerCar = 50000000;
+
+  // Tiền cọc mặc định 20.000.000 VNĐ / xe
+  const depositPerCar = 20000000;
   const totalDeposit = totalVehiclesCount * depositPerCar;
 
   // Thuế & phụ phí dự tính (Có thể tính theo % giá xe thực tế)
