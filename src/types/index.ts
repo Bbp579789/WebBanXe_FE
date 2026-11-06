@@ -29,6 +29,7 @@ export interface Vehicle {
   engine_no: string;
   brand: string;
   model: string;
+  variant?: string;
   year: number;
   image_url?: string | null;
   exterior_color: string;
