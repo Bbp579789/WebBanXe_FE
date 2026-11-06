@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Icon } from '../../ui/icon';
 import type { LoginDialogProps } from '../../../types/header.types';
 import { Link } from 'react-router-dom';
+import { telegramAuthService } from "../../../services/api/user/telegramAuthService";
 
 export const LoginDialog: React.FC<LoginDialogProps> = ({
   isOpen,
@@ -95,6 +96,8 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
       setLoading(false);
     }
   };
+
+
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
@@ -242,25 +245,23 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
                 <div className="flex-1 h-px bg-zinc-200" />
               </div>
 
-              {/* Nút Telegram */}
-              <button
-                type="button"
-                onClick={() => {
-                  // TODO: Gọi hàm xử lý đăng nhập Telegram
-                }}
-                className="w-full h-12 rounded-full border border-[#229ED9]/30 bg-[#229ED9]/5 hover:bg-[#229ED9]/10 hover:border-[#229ED9] text-[#229ED9] font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.99] cursor-pointer"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-5 h-5"
-                >
-                  <path d="M21.8 3.2a1.5 1.5 0 0 0-1.6-.2L2.7 9.8c-1.2.5-1.2 1.3-.2 1.6l4.5 1.4 1.7 5.3c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.2-2.2 4.6 3.4c.9.5 1.5.2 1.7-.8l3-14.1c.2-.8-.1-1.3-.1-1.5ZM8.2 12.5l9.5-6c.5-.3.9-.1.5.2l-7.8 7.1-.3 3.2-1.9-4.5Z" />
-                </svg>
+             {/* Nút Telegram */}
+<button
+  type="button"
+  onClick={telegramAuthService.login}
+  className="w-full h-12 rounded-full border border-[#229ED9]/30 bg-[#229ED9]/5 hover:bg-[#229ED9]/10 hover:border-[#229ED9] text-[#229ED9] font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.99] cursor-pointer"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="w-5 h-5"
+  >
+    <path d="M21.8 3.2a1.5 1.5 0 0 0-1.6-.2L2.7 9.8c-1.2.5-1.2 1.3-.2 1.6l4.5 1.4 1.7 5.3c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.2-2.2 4.6 3.4c.9.5 1.5.2 1.7-.8l3-14.1c.2-.8-.1-1.3-.1-1.5ZM8.2 12.5l9.5-6c.5-.3.9-.1.5.2l-7.8 7.1-.3 3.2-1.9-4.5Z" />
+  </svg>
 
-                <span>Đăng nhập với Telegram</span>
-              </button>
+  <span>Đăng nhập với Telegram</span>
+</button>
             </div>
 
             <p className="text-center text-xs text-zinc-500 pt-2 font-normal">
