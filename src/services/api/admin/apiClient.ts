@@ -3,7 +3,7 @@ import axios from 'axios';
 export const apiClient = axios.create({
   baseURL:
     import.meta.env.VITE_API_URL ||
-    'https://api.mercedezstudy.net/api/v1',
+    'http://localhost:3000/api/v1',
 
   headers: {
     'Content-Type': 'application/json',
@@ -39,6 +39,29 @@ apiClient.interceptors.response.use(
       'Admin API Error:',
       error.response?.data || error.message
     );
+
+    // Xử lý tự động khi Token hết hạn hoặc không hợp lệ (401)
+    if (error.response?.status === 401) {
+      const msg = error.response?.data?.message || '';
+      if (
+        msg.includes('token') ||
+        msg.includes('Authentication') ||
+        msg.includes('authorization')
+      ) {
+        localStorage.removeItem('admin_access_token');
+        localStorage.removeItem('admin_id');
+        localStorage.removeItem('adminName');
+        localStorage.removeItem('userRole');
+
+        if (
+          typeof window !== 'undefined' &&
+          window.location.pathname.startsWith('/admin') &&
+          !window.location.pathname.includes('/admin/login')
+        ) {
+          window.location.href = '/admin/login';
+        }
+      }
+    }
 
     return Promise.reject(error);
   }

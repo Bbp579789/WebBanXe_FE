@@ -803,7 +803,7 @@ useEffect(() => {
                 onClick={() => setActiveStatusTab(card.status)}
                 className={`rounded-2xl p-4 flex items-center justify-between text-left transition-all duration-300 transform hover:-translate-y-0.5 cursor-pointer ${
                   isSelected
-                    ? 'bg-white border-2 border-[#b8955a] shadow-sm ring-2 ring-[#b8955a]/20'
+                    ? 'bg-amber-50/40 border-2 border-[#b8955a] shadow-[0_0_20px_rgba(184,149,90,0.25)] ring-2 ring-[#b8955a]/30'
                     : 'bg-zinc-50/70 border border-zinc-200/80 hover:bg-white hover:border-zinc-300 shadow-2xs'
                 } ${
                   isMounted
@@ -915,52 +915,47 @@ useEffect(() => {
           <div className="w-full overflow-x-hidden">
             <table className="w-full text-left border-collapse table-fixed">
               <colgroup>
-                <col className="w-[9%]" />
-                <col className="w-[8%]" />
-                <col className="w-[12%]" />
-                <col className="w-[18%]" />
-                <col className="w-[13%]" />
-                <col className="w-[13%]" />
-                <col className="w-[9%]" />
                 <col className="w-[10%]" />
+                <col className="w-[10%]" />
+                <col className="w-[14%]" />
+                <col className="w-[20%]" />
+                <col className="w-[14%]" />
+                <col className="w-[12%]" />
+                <col className="w-[12%]" />
                 <col className="w-[8%]" />
               </colgroup>
 
               <thead className="sticky top-0 bg-zinc-50/95 backdrop-blur-xs z-10 border-b border-zinc-200/80">
                 <tr className="text-[11px] uppercase tracking-wider text-zinc-500">
-                  <th className="py-3.5 pl-4 pr-1.5 font-bold whitespace-nowrap">
+                  <th className="py-4 pl-4 pr-2 font-bold whitespace-nowrap">
                     Mã Hợp Đồng
                   </th>
 
-                  <th className="py-3.5 px-1.5 font-bold whitespace-nowrap">
+                  <th className="py-4 px-2 font-bold whitespace-nowrap">
                     Ngày Lập
                   </th>
 
-                  <th className="py-3.5 px-1.5 font-bold whitespace-nowrap">
+                  <th className="py-4 px-2 font-bold whitespace-nowrap">
                     Khách Hàng
                   </th>
 
-                  <th className="py-3.5 pl-3.5 pr-1.5 font-bold">
+                  <th className="py-4 px-2 font-bold">
                     Mẫu Xe Đặt
                   </th>
 
-                  <th className="py-3.5 pl-3.5 pr-1.5 font-bold whitespace-nowrap">
+                  <th className="py-4 px-2 font-bold whitespace-nowrap">
                     Giá Trị HĐ
                   </th>
 
-                  <th className="py-3.5 pl-3.5 pr-1.5 font-bold whitespace-nowrap">
+                  <th className="py-4 px-2 font-bold whitespace-nowrap">
                     Tiền Đặt Cọc
                   </th>
 
-                  {/* <th className="py-3.5 pl-3.5 pr-1.5 font-bold whitespace-nowrap">
-                    Phụ Trách
-                  </th> */}
-
-                  <th className="py-3.5 px-1.5 font-bold whitespace-nowrap text-center">
+                  <th className="py-4 px-2 font-bold whitespace-nowrap text-center">
                     Trạng Thái
                   </th>
 
-                  <th className="py-3.5 px-1.5 font-bold whitespace-nowrap text-center">
+                  <th className="py-4 px-2 font-bold whitespace-nowrap text-center">
                     Thao Tác
                   </th>
                 </tr>
@@ -989,13 +984,27 @@ useEffect(() => {
                           {apiError}
                         </p>
 
-                        <button
-                          type="button"
-                          onClick={fetchOrders}
-                          className="px-4 py-2 rounded-lg bg-zinc-950 text-white text-xs font-semibold hover:bg-zinc-800 transition-all"
-                        >
-                          Thử lại
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={fetchOrders}
+                            className="px-4 py-2 rounded-lg bg-zinc-950 text-white text-xs font-semibold hover:bg-zinc-800 transition-all cursor-pointer"
+                          >
+                            Thử lại
+                          </button>
+                          {(apiError.includes('token') || apiError.includes('auth') || apiError.includes('hạn')) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                localStorage.removeItem('admin_access_token');
+                                navigate('/admin/login');
+                              }}
+                              className="px-4 py-2 rounded-lg bg-[#b8955a] text-white text-xs font-semibold hover:bg-[#a07f49] transition-all cursor-pointer"
+                            >
+                              Đăng nhập lại
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>
@@ -1033,19 +1042,19 @@ useEffect(() => {
                         }}
                       >
                         {/* Mã hợp đồng */}
-                        <td className="py-3.5 pl-4 pr-1.5 whitespace-nowrap">
+                        <td className="py-4 pl-4 pr-2 whitespace-nowrap">
                           <span className="font-semibold text-zinc-900 group-hover:text-[#b8955a] transition-colors font-mono text-[11px] tracking-tight">
                             #{order.id}
                           </span>
                         </td>
 
                         {/* Ngày lập */}
-                        <td className="py-3.5 px-1.5 font-medium text-zinc-600 whitespace-nowrap tabular-nums text-xs">
+                        <td className="py-4 px-2 font-medium text-zinc-600 whitespace-nowrap tabular-nums text-xs">
                           {order.createdDate}
                         </td>
 
                         {/* Khách hàng */}
-                        <td className="py-3.5 px-1.5 min-w-0">
+                        <td className="py-4 px-2 min-w-0">
                           <p className="font-bold text-zinc-900 leading-snug truncate whitespace-nowrap">
                             {order.customerName || 'Chưa cập nhật'}
                           </p>
@@ -1056,7 +1065,7 @@ useEffect(() => {
                         </td>
 
                         {/* Xe */}
-                        <td className="py-3.5 pl-3.5 pr-1.5 min-w-0">
+                        <td className="py-4 px-2 min-w-0">
                           <p className="font-bold text-zinc-900 leading-snug truncate">
                             {order.carModel || 'Chưa cập nhật'}
                           </p>
@@ -1067,28 +1076,21 @@ useEffect(() => {
                         </td>
 
                         {/* Giá trị hợp đồng */}
-                        <td className="py-3.5 pl-3.5 pr-1.5 whitespace-nowrap">
+                        <td className="py-4 px-2 whitespace-nowrap">
                           <span className="font-bold text-zinc-900 tabular-nums text-xs">
                             {formatCurrency(order.contractValue)}
                           </span>
                         </td>
 
                         {/* Tiền đặt cọc */}
-                        <td className="py-3.5 pl-3.5 pr-1.5 whitespace-nowrap">
+                        <td className="py-4 px-2 whitespace-nowrap">
                           <span className="font-bold text-zinc-900 tabular-nums text-xs">
                             {formatCurrency(order.paidAmount)}
                           </span>
                         </td>
 
-                        {/* Phụ trách */}
-                        {/* <td className="py-3.5 pl-3.5 pr-1.5 font-medium text-zinc-700 whitespace-nowrap truncate text-xs">
-                          {(order.salesAdvisor || 'Chưa cập nhật')
-                            .split('(')[0]
-                            .trim()}
-                        </td> */}
-
                         {/* Trạng thái */}
-                        <td className="py-3.5 px-1.5 whitespace-nowrap text-center">
+                        <td className="py-4 px-2 whitespace-nowrap text-center">
                           <div className="flex items-center justify-center">
                             <div
                               className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
@@ -1111,7 +1113,7 @@ useEffect(() => {
                         </td>
 
                         {/* Thao tác */}
-                        <td className="py-3.5 px-1.5 text-center whitespace-nowrap">
+                        <td className="py-4 px-2 text-center whitespace-nowrap">
                           <div className="flex items-center justify-center">
                             <button
                               type="button"

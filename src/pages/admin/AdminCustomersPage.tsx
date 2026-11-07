@@ -730,224 +730,235 @@ useEffect(() => {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs font-bold tracking-widest text-[#b8955a]">
-            MERCEDES-BENZ CRM
-          </p>
+    <div className="flex-1 h-full overflow-y-auto min-h-0 bg-zinc-50 font-sans">
+      <main className="p-8 pb-16 space-y-6">
 
-          <h1 className="mt-1 text-2xl font-bold text-zinc-900">
-            Quản lý khách hàng
-          </h1>
-
-          <p className="mt-1 text-sm text-zinc-500">
-            Quản lý hồ sơ và thông tin khách hàng.
-          </p>
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            onClick={fetchCustomers}
-            disabled={loading}
-            className="flex h-10 items-center gap-2 rounded-xl border border-zinc-200 px-4 text-xs font-semibold hover:bg-zinc-50 disabled:opacity-50"
-          >
-            <RefreshCw size={15} />
-            Làm mới
-          </button>
-
-          <button
-            onClick={() => setAddOpen(true)}
-            className="flex h-10 items-center gap-2 rounded-xl bg-zinc-950 px-4 text-xs font-semibold text-white hover:bg-zinc-800"
-          >
-            <Plus size={16} />
-            Thêm khách hàng
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-zinc-500">
-              Tổng số khách hàng
-            </span>
-            <Users className="size-5 text-[#b8955a]" />
+        {/* HEADER */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-bold text-[#b8955a] uppercase tracking-wider mb-1">
+              Hệ thống điều hành / Quản lý khách hàng
+            </p>
+            <h1 className="text-3xl font-bold text-zinc-900 tracking-tight">
+              Quản Lý Khách Hàng
+            </h1>
           </div>
 
-          <p className="mt-3 text-2xl font-bold text-zinc-900">
-            {customers.length}
-          </p>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={fetchCustomers}
+              disabled={loading}
+              className="h-9 px-4 rounded-full bg-white hover:bg-zinc-100 border border-zinc-200/80 text-zinc-700 text-xs font-semibold flex items-center gap-2 transition-all shadow-xs cursor-pointer disabled:opacity-50"
+            >
+              <RefreshCw size={14} className={loading ? "animate-spin text-[#b8955a]" : "text-zinc-500"} />
+              <span>Làm mới</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setAddOpen(true)}
+              className="h-9 px-4 rounded-full bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 text-white hover:text-[#b8955a] text-xs font-semibold flex items-center gap-2 transition-all shadow-xs cursor-pointer active:scale-95"
+            >
+              <Plus size={15} />
+              <span>Thêm khách hàng</span>
+            </button>
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-zinc-200 bg-white p-5">
-          <span className="text-xs text-zinc-500">
-            Khách hàng có tài khoản
-          </span>
-
-          <p className="mt-3 text-2xl font-bold text-emerald-600">
-            {customers.length}
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-zinc-200 bg-white">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 p-5">
-          <h2 className="font-bold text-zinc-900">
-            Danh sách khách hàng
-          </h2>
-
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-
+        {/* SEARCH & STATS ROW */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* SEARCH */}
+          <div className="relative w-full max-w-md">
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
+            />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm theo tên, email, số điện thoại..."
-              className="h-10 w-full rounded-xl border border-zinc-200 bg-zinc-50 pl-10 pr-3 text-xs outline-none focus:border-[#b8955a]"
+              className="w-full h-10 rounded-2xl border border-zinc-200/80 bg-white py-2 pl-10 pr-4 text-xs text-zinc-800 shadow-xs outline-none transition focus:border-[#b8955a] focus:ring-2 focus:ring-[#b8955a]/10"
             />
+          </div>
+
+          {/* TỔNG KHÁCH HÀNG BADGE / CARD */}
+          <div className="flex items-center gap-3 self-start rounded-2xl border border-zinc-200/80 bg-white px-5 py-2.5 shadow-xs sm:self-auto">
+            <div className="flex size-9 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+              <Users size={18} />
+            </div>
+            <div>
+              <p className="text-[11px] font-medium text-zinc-500">Tổng khách hàng</p>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-xl font-bold text-zinc-900 tabular-nums">{customers.length}</span>
+                <span className="text-[11px] text-zinc-400">tài khoản</span>
+              </div>
+            </div>
           </div>
         </div>
 
         {error && (
-          <div className="m-5 rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-700">
+          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-700">
             {error}
-
             <button
               onClick={fetchCustomers}
-              className="ml-2 font-bold underline"
+              className="ml-2 font-bold underline cursor-pointer"
             >
               Thử lại
             </button>
           </div>
         )}
 
-        <div className="w-full overflow-x-auto">
-          <table className="w-full min-w-[1000px] text-left text-xs">
-            <thead className="bg-zinc-50 text-zinc-500">
-              <tr>
-                <th className="whitespace-nowrap px-5 py-4">Mã khách hàng</th>
-                <th className="whitespace-nowrap px-5 py-4">Họ tên</th>
-                <th className="whitespace-nowrap px-5 py-4">Số điện thoại</th>
-                <th className="whitespace-nowrap px-5 py-4">Email</th>
-                <th className="whitespace-nowrap px-5 py-4">Ngày gia nhập</th>
-                <th className="whitespace-nowrap px-5 py-4">Trạng thái</th>
-                <th className="whitespace-nowrap px-5 py-4 text-center">Thao tác</th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-zinc-100">
-              {loading && customers.length === 0 ? (
+        {/* CUSTOMERS TABLE */}
+        <div className="overflow-hidden rounded-3xl border border-zinc-200/80 bg-white shadow-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[1000px] text-left text-xs border-collapse">
+              <thead className="bg-zinc-50/90 text-[11px] font-bold uppercase tracking-wider text-zinc-500 border-b border-zinc-100">
                 <tr>
-                  <td colSpan={7} className="p-10 text-center text-zinc-500">
-                    Đang tải dữ liệu khách hàng...
-                  </td>
+                  <th className="px-6 py-4">Mã KH</th>
+                  <th className="px-6 py-4">Họ tên</th>
+                  <th className="px-6 py-4">Số điện thoại</th>
+                  <th className="px-6 py-4">Email</th>
+                  <th className="px-6 py-4">Ngày tham gia</th>
+                  <th className="px-6 py-4 text-center">Trạng thái</th>
+                  <th className="px-6 py-4 text-center">Thao tác</th>
                 </tr>
-              ) : filteredCustomers.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="p-10 text-center text-zinc-500">
-                    Không tìm thấy khách hàng.
-                  </td>
-                </tr>
-              ) : (
-                paginatedCustomers.map((customer) => (
-                  <tr
-                    key={customer.id}
-                    className="transition-colors hover:bg-zinc-50"
-                  >
-                    <td className="whitespace-nowrap px-5 py-4 font-semibold text-[#b8955a]">
-                      {customer.id}
-                    </td>
+              </thead>
 
-                    <td className="whitespace-nowrap px-5 py-4 font-semibold text-zinc-800">
-                      {customer.fullName}
-                    </td>
-
-                    <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
-                      {customer.phone || "Chưa cập nhật"}
-                    </td>
-
-                    <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
-                      {customer.email || "Chưa cập nhật"}
-                    </td>
-
-                    <td className="whitespace-nowrap px-5 py-4 text-zinc-600">
-                      {customer.joinDate || "Chưa cập nhật"}
-                    </td>
-
-                    <td className="whitespace-nowrap px-5 py-4">
-                      <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">
-                        Đã đăng ký
-                      </span>
-                    </td>
-
-                    <td className="whitespace-nowrap px-5 py-4">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          onClick={() => openDetail(customer)}
-                          title="Xem chi tiết"
-                          className="flex size-8 items-center justify-center rounded-lg border border-zinc-200 hover:bg-zinc-100"
-                        >
-                          <Eye size={15} />
-                        </button>
-
-                        <button
-                          onClick={() => openEdit(customer)}
-                          title="Chỉnh sửa"
-                          className="flex size-8 items-center justify-center rounded-lg border border-zinc-200 hover:bg-zinc-100"
-                        >
-                          <Edit3 size={15} />
-                        </button>
-
-                        <button
-                          onClick={() => handleDeleteCustomer(customer)}
-                          title="Xóa khách hàng"
-                          className="flex size-8 items-center justify-center rounded-lg border border-rose-200 text-rose-600 hover:bg-rose-50"
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
+              <tbody className="divide-y divide-zinc-100">
+                {loading && customers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-zinc-400 font-medium">
+                      Đang tải dữ liệu khách hàng...
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : filteredCustomers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-zinc-400">
+                      Không tìm thấy khách hàng.
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedCustomers.map((customer) => (
+                    <tr
+                      key={customer.id}
+                      className="transition-colors hover:bg-zinc-50/80 group"
+                    >
+                      <td className="px-6 py-4 font-mono font-bold text-[#b8955a]">
+                        {customer.id}
+                      </td>
+
+                      <td className="px-6 py-4 font-bold text-zinc-900 group-hover:text-[#b8955a] transition-colors">
+                        {customer.fullName}
+                      </td>
+
+                      <td className="px-6 py-4 text-zinc-600 font-medium tabular-nums">
+                        {customer.phone || "Chưa cập nhật"}
+                      </td>
+
+                      <td className="px-6 py-4 text-zinc-600">
+                        {customer.email || "Chưa cập nhật"}
+                      </td>
+
+                      <td className="px-6 py-4 text-zinc-600 tabular-nums">
+                        {customer.joinDate || "Chưa cập nhật"}
+                      </td>
+
+                      <td className="px-6 py-4 text-center">
+                        <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border border-emerald-200 bg-emerald-50 text-emerald-700">
+                          <span className="size-1.5 rounded-full bg-emerald-500" />
+                          Đã đăng ký
+                        </span>
+                      </td>
+
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => openDetail(customer)}
+                            title="Xem chi tiết"
+                            className="size-7.5 rounded-lg bg-zinc-100 hover:bg-zinc-200/80 text-zinc-600 hover:text-zinc-950 flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95"
+                          >
+                            <Eye size={15} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => openEdit(customer)}
+                            title="Chỉnh sửa"
+                            className="size-7.5 rounded-lg bg-zinc-100 hover:bg-[#b8955a]/15 text-zinc-600 hover:text-[#8a6e3d] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95"
+                          >
+                            <Edit3 size={15} />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCustomer(customer)}
+                            title="Xóa khách hàng"
+                            className="size-7.5 rounded-lg bg-zinc-100 hover:bg-rose-50 text-zinc-500 hover:text-rose-600 flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Phân trang đồng bộ */}
+          <div className="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-100 px-6 py-3.5 text-xs text-zinc-500 bg-zinc-50/50">
+            <div>
+              Hiển thị <strong className="text-zinc-800">{startItem}-{endItem}</strong> trên tổng số <strong className="text-zinc-800">{totalCustomers}</strong> khách hàng
+              <span className="ml-1 text-zinc-400">(Tổng: {customers.length})</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-zinc-500 whitespace-nowrap">Số dòng:</span>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  className="h-8 rounded-lg border border-zinc-200 bg-white px-2 text-xs font-medium text-zinc-700 outline-none focus:border-[#b8955a]"
+                >
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  disabled={currentPage <= 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  className="h-8 px-3 rounded-lg border border-zinc-200 bg-white font-medium hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-white transition-all cursor-pointer"
+                >
+                  Trước
+                </button>
+                <span className="px-2 font-semibold text-zinc-800">
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  type="button"
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  className="h-8 px-3 rounded-lg border border-zinc-200 bg-white font-medium hover:bg-zinc-100 disabled:opacity-40 disabled:hover:bg-white transition-all cursor-pointer"
+                >
+                  Sau
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-4 border-t border-zinc-100 px-5 py-4">
-  {/* Thông tin số lượng */}
-  <div className="text-xs text-zinc-500">
-    Hiển thị{" "}
-    <span className="font-semibold text-zinc-900">
-      {startItem}-{endItem}
-    </span>{" "}
-    trên tổng số{" "}
-    <span className="font-semibold text-zinc-900">
-      {totalCustomers}
-    </span>{" "}
-    khách hàng
-    <span className="ml-1 text-zinc-400">
-      (Tổng: {customers.length})
-    </span>
-  </div>
-
-  <div className="flex flex-wrap items-center gap-3">
-    {/* Chọn số dòng mỗi trang */}
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-zinc-500 whitespace-nowrap">
-        Số dòng:
-      </span>
-
-      <select
-        value={pageSize}
-        onChange={(e) => {
-          setPageSize(Number(e.target.value));
-          setCurrentPage(1);
-        }}
-        className="h-8 rounded-lg border border-zinc-200 bg-white px-2 text-xs font-medium text-zinc-700 outline-none focus:border-[#b8955a]"
-      >
-        <option value={5}>5</option>
+      </main>
         <option value={10}>10</option>
         <option value={20}>20</option>
         <option value={50}>50</option>

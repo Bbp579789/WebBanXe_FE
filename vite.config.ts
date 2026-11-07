@@ -8,7 +8,12 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'https://api.mercedezstudy.net',
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/ai': {
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       },
