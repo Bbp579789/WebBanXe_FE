@@ -1,13 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Heart, ShoppingBag, Zap } from "lucide-react";
+import { ShoppingBag, Zap } from "lucide-react";
 import { Button } from "../ui/button";
 import type { Vehicle } from "../../types";
 
 export interface ProductCardProps {
   car: Vehicle;
   isFavorite?: boolean;
-  onToggleFavorite?: (id: number) => void;
   onAddToCart?: (car: Vehicle) => void;
   onDeposit?: (car: Vehicle) => void;
 }
@@ -17,8 +16,6 @@ const FALLBACK_IMAGE =
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   car,
-  isFavorite = false,
-  onToggleFavorite,
   onAddToCart,
   onDeposit,
 }) => {
@@ -30,53 +27,53 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     Number(car?.deposit_amount) ||
     Math.round(numericPrice * 0.05);
 
-  // Thông tin xe
+  // Thông tin xe từ API
   const brandName = car?.brand || "Mercedes-Benz";
   const modelName = car?.model || "Luxury Model";
-  const carStatus = (car?.status || "new").toUpperCase();
+  const variantName = car?.variant || "";
 
-  const carVin = car?.vin ? String(car.vin) : "";
-  const carVinDisplay = carVin
-    ? `VIN: ${carVin.slice(0, 8)}...`
-    : "VIN: ĐANG CẬP NHẬT";
+  const carStatus = car?.status || "new";
 
-  // Lấy URL ảnh Cloudinary từ trường image_url của bảng vehicle
+  const statusLabel: Record<string, string> = {
+    new: "Xe mới",
+    available: "Sẵn sàng",
+    sold: "Đã bán",
+    reserved: "Đã đặt cọc",
+    pending: "Đang cập nhật",
+  };
+
+  // Ảnh xe
   const displayImage =
     typeof car?.image_url === "string" &&
     car.image_url.trim() !== ""
       ? car.image_url.trim()
       : FALLBACK_IMAGE;
 
-  // Điều hướng sang trang chi tiết xe
+  // Định dạng giá tiền
+  const formatPrice = (price: number) =>
+    price.toLocaleString("vi-VN");
+
+  // Điều hướng chi tiết
   const handleNavigateDetail = (
     e?: React.MouseEvent
   ) => {
     e?.stopPropagation();
 
-    const targetId =
-      car?.id ??
-      (car as any)?._id ??
-      (car as any)?.vehicle_id ??
-      car?.vin ??
-      `${brandName}-${modelName}`
-        .toLowerCase()
-        .replace(/\s+/g, "-");
-
     navigate(
-      `/vehicle-detail/${encodeURIComponent(String(targetId))}`,
+      `/vehicle-detail/${encodeURIComponent(String(car.id))}`,
       {
         state: { vehicle: car },
       }
     );
   };
 
-  // Thêm xe vào giỏ hàng
+  // Thêm vào giỏ hàng
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     onAddToCart?.(car);
   };
 
-  // Xử lý đặt cọc
+  // Đặt cọc
   const handleDeposit = (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -85,9 +82,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       return;
     }
 
-    // Dự phòng khi component cha không truyền onDeposit
     const userName =
       localStorage.getItem("userName") || "guest";
+
     const cartKey = `valoir_cart_${userName}`;
 
     try {
@@ -100,7 +97,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           const targetCar =
             item?.vehicle || item?.car || item;
 
-          return targetCar?.id === car?.id;
+          return Number(targetCar?.id) === Number(car?.id);
         }
       );
 
@@ -158,36 +155,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         <div className="pointer-events-none absolute left-3.5 top-3.5 flex flex-col items-start gap-1.5">
           <span className="rounded border border-white/10 bg-black/75 px-2.5 py-1 font-mono text-[9px] font-semibold uppercase tracking-wider text-white backdrop-blur-md">
-            {car?.badge_top ||
-              `${brandName.toUpperCase()} • ${car?.year || 2024}`}
+            {brandName} • {car?.year || "---"}
           </span>
 
           <span className="rounded bg-[#b8955a] px-2.5 py-0.5 font-mono text-[8.5px] font-bold uppercase tracking-wider text-black shadow-xs">
-            {car?.badge_sub || `STATUS: ${carStatus}`}
+            {statusLabel[carStatus] || carStatus}
           </span>
         </div>
-
-        {/* Nút yêu thích */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-
-            if (car?.id != null) {
-              onToggleFavorite?.(Number(car.id));
-            }
-          }}
-          className="absolute right-3.5 top-3.5 flex size-8 items-center justify-center rounded-full bg-white/90 text-zinc-600 shadow-sm transition hover:text-rose-500 cursor-pointer"
-          aria-label="Yêu thích"
-        >
-          <Heart
-            className={`size-4 ${
-              isFavorite
-                ? "fill-rose-500 text-rose-500"
-                : ""
-            }`}
-          />
-        </button>
       </div>
 
       {/* Thông tin xe */}
@@ -195,12 +169,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <div>
           <div className="mb-1.5 flex items-center justify-between font-mono text-[10px] uppercase tracking-wider text-zinc-500">
             <span>
-              {car?.category_label || carVinDisplay}
+              {variantName || "Mercedes-Benz"}
             </span>
 
             <span>
-              {car?.location_status ||
-                `${car?.year || 2024} • Sẵn sàng`}
+              {car?.year || "---"} • {carStatus === "new" ? "Xe mới" : "Thông tin xe"}
             </span>
           </div>
 
@@ -208,15 +181,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             {brandName} {modelName}
           </h2>
 
+          <p className="mt-1 text-xs font-medium text-[#b8955a]">
+            {variantName}
+          </p>
+
           <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-zinc-600">
             {car?.description ||
-              `Ngoại thất màu ${
-                car?.exterior_color || "tiêu chuẩn"
-              }, nội thất ${
-                car?.interior_color || "cao cấp"
-              }. Động cơ ${
-                car?.engine_no || "chính hãng"
-              }.`}
+              `Mercedes-Benz ${modelName} với ngoại thất ${car?.exterior_color || "cao cấp"} và nội thất ${car?.interior_color || "sang trọng"}.`}
           </p>
 
           {/* Thông số xe */}
@@ -224,28 +195,42 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <div className="flex items-center gap-2 truncate">
               <span className="text-[#b8955a]">✦</span>
               <span className="truncate">
-                Năm: {car?.year || "---"}
+                Động cơ: {car?.engine || "---"}
               </span>
             </div>
 
             <div className="flex items-center gap-2 truncate">
               <span className="text-[#b8955a]">✦</span>
               <span className="truncate">
-                Màu: {car?.exterior_color || "---"}
+                Công suất: {car?.power_hp ? `${car.power_hp} HP` : "---"}
               </span>
             </div>
 
             <div className="flex items-center gap-2 truncate">
               <span className="text-[#b8955a]">✦</span>
               <span className="truncate">
-                Máy: {car?.engine_no || "---"}
+                Ngoại thất: {car?.exterior_color || "---"}
               </span>
             </div>
 
             <div className="flex items-center gap-2 truncate">
               <span className="text-[#b8955a]">✦</span>
               <span className="truncate">
-                Ghế: {car?.interior_color || "---"}
+                Số ghế: {car?.seats ? `${car.seats} chỗ` : "---"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 truncate">
+              <span className="text-[#b8955a]">✦</span>
+              <span className="truncate">
+                Hộp số: {car?.transmission || "---"}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2 truncate">
+              <span className="text-[#b8955a]">✦</span>
+              <span className="truncate">
+                Nhiên liệu: {car?.fuel || "---"}
               </span>
             </div>
           </div>
@@ -253,24 +238,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Giá xe và thao tác */}
         <div>
-          <div className="flex items-end justify-between border-t border-zinc-100 pb-5 pt-2">
+          <div className="flex items-end justify-between border-t border-zinc-100 pb-5 pt-3">
             <div>
               <span className="block font-mono text-[9px] uppercase tracking-widest text-zinc-500">
                 GIÁ NIÊM YẾT CHÍNH THỨC
               </span>
 
               <span className="font-sans text-xl font-bold text-zinc-950">
-                {numericPrice.toLocaleString("en-US")} đ
+                {formatPrice(numericPrice)} đ
               </span>
             </div>
 
             <div className="text-right">
               <span className="block font-mono text-[9px] uppercase tracking-widest text-zinc-500">
-                ĐẶT CỌC BẢO LƯU
+                ĐẶT CỌC DỰ KIẾN (5%)
               </span>
 
               <span className="font-mono text-sm font-semibold text-[#b8955a]">
-                {numericDeposit.toLocaleString("en-US")} đ
+                {formatPrice(numericDeposit)} đ
               </span>
             </div>
           </div>

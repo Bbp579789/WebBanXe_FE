@@ -1,21 +1,3 @@
-// import { apiClient } from './apiClient';
-// import type { VehicleCardItem, Vehicle } from '../../types';
-
-// export const vehicleService = {
-//   // Đổi thành /vehicles/public để không bị chặn quyền 403
-//   getAllVehicles: async (): Promise<VehicleCardItem[]> => {
-//     const res: any = await apiClient.get('/vehicles/public');
-//     return Array.isArray(res) ? res : res?.data || [];
-//   },
-
-//   getVehicleById: async (id: number | string): Promise<Vehicle> => {
-//     const res: any = await apiClient.get(`/vehicles/${id}`);
-//     return res?.data || res;
-//   },
-// };
-
-// export default vehicleService;
-
 
 import api from "../axios";
 import type { Vehicle } from "../../../types";
@@ -33,18 +15,27 @@ interface VehiclesResponse {
 }
 
 /**
- * Lấy danh sách xe công khai
- * GET /api/v1/vehicles/public
+ * Lấy danh sách xe công khai có phân trang
+ * GET /api/v1/vehicles/public?page=1&limit=10
  */
-export const getVehicles = async (): Promise<Vehicle[]> => {
-  const response = await api.get<VehiclesResponse>("/vehicles/public");
+export const getVehicles = async (
+  params: { page: number; limit: number }
+): Promise<VehiclesResponse> => {
+  const response = await api.get<VehiclesResponse>(
+    "/vehicles/public",
+    {
+      params: {
+        page: params.page,
+        limit: params.limit,
+      },
+    }
+  );
 
-  return response.data.data;
+  return response.data;
 };
 
 /**
  * Lấy thông tin chi tiết xe công khai theo ID
- * GET /api/v1/vehicles/public/:id
  */
 export const getVehicleById = async (
   id: number
@@ -55,3 +46,42 @@ export const getVehicleById = async (
 
   return response.data.data;
 };
+
+// import api from "../axios";
+// import type { Vehicle } from "../../../types";
+
+// interface VehiclesResponse {
+//   message: string;
+//   status: number;
+//   data: Vehicle[];
+//   pagination: {
+//     limit: number;
+//     page: number;
+//     total: number;
+//     totalPages: number;
+//   };
+// }
+
+// /**
+//  * Lấy danh sách xe công khai
+//  * GET /api/v1/vehicles/public
+//  */
+// export const getVehicles = async (p0: { page: number; limit: number; }): Promise<Vehicle[]> => {
+//   const response = await api.get<VehiclesResponse>("/vehicles/public");
+
+//   return response.data.data;
+// };
+
+// /**
+//  * Lấy thông tin chi tiết xe công khai theo ID
+//  * GET /api/v1/vehicles/public/:id
+//  */
+// export const getVehicleById = async (
+//   id: number
+// ): Promise<Vehicle> => {
+//   const response = await api.get(
+//     `/vehicles/public/${id}`
+//   );
+
+//   return response.data.data;
+// };

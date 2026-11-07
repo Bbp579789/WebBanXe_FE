@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '../ui/button';
 import { Image } from '../ui/image';
 import banner1 from '../../assets/image/banner1.jpg';
 import banner2 from '../../assets/image/banner2.jpg';
@@ -12,33 +11,29 @@ interface BannerItem {
   title: string;
   subtitle: string;
   imageUrl: string;
-  linkText: string;
 }
 
 const BANNERS: BannerItem[] = [
   {
     id: '1',
     tag: 'Exclusive Collection',
-    title: 'THE NEW MERCEDES-BENZ',
-    subtitle: 'Định nghĩa lại chuẩn mực xa xỉ và công nghệ hỗ trợ thông minh.',
+    title: 'MERCEDES-BENZ',
+    subtitle: 'Khám phá thế giới Mercedes-Benz – nơi tinh hoa thiết kế, công nghệ tiên phong và nghệ thuật chế tác hội tụ. Mỗi hành trình là một dấu ấn riêng, khẳng định phong cách và đẳng cấp của chủ nhân',
     imageUrl: banner1,
-    linkText: 'Khám phá ngay',
   },
   {
     id: '2',
-    tag: 'Bespoke Experience',
-    title: 'BMW BESPOKE COLLECTION',
-    subtitle: 'Đặc quyền trải nghiệm dịch vụ Bespoke chuyên biệt cùng chuyên viên 24/7.',
+    tag: 'Ultimate Prestige',
+    title: 'MERCEDES-MAYBACH',
+    subtitle: 'Vượt xa mọi chuẩn mực về sự xa hoa. Mercedes-Maybach kiến tạo không gian tận hưởng đỉnh cao với những đường nét tinh xảo, chất liệu thượng hạng và sự tiện nghi được chăm chút đến từng chi tiết.',
     imageUrl: banner2,
-    linkText: 'Khám phá ngay',
   },
   {
     id: '3',
-    tag: 'Bespoke Experience',
-    title: 'BMW Buworld Bespoke Collection',
-    subtitle: 'Đặc quyền trải nghiệm dịch vụ Bespoke chuyên biệt cùng chuyên viên 24/7.',
+    tag: 'Performance & Passion',
+    title: 'MERCEDES-AMG',
+    subtitle: 'Sinh ra từ đường đua, chinh phục mọi giới hạn. Mercedes-AMG kết hợp sức mạnh động cơ, công nghệ vận hành tiên tiến và tinh thần thể thao mạnh mẽ, mang đến cảm xúc khác biệt trên mọi cung đường.',
     imageUrl: banner3,
-    linkText: 'Khám phá ngay',
   },
 ];
 
@@ -89,32 +84,19 @@ export const BannerSlider: React.FC = () => {
             {/* Nội dung Banner */}
             <div className="absolute inset-0 flex flex-col justify-center px-8 sm:px-16 lg:px-24 text-white pt-16">
               {banner.tag && (
-                <span className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#b8955a] font-serif mb-2">
+                <span className="text-[11px] font-semibold tracking-[0.3em] uppercase text-[#b8955a] mb-2 font-['Be_Vietnam_Pro']">
                   {banner.tag}
                 </span>
               )}
 
-              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold max-w-3xl leading-tight tracking-wider uppercase font-serif">
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-bold max-w-3xl leading-[1.3] tracking-wider uppercase font-['Be_Vietnam_Pro']">
                 {banner.title}
               </h2>
 
-              <p className="mt-4 text-xs sm:text-sm text-zinc-300 max-w-lg leading-relaxed font-light font-serif">
+              <p className="mt-4 text-xs sm:text-sm text-zinc-300 max-w-lg leading-[1.9] font-light font-['Be_Vietnam_Pro']">
                 {banner.subtitle}
               </p>
 
-              {/* Nút hành động dùng Button component */}
-              <div className="mt-8 flex items-center gap-4">
-                <Button variant="brand" size="default" className="rounded-full px-8">
-                  {banner.linkText}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="default"
-                  className="rounded-full px-7 border-white/40 text-white hover:border-white hover:bg-white/10 backdrop-blur-sm"
-                >
-                  Yêu cầu tư vấn
-                </Button>
-              </div>
             </div>
           </div>
         ))}

@@ -7,13 +7,13 @@ import { Button } from '../../components/ui/button';
 export const CartContainerSection: React.FC = () => {
   const navigate = useNavigate();
   // Bổ sung thêm handleUpdateQuantity từ hook useCart
-  const { cartItems, subtotal, handleRemove, handleUpdateQuantity } = useCart();
+  const { cartItems, subtotal, handleRemove} = useCart();
 
   // Tính toán số lượng & tài chính từ dữ liệu DB
   const totalVehiclesCount = cartItems.reduce((acc, item) => acc + (Number(item.quantity) || 1), 0);
-  
-  // Tiền cọc mặc định 50.000.000 VNĐ / xe
-  const depositPerCar = 50000000;
+
+  // Tiền cọc mặc định 20.000.000 VNĐ / xe
+  const depositPerCar = 20000000;
   const totalDeposit = totalVehiclesCount * depositPerCar;
 
   // Thuế & phụ phí dự tính (Có thể tính theo % giá xe thực tế)
@@ -57,7 +57,7 @@ export const CartContainerSection: React.FC = () => {
             const modelName = vehicle.model || 'Atelier Model';
             const carYear = vehicle.year || 2026;
             const vinNo = vehicle.vin || `VLR-VIN-${vehicle.id || '9921'}`;
-            const engineNo = vehicle.engine_no || 'V8 Twin-Turbo Hybrid';
+            const engineNo = vehicle.engine || 'V8 Twin-Turbo Hybrid';
             const exteriorColor = vehicle.exterior_color || 'Selenite Gray Magno';
             const interiorColor = vehicle.interior_color || 'AMG Black Nappa / Red Stitch';
             const price = Number(vehicle.price) || 0;

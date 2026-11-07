@@ -18,7 +18,6 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({
   const {
     allVehicles = [],
     favorites = [],
-    toggleFavorite,
     isLoading,
   } = useVehicles();
 
@@ -118,7 +117,7 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({
           </span>
 
           <h2 className="mt-1.5 text-3xl font-serif font-bold tracking-tight text-zinc-950 sm:text-4xl">
-            Sản phẩm của chúng tôi
+            Bộ sưu tập của chúng tôi
           </h2>
         </div>
 
@@ -150,7 +149,6 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({
               }
               car={car}
               isFavorite={favorites.includes(Number(car?.id))}
-              onToggleFavorite={toggleFavorite}
               onAddToCart={handleAddToCart}
               onDeposit={handleDeposit}
             />

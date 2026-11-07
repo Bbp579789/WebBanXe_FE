@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Building2, Home } from "lucide-react";
 
@@ -23,10 +24,10 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
   errors = {},
 }) => {
   const inputClass =
-    "w-full h-11 px-4 bg-zinc-50 border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:border-zinc-400 focus:bg-white transition";
+    "w-full h-11 px-4 bg-zinc-50 border border-zinc-200 rounded-xl text-sm font-medium font-sans focus:outline-none focus:border-zinc-400 focus:bg-white transition";
 
   const labelClass =
-    "text-[10px] font-bold text-zinc-800 uppercase tracking-wider";
+    "text-[10px] font-bold text-zinc-800 uppercase tracking-wider font-sans";
 
   const fields = [
     {
@@ -50,24 +51,24 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
   ] as const;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       {/* Thông tin hồ sơ */}
       <section className="bg-white rounded-3xl border border-zinc-200/90 p-6 sm:p-8 shadow-xs">
         <div className="flex items-center gap-3 mb-6">
-          <span className="px-2 py-1 bg-zinc-100 text-[10px] font-mono font-bold text-zinc-800 rounded">
+          <span className="px-2 py-1 bg-zinc-100 text-[10px] font-bold font-sans text-zinc-800 rounded">
             MỤC 01 / 02
           </span>
 
-          <span className="text-[11px] font-mono text-[#b8955a] font-bold uppercase tracking-widest">
+          <span className="text-[11px] font-sans text-[#b8955a] font-bold uppercase tracking-widest">
             Pháp lý sở hữu
           </span>
         </div>
 
-        <h2 className="text-xl font-serif font-bold text-zinc-950 mb-1">
+        <h2 className="text-xl font-sans font-bold text-zinc-950 mb-1">
           1. Thông Tin Hồ Sơ Đứng Tên Xe
         </h2>
 
-        <p className="text-xs text-zinc-500 mb-6">
+        <p className="text-xs font-sans text-zinc-500 mb-6">
           Thông tin liên hệ chính thức để đăng ký hồ sơ và xuất hóa đơn GTGT.
         </p>
 
@@ -85,7 +86,7 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
               />
 
               {errors[field] && (
-                <p className="text-xs text-red-600">
+                <p className="text-xs text-red-600 font-sans">
                   {errors[field]}
                 </p>
               )}
@@ -97,16 +98,16 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
       {/* Phương thức nhận xe */}
       <section className="bg-white rounded-3xl border border-zinc-200/90 p-6 sm:p-8 shadow-xs">
         <div className="flex items-center gap-3 mb-6">
-          <span className="px-2 py-1 bg-zinc-100 text-[10px] font-mono font-bold text-zinc-800 rounded">
+          <span className="px-2 py-1 bg-zinc-100 text-[10px] font-bold font-sans text-zinc-800 rounded">
             MỤC 02 / 02
           </span>
 
-          <span className="text-[11px] font-mono text-[#b8955a] font-bold uppercase tracking-widest">
-            Nghi thức bàn giao
+          <span className="text-[11px] font-sans text-[#b8955a] font-bold uppercase tracking-widest">
+            Phương thức bàn giao
           </span>
         </div>
 
-        <h2 className="text-xl font-serif font-bold text-zinc-950 mb-1">
+        <h2 className="text-xl font-sans font-bold text-zinc-950 mb-1">
           2. Phương Thức Tiếp Nhận Xe
         </h2>
 
@@ -116,14 +117,14 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
             type="button"
             aria-pressed={deliveryMethod === "atelier"}
             onClick={() => onDeliveryMethodChange("atelier")}
-            className={`text-left p-5 rounded-2xl border-2 relative transition-all duration-200 ${
+            className={`text-left p-5 rounded-2xl border-2 relative transition-all duration-200 font-sans ${
               deliveryMethod === "atelier"
                 ? "border-zinc-900 bg-white shadow-sm"
                 : "border-zinc-200 bg-zinc-50/50 hover:border-zinc-400"
             }`}
           >
             <span
-              className={`absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded ${
+              className={`absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded font-sans ${
                 deliveryMethod === "atelier"
                   ? "text-emerald-700 bg-emerald-100"
                   : "text-zinc-500 bg-zinc-200/60"
@@ -140,11 +141,11 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
               }`}
             />
 
-            <h3 className="text-sm font-bold text-zinc-900">
+            <h3 className="text-sm font-bold font-sans text-zinc-900">
               Bàn giao tại Atelier Lounge
             </h3>
 
-            <p className="text-[11px] text-zinc-500 mt-2 leading-relaxed">
+            <p className="text-[11px] font-sans text-zinc-500 mt-2 leading-relaxed">
               Nhận xe tại đại lý trong không gian riêng tư.
             </p>
           </button>
@@ -154,21 +155,13 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
             type="button"
             aria-pressed={deliveryMethod === "home"}
             onClick={() => onDeliveryMethodChange("home")}
-            className={`text-left p-5 rounded-2xl border-2 relative transition-all duration-200 ${
+            className={`text-left p-5 rounded-2xl border-2 relative transition-all duration-200 font-sans ${
               deliveryMethod === "home"
                 ? "border-zinc-900 bg-white shadow-sm"
                 : "border-zinc-200 bg-zinc-50/50 hover:border-zinc-400"
             }`}
           >
-            <span
-              className={`absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded ${
-                deliveryMethod === "home"
-                  ? "text-[#b8955a] bg-[#b8955a]/10"
-                  : "text-zinc-500 bg-zinc-200/60"
-              }`}
-            >
-              +3.000.000 đ
-            </span>
+           
 
             <Home
               className={`size-6 mb-3 ${
@@ -178,11 +171,11 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
               }`}
             />
 
-            <h3 className="text-sm font-bold text-zinc-900">
+            <h3 className="text-sm font-bold font-sans text-zinc-900">
               Bàn giao tận tư gia
             </h3>
 
-            <p className="text-[11px] text-zinc-500 mt-2 leading-relaxed">
+            <p className="text-[11px] font-sans text-zinc-500 mt-2 leading-relaxed">
               Vận chuyển xe chuyên dụng và bàn giao tại địa chỉ của bạn.
             </p>
           </button>
@@ -200,11 +193,11 @@ export const PaymentDeliveryProfileSection: React.FC<Props> = ({
               }
               rows={3}
               placeholder="Nhập số nhà, đường, phường/xã, quận/huyện, tỉnh/thành..."
-              className="w-full p-4 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:border-zinc-400 focus:bg-white transition resize-y"
+              className="w-full p-4 bg-zinc-50 border border-zinc-200 rounded-xl text-sm font-sans focus:outline-none focus:border-zinc-400 focus:bg-white transition resize-y"
             />
 
             {errors.homeAddress && (
-              <p className="text-xs text-red-600">
+              <p className="text-xs text-red-600 font-sans">
                 {errors.homeAddress}
               </p>
             )}

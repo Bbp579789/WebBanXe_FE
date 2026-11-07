@@ -17,9 +17,9 @@ export const CartPage: React.FC = () => {
         <CartContainerSection />
       </main>
 
-      {/* 3. Footer & Chatbot */}
+      {/* 3. Footer & Chatbot
       <Footer />
-      <AIChatWidget />
+      <AIChatWidget /> */}
     </div>
   );
 };

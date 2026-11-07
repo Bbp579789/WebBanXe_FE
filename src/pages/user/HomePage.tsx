@@ -1,6 +1,6 @@
 import React from 'react';
 import { MaybachShowcase } from '../../sections/home/MaybachShowcase';
-import { AtelierProtocols } from '../../sections/home/AtelierProtocols';
+// import { AtelierProtocols } from '../../sections/home/AtelierProtocols';
 import BannerSlider from '../../components/common/BannerSlider';
 
 
@@ -10,7 +10,7 @@ export const HomePage: React.FC = () => {
 
       <BannerSlider />
       <MaybachShowcase />
-      <AtelierProtocols />
+      {/* <AtelierProtocols /> */}
 
     </div>
   );

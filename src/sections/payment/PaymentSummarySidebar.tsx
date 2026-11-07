@@ -52,14 +52,7 @@ export const PaymentSummarySidebar: React.FC<Props> = ({
             {deliveryMethod === "atelier" ? "Atelier Lounge" : "Tại nhà"}
           </span>
         </div>
-        {deliveryMethod === "home" && (
-          <div className="flex justify-between text-zinc-600">
-            <span>Phí giao xe dự kiến:</span>
-            <span className="font-mono font-bold text-zinc-900">
-              3.000.000 đ
-            </span>
-          </div>
-        )}
+        
       </div>
 
       {/* <div className="p-5 rounded-2xl bg-zinc-50 border border-zinc-200/80 space-y-2 text-center mb-6">
