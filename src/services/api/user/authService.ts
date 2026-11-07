@@ -509,6 +509,10 @@ export const authService = {
 
   // Đăng xuất
   logout: () => {
+    void apiClient.post("/auth/logout").catch((error: unknown) => {
+      console.error("Logout request failed:", error);
+    });
+
     localStorage.removeItem("access_token");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userRole");
@@ -519,6 +523,17 @@ export const authService = {
 
     window.dispatchEvent(new Event("authChange"));
     window.dispatchEvent(new Event("cartChange"));
+  },
+
+  // Kiểm tra phiên đăng nhập bằng HttpOnly cookie.
+  getCurrentUser: async (): Promise<AuthUser> => {
+    const user = await apiClient.get<AuthUser>("/users/me");
+
+    if (!user || typeof user !== "object") {
+      throw new Error("Backend không trả về thông tin người dùng.");
+    }
+
+    return user as unknown as AuthUser;
   },
 
   // Kiểm tra đăng nhập customer

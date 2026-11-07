@@ -7,10 +7,9 @@ import { CategorySheet } from './header/CategorySheet';
 import { LoginDialog } from './header/LoginDialog';
 import { useScrollThreshold } from '../../hooks/useScrollThreshold';
 import type { HeaderProps } from '../../types/header.types';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSolid = false }) => {
-  const navigate = useNavigate();
   const isSolid = useScrollThreshold(20);
   const [isHovered, setIsHovered] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
