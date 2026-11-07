@@ -135,7 +135,7 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
         <div className="w-full bg-white rounded-[28px] p-8 sm:p-9 shadow-2xl text-zinc-900">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold font-sans text-zinc-900 tracking-tight">
-              Log in
+              Đăng nhập
             </h2>
             <button
               type="button"
@@ -156,6 +156,11 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="relative">
+                <div className="flex items-center justify-between mb-1.5 px-0.5">
+                <label className="text-xs font-medium text-zinc-700">
+                  Email <span className="text-rose-500 font-bold">*</span>
+                </label>
+              </div>
               <input
                 type="email" // Chuyển thành type="email" cho chuẩn xác
                 value={account}
