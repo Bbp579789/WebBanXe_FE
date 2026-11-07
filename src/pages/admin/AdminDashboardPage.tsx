@@ -98,27 +98,34 @@ export const AdminDashboardPage: React.FC = () => {
     ).length;
   }, [contracts]);
 
-  // 4. Dữ liệu biểu đồ doanh thu theo các tháng (tính từ hợp đồng thực)
+  // 4. Dữ liệu biểu đồ doanh thu theo các tháng (tính từ hợp đồng thực, sắp xếp theo thời gian)
   const monthlyRevenueData = useMemo(() => {
     if (contracts.length === 0) return [];
 
-    // Nhóm theo YYYY-MM
-    const map = new Map<string, number>();
+    // Nhóm theo YYYY-MM để sắp xếp đúng thứ tự thời gian từ cũ đến mới
+    const map = new Map<string, { label: string; total: number }>();
 
     contracts.forEach((c) => {
       if (c.contract_status === 'cancelled' || !c.created_at) return;
       const d = new Date(c.created_at);
       if (Number.isNaN(d.getTime())) return;
 
-      const key = `T${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`;
+      const sortKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = `T${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getFullYear()).slice(-2)}`;
       const amount = Number(c.total_amount) || 0;
-      map.set(key, (map.get(key) || 0) + amount);
+      const current = map.get(sortKey);
+      map.set(sortKey, {
+        label,
+        total: (current?.total || 0) + amount,
+      });
     });
 
-    return Array.from(map.entries()).map(([name, val]) => ({
-      name,
-      value: Number((val / 1_000_000_000).toFixed(2)),
-    }));
+    return Array.from(map.entries())
+      .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+      .map(([, item]) => ({
+        name: item.label,
+        value: Number((item.total / 1_000_000_000).toFixed(2)),
+      }));
   }, [contracts]);
 
   // 5. Phân bổ xe theo phân khúc thực tế

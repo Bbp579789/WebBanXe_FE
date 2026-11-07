@@ -52,8 +52,7 @@ api.interceptors.request.use(
   (config) => {
     const token =
       localStorage.getItem("access_token") ||
-      localStorage.getItem("accessToken") ||
-      localStorage.getItem("admin_access_token");
+      localStorage.getItem("accessToken");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
