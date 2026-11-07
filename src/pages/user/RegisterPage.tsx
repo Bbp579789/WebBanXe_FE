@@ -1,0 +1,416 @@
+
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { Button } from '../../components/ui/button';
+import { Input } from '../../components/ui/input';
+import { Card, CardContent } from '../../components/ui/card';
+import { Icon } from '../../components/ui/icon';
+import { Eye, EyeOff } from 'lucide-react';
+import telegramAuthService from '../../services/api/user/telegramAuthService';
+
+export const RegisterPage: React.FC = () => {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    country: 'Vietnam',
+    agreeTerms: false,
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.agreeTerms) {
+      alert('Vui lòng đồng ý với Điều khoản dịch vụ.');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      alert('Mật khẩu xác nhận không khớp!');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const cleanEmail = formData.email.trim();
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+
+      const emailPrefix = cleanEmail
+        .split('@')[0]
+        .replace(/[^a-zA-Z0-9]/g, '');
+
+      const uniqueUsername = `${emailPrefix}${Math.floor(
+        1000 + Math.random() * 9000
+      )}`;
+
+      await axios.post(
+        'https://api.mercedezstudy.net/api/v1/auth/register',
+        {
+          username: uniqueUsername,
+          email: cleanEmail,
+          full_name: fullName,
+          phone: formData.phone.trim() || '0900000000',
+          password: formData.password,
+          address: formData.country,
+        }
+      );
+
+      sessionStorage.setItem('registeredEmail', cleanEmail);
+      sessionStorage.setItem(
+        'registerSuccess',
+        'Đăng ký tài khoản thành công! Vui lòng đăng nhập.'
+      );
+
+      navigate('/');
+
+      setTimeout(() => {
+        window.dispatchEvent(new Event('openLoginDialog'));
+      }, 500);
+    } catch (error: any) {
+      console.error('Chi tiết lỗi từ Backend:', error?.response?.data);
+
+      const backendMessage =
+        error?.response?.data?.error ||
+        error?.response?.data?.message ||
+        JSON.stringify(error?.response?.data) ||
+        'Đăng ký thất bại. Vui lòng kiểm tra lại thông tin!';
+
+      alert(`Lỗi đăng ký: ${backendMessage}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTelegramRegister = () => {
+    try {
+      telegramAuthService.login();
+    } catch (error) {
+      console.error('Telegram OAuth error:', error);
+      alert('Không thể kết nối Telegram. Vui lòng thử lại.');
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen w-full bg-[#0d0e11] text-zinc-100 flex flex-col justify-center items-center py-10 px-6 select-none overflow-x-hidden font-sans">
+      {/* Background Dot Pattern */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-20"
+        style={{
+          backgroundImage: 'radial-gradient(#a1a1aa 1px, transparent 1px)',
+          backgroundSize: '36px 36px',
+        }}
+      />
+
+      {/* Breadcrumb */}
+      <nav
+        aria-label="Breadcrumb"
+        className="fixed top-6 left-6 z-40 inline-flex items-center gap-2 text-xs font-mono text-zinc-400 bg-zinc-900/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 shadow-lg"
+      >
+        <Link
+          to="/"
+          className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer"
+        >
+          <Icon name="home" className="size-3.5" />
+          <span>Home</span>
+        </Link>
+
+        <span className="text-zinc-600">/</span>
+        <span className="text-[#b8955a] font-medium">Register</span>
+      </nav>
+
+      {/* Main Form */}
+      <div className="relative z-10 w-full max-w-md flex flex-col items-center">
+        {/* Brand Logo */}
+        <div className="flex flex-col items-center mb-6 text-center">
+          <div className="h-14 w-14 rounded-full bg-white border border-zinc-200 flex items-center justify-center p-2.5 text-[#b8955a] shadow-xl mb-3">
+            <Icon name="logo" className="w-full h-full" />
+          </div>
+
+          <h1 className="text-xl font-bold tracking-[0.25em] text-white uppercase font-serif">
+            MERCEDES-BENZ
+          </h1>
+
+          <p className="text-[9px] tracking-[0.22em] text-zinc-400 uppercase font-mono mt-1">
+            Authorized Dealer Portal
+          </p>
+        </div>
+
+        <Card className="w-full bg-white text-zinc-900 rounded-[28px] border-none shadow-2xl shadow-black/80 overflow-hidden">
+          <CardContent className="p-6 sm:p-8">
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-zinc-950">
+                Create your account
+              </h2>
+
+              <button
+                type="button"
+                className="text-zinc-400 hover:text-zinc-600 transition"
+                title="Thông tin"
+              >
+                <Icon name="info" className="size-4.5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+              {/* Email */}
+              <div>
+                <label className="block font-medium text-zinc-700 mb-1">
+                  Email Address <span className="text-rose-500">*</span>
+                </label>
+
+                <Input
+                  type="email"
+                  required
+                  placeholder="customer@valoir.com"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="rounded-xl bg-zinc-50 border-sky-500 text-zinc-900 focus-visible:ring-1 focus-visible:ring-sky-500"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label className="block font-medium text-zinc-700 mb-1">
+                  Password <span className="text-rose-500">*</span>
+                </label>
+
+                <div className="relative">
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••••••"
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
+                    className="rounded-xl bg-zinc-100 border-transparent pr-10 text-zinc-900 focus:bg-white focus:border-zinc-300 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-zinc-900" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-zinc-400" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label className="block font-medium text-zinc-700 mb-1">
+                  Confirm Password <span className="text-rose-500">*</span>
+                </label>
+
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    placeholder="••••••••••••"
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    className="rounded-xl bg-zinc-100 border-transparent pr-10 text-zinc-900 focus:bg-white focus:border-zinc-300 [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowConfirmPassword(!showConfirmPassword)
+                    }
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4 text-zinc-900 transition-colors" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-zinc-400 transition-colors" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* First Name & Last Name */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block font-medium text-zinc-700 mb-1">
+                    First Name <span className="text-rose-500">*</span>
+                  </label>
+
+                  <Input
+                    type="text"
+                    required
+                    placeholder="Sarah"
+                    value={formData.firstName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, firstName: e.target.value })
+                    }
+                    className="rounded-xl bg-zinc-100 border-transparent text-zinc-900 focus:bg-white focus:border-zinc-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-medium text-zinc-700 mb-1">
+                    Last Name <span className="text-rose-500">*</span>
+                  </label>
+
+                  <Input
+                    type="text"
+                    required
+                    placeholder="Jenkins"
+                    value={formData.lastName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, lastName: e.target.value })
+                    }
+                    className="rounded-xl bg-zinc-100 border-transparent text-zinc-900 focus:bg-white focus:border-zinc-300"
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block font-medium text-zinc-700 mb-1">
+                  Phone Number <span className="text-rose-500">*</span>
+                </label>
+
+                <Input
+                  type="text"
+                  required
+                  placeholder="0988 123 456"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, phone: e.target.value })
+                  }
+                  className="rounded-xl bg-zinc-100 border-transparent text-zinc-900 focus:bg-white focus:border-zinc-300"
+                />
+              </div>
+
+              {/* Terms */}
+              <div className="pt-2">
+                <div className="flex items-center gap-2.5">
+                  <label
+                    htmlFor="terms"
+                    className="relative flex items-center justify-center cursor-pointer select-none"
+                  >
+                    <input
+                      type="checkbox"
+                      id="terms"
+                      checked={formData.agreeTerms}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setFormData({
+                          ...formData,
+                          agreeTerms: e.target.checked,
+                        })
+                      }
+                      className="peer sr-only"
+                    />
+
+                    <div
+                      className={`size-4 rounded border flex items-center justify-center transition-all ${
+                        formData.agreeTerms
+                          ? 'bg-[#0284c7] border-[#0284c7] text-white'
+                          : 'border-zinc-500 bg-transparent hover:border-zinc-300'
+                      }`}
+                    >
+                      {formData.agreeTerms && (
+                        <svg
+                          className="size-3 stroke-current stroke-[2.5] fill-none"
+                          viewBox="0 0 24 24"
+                        >
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                      )}
+                    </div>
+                  </label>
+
+                  <label
+                    htmlFor="terms"
+                    className="text-[12px] text-zinc-600 cursor-pointer select-none flex items-center gap-1"
+                  >
+                    <span>I agree to the following</span>
+                    <a
+                      href="#terms"
+                      className="text-sky-500 hover:underline font-medium"
+                    >
+                      Terms of Use
+                    </a>
+                    <span className="text-rose-500">*</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Email Register */}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-3 h-11 rounded-xl bg-[#b8955a] hover:bg-[#a47f48] active:scale-[0.99] text-white font-medium text-xs tracking-wider transition-all shadow-md cursor-pointer disabled:opacity-50"
+              >
+                {loading ? 'Creating Account...' : 'Create Account'}
+              </Button>
+
+              {/* Divider */}
+              <div className="relative flex items-center py-2">
+                <div className="flex-grow border-t border-zinc-200" />
+                <span className="px-3 text-[10px] uppercase tracking-widest text-zinc-400">
+                  Or register with
+                </span>
+                <div className="flex-grow border-t border-zinc-200" />
+              </div>
+
+              {/* Telegram Register */}
+              <button
+                type="button"
+                onClick={handleTelegramRegister}
+                disabled={loading}
+                className="w-full h-11 flex items-center justify-center gap-3 rounded-xl border border-[#229ED9] bg-white text-[#168AC0] hover:bg-[#229ED9] hover:text-white font-medium text-xs tracking-wide transition-all duration-200 disabled:opacity-50"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path d="M21.8 3.2 18.6 20c-.2 1.2-.9 1.5-1.8 1l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L6 13.6 1.1 12c-1.1-.3-1.1-1.1.2-1.6L20.4 2.9c.9-.3 1.7.2 1.4 1.3Z" />
+                </svg>
+
+                Continue with Telegram
+              </button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <p className="mt-5 text-xs text-zinc-400">
+          Already have an account?{' '}
+          <Link
+            to="/login"
+            className="text-white font-medium underline hover:text-[#b8955a] transition"
+          >
+            Log in
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default RegisterPage;

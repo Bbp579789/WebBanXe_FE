@@ -1,0 +1,115 @@
+import type { AiProductCard, AiSource } from './ai.types';
+
+export interface Product {
+  id: string;
+  name: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+  stock: number;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'bot' | 'admin' | 'system';
+  content: string;
+  timestamp: string;
+  // Thẻ xe, nguồn trích dẫn, kiểu trả lời (chỉ có ở tin của bot)
+  products?: AiProductCard[];
+  sources?: AiSource[];
+  mode?: string;
+}
+
+// ==========================================
+// 1. DATABASE ENTITIES (KHỚP ERD)
+// ==========================================
+
+export type TestDriveStatus = 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+export type UserRole = 'CUSTOMER' | 'SALES' | 'ACCOUNTANT' | 'ADMIN';
+export type PurchaseType = 'FULL_PAYMENT' | 'INSTALLMENT' | 'DEPOSIT';
+export type VehicleStatus = 'new' | 'used' | 'sold' | 'reserved' | string;
+
+export interface Vehicle {
+  drivetrain: string | number;
+  top_speed: any;
+  acceleration: any;
+  torque_nm: any;
+  fuel: string;
+  transmission: string;
+  seats: any;
+  power_hp: any;
+  engine: string;
+  id: number;
+  vin: string;
+  // engine_no: string;
+  brand: string;
+  model: string;
+  variant?: string;
+  year: number;
+  image_url?: string | null;
+  exterior_color: string;
+  interior_color: string;
+  cost_price: number | string;
+  price: number | string;
+  status: VehicleStatus;
+  created_at?: string;
+  updated_at?: string;
+
+  // Các trường bổ trợ UI (tùy chọn - nếu Backend có join thêm)
+  deposit_amount?: number | string;
+  badge_top?: string;
+  badge_sub?: string;
+  category_label?: string;
+  location_status?: string;
+  description?: string;
+  specs?: Array<{ label?: string; value: string }>;
+}
+
+export type VehicleCardItem = Vehicle;
+
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  phone: string;
+  full_name: string;
+  role: UserRole;
+  address?: string;
+}
+
+export interface TestDrive {
+  id: number;
+  user_id: number;
+  vehicle_id: number;
+  driver_license_no: string;
+  scheduled_at: string;
+  timeline: number; // 1: Sáng, 2: Chiều
+  status: TestDriveStatus;
+  note?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CartItem {
+  id: number;
+  cart_id: number;
+  vehicle_id: number;
+  quantity: number;
+  vehicle?: Vehicle;
+}
+
+// ==========================================
+// 2. UI EXTENDED TYPES (HIỂN THỊ SHOWCASE)
+// ==========================================
+
+
+
+export interface TestDriveFormData {
+  user_name: string;
+  phone: string;
+  driver_license_no: string;
+  vehicle_id: number;
+  scheduled_at?: string;
+  timeline?: number;
+  note?: string;
+}
