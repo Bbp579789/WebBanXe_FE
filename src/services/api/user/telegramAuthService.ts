@@ -1,6 +1,9 @@
 
 import apiClient from "./apiClient";
 
+const API_ORIGIN = "https://api.mercedezstudy.net";
+const TELEGRAM_LOGIN_URL = `${API_ORIGIN}/api/v1/auth/telegram/login`;
+
 /* =========================================
    TELEGRAM TYPES
 ========================================= */
@@ -50,17 +53,11 @@ const notifyTelegramAuth = (
 export const telegramAuthService = {
   /**
    * GET /auth/telegram/login
-   * Chuyển trình duyệt sang Telegram OAuth.
+   * Chuyển trình duyệt sang Telegram OAuth để backend tạo state và cookie mới.
+   * Không dùng fetch vì endpoint này phải được mở như một browser navigation.
    */
   login: (): void => {
-    const apiUrl = (
-      import.meta.env.VITE_API_URL ||
-      "https://api.mercedezstudy.net/api/v1"
-    ).replace(/\/$/, "");
-
-    window.location.assign(
-      `${apiUrl}/auth/telegram/login`
-    );
+    window.location.assign(TELEGRAM_LOGIN_URL);
   },
 
   /**
