@@ -57,6 +57,11 @@ export const telegramAuthService = {
    * Không dùng fetch vì endpoint này phải được mở như một browser navigation.
    */
   login: (): void => {
+    // Telegram uses an HttpOnly cookie. Do not let a stale website token
+    // override the cookie on the first /users/me request after redirect.
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("userRole");
     window.location.assign(TELEGRAM_LOGIN_URL);
   },
 

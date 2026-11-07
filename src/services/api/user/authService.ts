@@ -539,7 +539,21 @@ export const authService = {
 
   // Kiểm tra phiên đăng nhập bằng HttpOnly cookie.
   getCurrentUser: async (): Promise<AuthUser> => {
-    const response = await apiClient.get<AuthUser>("/users/me");
+    let response: unknown;
+
+    try {
+      response = await apiClient.get<AuthUser>("/users/me");
+    } catch (error: unknown) {
+      const status = (error as { response?: { status?: number } })?.response?.status;
+
+      // Retry once with cookie authentication if an old local JWT was rejected.
+      if (status !== 401 && status !== 403) throw error;
+
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("accessToken");
+      response = await apiClient.get<AuthUser>("/users/me");
+    }
+
     const data = getAuthData(response);
     const user = data.user || (data as AuthUser);
 
