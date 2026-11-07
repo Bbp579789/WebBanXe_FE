@@ -18,7 +18,7 @@ export interface TelegramUser {
 export interface TelegramAuthResponse {
   message: string;
   data: {
-    token: string;
+    token?: string;
     user: TelegramUser;
   };
 }
@@ -31,18 +31,12 @@ export interface TelegramRegisterPayload {
    SAVE AUTHENTICATION
 ========================================= */
 
-const saveTelegramAuth = (
+const notifyTelegramAuth = (
   response: TelegramAuthResponse
 ): TelegramAuthResponse => {
-  const token = response?.data?.token;
-  const user = response?.data?.user;
-
-  if (!token || !user) {
+  if (!response?.data?.user) {
     throw new Error("Dữ liệu đăng nhập Telegram không hợp lệ.");
   }
-
-  localStorage.setItem("access_token", token);
-  localStorage.setItem("user", JSON.stringify(user));
 
   window.dispatchEvent(new Event("authChange"));
 
@@ -59,11 +53,10 @@ export const telegramAuthService = {
    * Chuyển trình duyệt sang Telegram OAuth.
    */
   login: (): void => {
-    const apiUrl = import.meta.env.VITE_API_URL?.replace(/\/$/, "");
-
-    if (!apiUrl) {
-      throw new Error("VITE_API_URL chưa được cấu hình.");
-    }
+    const apiUrl = (
+      import.meta.env.VITE_API_URL ||
+      "https://api.mercedezstudy.net/api/v1"
+    ).replace(/\/$/, "");
 
     window.location.assign(
       `${apiUrl}/auth/telegram/login`
@@ -82,7 +75,7 @@ export const telegramAuthService = {
       payload
     );
 
-    return saveTelegramAuth(
+    return notifyTelegramAuth(
       response as unknown as TelegramAuthResponse
     );
   },

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { aiChatService, getAiErrorMessage } from '../../services/api/aiService';
+import { authService } from '../../services/api/user/authService';
 
 // Khách gõ /lienket trên Telegram, bot gửi link dạng /?link_code=<mã>.
 // Mở link: chưa đăng nhập thì mời đăng nhập; đăng nhập xong thì gửi mã cho ai-service.
@@ -13,7 +14,14 @@ export const TelegramLinkHandler: React.FC = () => {
     const code = sessionStorage.getItem(LINK_CODE_KEY);
     if (!code) return;
 
-    if (!localStorage.getItem('access_token')) {
+    let isAuthenticated = true;
+    try {
+      await authService.getCurrentUser();
+    } catch {
+      isAuthenticated = false;
+    }
+
+    if (!isAuthenticated) {
       setIsError(false);
       setNotice('Vui lòng đăng nhập để liên kết Telegram với tài khoản của bạn.');
       window.dispatchEvent(new Event('openLoginDialog'));
@@ -41,10 +49,15 @@ export const TelegramLinkHandler: React.FC = () => {
       const query = params.toString();
       window.history.replaceState(null, '', window.location.pathname + (query ? '?' + query : ''));
     }
-    claim();
+    const initialClaim = window.setTimeout(() => {
+      void claim();
+    }, 0);
 
     window.addEventListener('authChange', claim);
-    return () => window.removeEventListener('authChange', claim);
+    return () => {
+      window.clearTimeout(initialClaim);
+      window.removeEventListener('authChange', claim);
+    };
   }, [claim]);
 
   if (!notice) return null;

@@ -7,10 +7,10 @@ import { CategorySheet } from './header/CategorySheet';
 import { LoginDialog } from './header/LoginDialog';
 import { useScrollThreshold } from '../../hooks/useScrollThreshold';
 import type { HeaderProps } from '../../types/header.types';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { authService } from '../../services/api/user/authService';
 
 export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSolid = false }) => {
-  const navigate = useNavigate();
   const isSolid = useScrollThreshold(20);
   const [isHovered, setIsHovered] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -39,6 +39,24 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSo
     };
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    void authService.getCurrentUser()
+      .then((user) => {
+        if (active) {
+          setUserName(user.full_name || user.name || user.username || null);
+          window.dispatchEvent(new Event('authChange'));
+        }
+      })
+      .catch(() => {
+        if (active) setUserName(null);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Trang khác cần khách đăng nhập (ví dụ liên kết Telegram) thì mở hộp đăng nhập
   useEffect(() => {
     const handleOpenLogin = () => setIsLoginOpen(true);
@@ -56,14 +74,13 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSo
 
 const handleLogout = () => {
   // 1. Xóa toàn bộ thông tin phiên đăng nhập
-  localStorage.removeItem('access_token');
   localStorage.removeItem('userName');
   
   // (Nếu muốn xóa luôn giỏ hàng của tài khoản khách khi đăng xuất thì mở cmt dòng dưới)
   // localStorage.removeItem('valoir_cart_guest');
 
   // 2. QUAN TRỌNG: Phát sự kiện để báo cho Header và useCart biết tài khoản đã thay đổi
-  window.dispatchEvent(new Event('authChange'));
+  void authService.logout();
   window.dispatchEvent(new Event('cartChange'));
 
   // 3. (Tùy chọn) Chuyển hướng người dùng về trang chủ

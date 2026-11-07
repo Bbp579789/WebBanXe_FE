@@ -18,16 +18,13 @@ const GUEST_TOKEN_KEY = 'ai_guest_token';
 
 const aiClient = axios.create({
   baseURL: AI_URL,
+  withCredentials: true,
   // Bot cần vài giây để trả lời, để rộng hơn các API khác
   timeout: 60000,
 });
 
 function userHeaders() {
   const headers: Record<string, string> = {};
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    headers.Authorization = 'Bearer ' + token;
-  }
   const guestToken = localStorage.getItem(GUEST_TOKEN_KEY);
   if (guestToken) {
     headers['X-Guest-Token'] = guestToken;

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Info, X, CheckCircle2 } from 'lucide-react';
-import axios from 'axios';
 import { Icon } from '../../ui/icon';
 import type { LoginDialogProps } from '../../../types/header.types';
 import { Link } from 'react-router-dom';
 import { telegramAuthService } from "../../../services/api/user/telegramAuthService";
+import { authService } from "../../../services/api/user/authService";
 
 export const LoginDialog: React.FC<LoginDialogProps> = ({
   isOpen,
@@ -56,21 +56,13 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
     setSuccessMsg(null);
 
     try {
-      const res = await axios.post('https://api.mercedezstudy.net/api/v1/auth/login', {
+      const { user } = await authService.login({
         email: account.trim(),
-        password: password.trim()
+        password: password.trim(),
       });
 
-      // Lấy Token và User từ Response (Tùy cấu trúc Backend trả về)
-      const token = res.data?.token || res.data?.data?.token;
-      const user = res.data?.user || res.data?.data?.user;
-
-      if (token) {
-        localStorage.setItem('access_token', token);
-      }
-
       // 1. Lấy thông tin Tên
-      const userName = user?.full_name || user?.name || account.trim().split('@')[0];
+      const userName = user?.full_name || user?.name || user?.username || account.trim().split('@')[0];
       localStorage.setItem('userName', userName);
 
       // 2. LƯU THÊM EMAIL VÀ PHONE ĐỂ TỰ ĐỘNG ĐIỀN Ở TRANG THANH TOÁN
