@@ -94,20 +94,9 @@ export const AccountAvatar: React.FC<AccountAvatarProps> = ({
             </p>
           </div>
 
-          {/* PROFILE */}
-          <Link
-            to="/profile"
-            onClick={() => setIsOpen(false)}
-            className="w-full flex items-center gap-3 px-4 py-3 text-zinc-300 hover:bg-zinc-800 hover:text-white transition"
-          >
-            <Icon
-              name="user"
-              className="size-4 text-[#b8955a]"
-            />
-            <span>Hồ sơ tài khoản</span>
-          </Link>
+         
 
-          {/* SERVICE */}
+          {/* ORDER */}
           <Link
             to="/order"
             onClick={() => setIsOpen(false)}

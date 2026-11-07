@@ -24,9 +24,18 @@ export type PurchaseType = 'FULL_PAYMENT' | 'INSTALLMENT' | 'DEPOSIT';
 export type VehicleStatus = 'new' | 'used' | 'sold' | 'reserved' | string;
 
 export interface Vehicle {
+  drivetrain: string | number;
+  top_speed: any;
+  acceleration: any;
+  torque_nm: any;
+  fuel: string;
+  transmission: string;
+  seats: any;
+  power_hp: any;
+  engine: string;
   id: number;
   vin: string;
-  engine_no: string;
+  // engine_no: string;
   brand: string;
   model: string;
   variant?: string;

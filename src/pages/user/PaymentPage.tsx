@@ -6,6 +6,7 @@ import { PaymentDeliveryProfileSection } from "../../sections/payment/PaymentDel
 import { PaymentDepositSection } from "../../sections/payment/PaymentDepositSection";
 import { PaymentProgressSection } from "../../sections/payment/PaymentProgressSection";
 import { PaymentSummarySidebar } from "../../sections/payment/PaymentSummarySidebar";
+import Header from "../../components/common/Header";
 
 export const PaymentPage: React.FC = () => {
   const {
@@ -27,6 +28,7 @@ export const PaymentPage: React.FC = () => {
 
   return (
     <main className="min-h-screen bg-[#f8f8f7] px-4 py-8 sm:px-6 lg:px-8">
+      <Header forceSolid />
       <div className="mx-auto max-w-7xl">
 
         {/* Tiến trình thanh toán */}

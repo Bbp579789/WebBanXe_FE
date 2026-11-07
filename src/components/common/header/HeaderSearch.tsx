@@ -34,39 +34,54 @@ export const HeaderSearch: React.FC<HeaderSearchProps> = ({
   // 1. LẤY DANH SÁCH XE TỪ API
   // ==========================================
   useEffect(() => {
-    let isMounted = true;
+  let isMounted = true;
 
-    const fetchVehicles = async () => {
-      try {
-        setLoading(true);
+  const fetchVehicles = async () => {
+    try {
+      setLoading(true);
 
-        const vehicleList = await getVehicles();
+      // Lấy trang đầu tiên
+      const firstResponse = await getVehicles({
+        page: 1,
+        limit: 10,
+      });
 
-        if (isMounted) {
-          setVehicles(
-            Array.isArray(vehicleList) ? vehicleList : []
-          );
-        }
-      } catch (error) {
-        console.error('Lỗi tải danh sách xe:', error);
+      let allVehicles = [...firstResponse.data];
 
-        if (isMounted) {
-          setVehicles([]);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+      // Lấy các trang còn lại
+      const totalPages = firstResponse.pagination.totalPages;
+
+      for (let page = 2; page <= totalPages; page++) {
+        const response = await getVehicles({
+          page,
+          limit: 10,
+        });
+
+        allVehicles = [...allVehicles, ...response.data];
       }
-    };
 
-    fetchVehicles();
+      if (isMounted) {
+        setVehicles(allVehicles);
+      }
+    } catch (error) {
+      console.error('Lỗi tải danh sách xe:', error);
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+      if (isMounted) {
+        setVehicles([]);
+      }
+    } finally {
+      if (isMounted) {
+        setLoading(false);
+      }
+    }
+  };
 
+  fetchVehicles();
+
+  return () => {
+    isMounted = false;
+  };
+}, []);
   // ==========================================
   // 2. CHUẨN HÓA TỪ KHÓA
   // ==========================================

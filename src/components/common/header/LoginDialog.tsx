@@ -171,12 +171,6 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
                 <label className="text-xs font-medium text-zinc-700">
                   Password <span className="text-rose-500 font-bold">*</span>
                 </label>
-                <a
-                  href="#forgot"
-                  className="text-xs font-medium text-sky-600 hover:underline"
-                >
-                  Forgot password?
-                </a>
               </div>
 
               <div className="relative flex items-center">

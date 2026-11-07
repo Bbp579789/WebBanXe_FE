@@ -52,7 +52,7 @@ export const VehicleDetailHeroSection: React.FC = () => {
 
   const numericPrice = Number(vehicle?.price) || 4899000000;
   const originalPrice = numericPrice * 1.06;
-  const depositAmount = 100000000;
+  const depositAmount = 20000000;
 
   const brandName = vehicle?.brand || 'Mercedes-AMG';
   const modelName = vehicle?.model || 'C 63 S E Performance';
@@ -164,30 +164,7 @@ const handleDepositClick = async (e: React.MouseEvent) => {
               </button>
             </div>
 
-            {/* Tiện ích bổ trợ dưới ảnh */}
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-3 text-xs text-zinc-600 border-t border-zinc-100">
-              <div className="flex items-center gap-5">
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 hover:text-zinc-950 transition cursor-pointer"
-                >
-                  <RotateCw className="size-3.5 text-[#b8955a]" />
-                  <span>Trải nghiệm xoay 360° Studio</span>
-                </button>
-                <button
-                  type="button"
-                  className="flex items-center gap-1.5 hover:text-zinc-950 transition cursor-pointer"
-                >
-                  <FileText className="size-3.5 text-[#b8955a]" />
-                  <span>Brochure & Spec Sheet (PDF)</span>
-                </button>
-              </div>
-
-              <span className="flex items-center gap-1 text-[#b8955a] font-mono text-xs font-semibold cursor-pointer hover:underline">
-                <span>Tra cứu VIN & Kiểm định GIA</span>
-                <ChevronRight className="size-3" />
-              </span>
-            </div>
+           
           </div>
 
           {/* CỘT PHẢI: Thông tin giá & Đặt cọc */}
@@ -201,7 +178,7 @@ const handleDepositClick = async (e: React.MouseEvent) => {
                   {brandName} {modelName}
                 </h1>
                 <p className="text-xs text-zinc-500 font-mono mt-1">
-                  Năm: {vehicle?.year || 2026} | Động cơ: {vehicle?.engine_no || '2.0L Turbo Hybrid'}
+                  Năm: {vehicle?.year || 2026} | Động cơ: {vehicle?.engine || '2.0L Turbo Hybrid'}
                 </p>
               </div>
               <span className="px-3 py-1 rounded-full bg-zinc-100 text-zinc-600 font-mono text-[10px] font-semibold tracking-wider shrink-0">
@@ -341,23 +318,7 @@ const handleDepositClick = async (e: React.MouseEvent) => {
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-6 pt-2 text-xs text-zinc-500 border-t border-zinc-100">
-              <button
-                type="button"
-                className="flex items-center gap-1.5 hover:text-zinc-900 transition cursor-pointer"
-              >
-                <Heart className="size-3.5" />
-                <span>Lưu xe yêu thích</span>
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 hover:text-zinc-900 transition cursor-pointer"
-              >
-                <Share2 className="size-3.5" />
-                <span>Chia sẻ cấu hình xe</span>
-              </button>
-            </div>
+            
           </div>
         </div>
       </section>
