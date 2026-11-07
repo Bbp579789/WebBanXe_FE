@@ -8,6 +8,7 @@ import { LoginDialog } from './header/LoginDialog';
 import { useScrollThreshold } from '../../hooks/useScrollThreshold';
 import type { HeaderProps } from '../../types/header.types';
 import { Link } from 'react-router-dom';
+import { authService } from '../../services/api/user/authService';
 
 export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSolid = false }) => {
   const isSolid = useScrollThreshold(20);
@@ -20,6 +21,13 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSo
   const [userName, setUserName] = useState<string | null>(() => {
     return localStorage.getItem('userName');
   });
+
+  // Khôi phục phiên Telegram từ HttpOnly cookie sau khi backend redirect về trang chủ.
+  useEffect(() => {
+    void authService.getCurrentUser().catch(() => {
+      // Người dùng chưa đăng nhập cũng có thể truy cập trang chủ.
+    });
+  }, []);
 
   // 2. Lắng nghe sự kiện đăng nhập / đăng xuất từ các trang hoặc component khác
   useEffect(() => {

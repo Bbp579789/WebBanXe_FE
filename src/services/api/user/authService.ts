@@ -378,6 +378,7 @@ interface AuthUser {
   username?: string;
   email?: string;
   full_name?: string;
+  name?: string;
   phone?: string;
   role?: string;
 }
@@ -403,6 +404,17 @@ const getAuthData = (response: any): AuthResponse => {
   }
 
   return result;
+};
+
+const saveUserProfile = (user: AuthUser) => {
+  const name = user.full_name || user.name || user.username;
+
+  if (name) localStorage.setItem("userName", name);
+  if (user.email) localStorage.setItem("userEmail", user.email);
+  if (user.phone) localStorage.setItem("userPhone", user.phone);
+  if (user.role?.toLowerCase() === "customer") {
+    localStorage.setItem("userRole", "customer");
+  }
 };
 
 // Đọc role từ JWT nếu Backend không trả role trong user.
@@ -527,19 +539,24 @@ export const authService = {
 
   // Kiểm tra phiên đăng nhập bằng HttpOnly cookie.
   getCurrentUser: async (): Promise<AuthUser> => {
-    const user = await apiClient.get<AuthUser>("/users/me");
+    const response = await apiClient.get<AuthUser>("/users/me");
+    const data = getAuthData(response);
+    const user = data.user || (data as AuthUser);
 
     if (!user || typeof user !== "object") {
       throw new Error("Backend không trả về thông tin người dùng.");
     }
 
-    return user as unknown as AuthUser;
+    saveUserProfile(user);
+    window.dispatchEvent(new Event("authChange"));
+    window.dispatchEvent(new Event("cartChange"));
+
+    return user;
   },
 
   // Kiểm tra đăng nhập customer
   isCustomer: () => {
     return (
-      !!localStorage.getItem("access_token") &&
       localStorage.getItem("userRole") === "customer"
     );
   },
