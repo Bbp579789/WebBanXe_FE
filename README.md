@@ -54,7 +54,8 @@ Trong đó:
 
 | Variable | Description |
 |---|---|
-| `VITE_API_URL` | Địa chỉ API Gateway của Backend |
+| `VITE_API_URL` | Địa chỉ API Gateway của Backend. Có thể đặt domain gốc, `/api` hoặc đầy đủ `/api/v1`. |
+| `VITE_AI_URL` | Địa chỉ public của ai-service hoặc reverse proxy tới ai-service. Bắt buộc khi build production. |
 
 Lưu ý: Thay đổi URL tùy theo môi trường chạy Backend.
 

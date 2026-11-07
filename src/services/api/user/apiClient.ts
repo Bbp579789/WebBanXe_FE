@@ -1,7 +1,16 @@
 import axios from 'axios';
 
+const configuredApiUrl =
+  import.meta.env.VITE_API_URL || 'https://api.mercedezstudy.net/api/v1';
+const normalizedApiUrl = configuredApiUrl.replace(/\/+$/, '');
+const apiBaseUrl = normalizedApiUrl.endsWith('/api')
+  ? `${normalizedApiUrl}/v1`
+  : normalizedApiUrl.endsWith('/api/v1')
+    ? normalizedApiUrl
+    : `${normalizedApiUrl}/api/v1`;
+
 export const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'https://api.mercedezstudy.net/api/v1',
+  baseURL: apiBaseUrl,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

@@ -25,12 +25,14 @@ export const cartService = {
   // Lấy giỏ hàng của người dùng hiện tại
   getCart: async (): Promise<CartResponse | CartItem[]> => {
     const response = await apiClient.get("/carts/me");
-    return response.data;
+    return response as unknown as CartResponse | CartItem[];
   },
 
    getCartItems: async (): Promise<CartItem[]> => {
     const response = await apiClient.get("/carts/me");
-    const data = response.data;
+    const data = response as unknown as
+      | CartResponse
+      | CartItem[];
 
     if (Array.isArray(data)) return data;
 
@@ -46,8 +48,8 @@ export const cartService = {
         price: price,
       });
 
-      console.log("Thêm xe thành công:", response.data);
-      return response.data;
+      console.log("Thêm xe thành công:", response);
+      return response as unknown as CartResponse;
     } catch (error: any) {
       console.error("Lỗi thêm xe:", {
         status: error.response?.status,
@@ -66,7 +68,7 @@ export const cartService = {
     cartData: Record<string, unknown>
   ) => {
     const response = await apiClient.put(`/carts/${cartId}`, cartData);
-    return response.data;
+    return response as unknown as CartResponse;
   },
 
   // Xóa xe khỏi giỏ hàng của người dùng hiện tại
@@ -77,6 +79,6 @@ export const cartService = {
       },
     });
 
-    return response.data;
+    return response as unknown as CartResponse;
   },
 };

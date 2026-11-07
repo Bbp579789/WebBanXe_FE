@@ -10,9 +10,12 @@ import type {
   AiSystemStatus,
 } from '../../types/ai.types';
 
-// Chạy ai-service trên máy: http://localhost:8000
-// Khi ai-service đã gắn vào gateway: đặt VITE_AI_URL = địa chỉ gateway (ví dụ .../api/v1)
-const AI_URL = import.meta.env.VITE_AI_URL || 'http://localhost:8000';
+// VITE_AI_URL must point to the deployed AI service (or its reverse proxy).
+// Never use localhost as the production fallback: it points to the visitor's
+// own machine, not to the application server.
+const AI_URL = import.meta.env.VITE_AI_URL || (
+  import.meta.env.DEV ? 'http://localhost:8000' : ''
+);
 
 const GUEST_TOKEN_KEY = 'ai_guest_token';
 
