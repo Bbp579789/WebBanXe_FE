@@ -2,19 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ZoomIn,
-  RotateCw,
-  FileText,
-  ChevronRight,
   ShoppingBag,
-  Heart,
-  Share2,
   Home,
   Zap,
   CheckCircle2,
 } from 'lucide-react';
 import { useVehicleDetail } from '../../hooks/useVehicleDetail';
 import { LoginDialog } from '../../components/common/header/LoginDialog';
-import { cartService } from '../../services/api/user/cartService';
 
 export const VehicleDetailHeroSection: React.FC = () => {
  const {
@@ -22,13 +16,11 @@ export const VehicleDetailHeroSection: React.FC = () => {
   isLoginOpen,
   closeLogin,
   handleAddToCart,
-  handleBookTestDrive,
   handleLoginSuccess,
-  cartLoading,
 } = useVehicleDetail();
 
   const navigate = useNavigate();
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, _] = useState(1);
   const [selectedExterior, setSelectedExterior] = useState(
     vehicle?.exterior_color || 'Selenite Gray Magno'
   );

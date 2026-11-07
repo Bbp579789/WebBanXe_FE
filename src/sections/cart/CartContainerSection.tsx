@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Printer, Sliders, X, ArrowRight, Check, Calendar, ShieldCheck } from 'lucide-react';
+import { Printer, Sliders, X, ArrowRight, Check, Calendar } from 'lucide-react';
 import { useCart } from '../../hooks/useCart';
 import { Button } from '../../components/ui/button';
 
