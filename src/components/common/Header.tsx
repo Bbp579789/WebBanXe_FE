@@ -9,6 +9,7 @@ import { useScrollThreshold } from '../../hooks/useScrollThreshold';
 import type { HeaderProps } from '../../types/header.types';
 import { Link } from 'react-router-dom';
 import { authService } from '../../services/api/user/authService';
+import { telegramAuthService } from '../../services/api/user/telegramAuthService';
 
 export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSolid = false }) => {
   const isSolid = useScrollThreshold(20);
@@ -22,11 +23,25 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSo
     return localStorage.getItem('userName');
   });
 
-  // Khôi phục phiên Telegram từ HttpOnly cookie sau khi backend redirect về trang chủ.
+  // Sau khi Telegram xác thực và backend redirect về, đổi mã telegram_code
+  // lấy JWT để tự động đăng nhập; nếu không có mã thì dò phiên hiện có.
   useEffect(() => {
-    void authService.getCurrentUser().catch(() => {
-      // Người dùng chưa đăng nhập cũng có thể truy cập trang chủ.
-    });
+    void (async () => {
+      try {
+        const restoredTelegramSession =
+          await telegramAuthService.completeLoginFromRedirect();
+
+        // Đã lưu phiên (token + profile + sự kiện authChange) thành công.
+        if (restoredTelegramSession) return;
+      } catch (error) {
+        // Mã telegram_code hết hạn/không hợp lệ — vẫn thử dò phiên hiện có.
+        console.error('Không thể hoàn tất đăng nhập Telegram:', error);
+      }
+
+      void authService.getCurrentUser().catch(() => {
+        // Người dùng chưa đăng nhập cũng có thể truy cập trang chủ.
+      });
+    })();
   }, []);
 
   // 2. Lắng nghe sự kiện đăng nhập / đăng xuất từ các trang hoặc component khác
