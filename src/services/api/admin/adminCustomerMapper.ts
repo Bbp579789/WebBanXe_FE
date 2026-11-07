@@ -33,7 +33,7 @@ export const mapBackendCustomer = (
     joinDate: user.created_at
       ? new Date(user.created_at).toLocaleDateString("vi-VN")
       : "Chưa cập nhật",
-    status: "active",
+    status: user.status === "locked" ? "locked" : "active",
     notes: "",
     avatarText: initials || "KH",
   };

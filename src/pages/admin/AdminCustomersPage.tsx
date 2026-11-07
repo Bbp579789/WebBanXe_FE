@@ -676,13 +676,24 @@ useEffect(() => {
       throw new Error("Mã khách hàng không hợp lệ.");
     }
 
+    // 1. Cập nhật state UI ngay lập tức
+    setCustomers((prev) =>
+      prev.map((item) => (item.id === updated.id ? updated : item))
+    );
+    if (selectedCustomer?.id === updated.id) {
+      setSelectedCustomer(updated);
+    }
+
+    // 2. Gửi request cập nhật lên backend
     await customerService.updateCustomer(id, {
       full_name: updated.fullName,
       phone: updated.phone,
       email: updated.email,
       address: updated.address,
+      status: updated.status,
     });
 
+    // 3. Tải lại danh sách từ server để đồng bộ
     await fetchCustomers();
   };
 
@@ -865,10 +876,17 @@ useEffect(() => {
                       </td>
 
                       <td className="px-6 py-4 text-center">
-                        <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border border-emerald-200 bg-emerald-50 text-emerald-700">
-                          <span className="size-1.5 rounded-full bg-emerald-500" />
-                          Đã đăng ký
-                        </span>
+                        {customer.status === "locked" ? (
+                          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border border-rose-200 bg-rose-50 text-rose-700">
+                            <span className="size-1.5 rounded-full bg-rose-500" />
+                            Đã khóa
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border border-emerald-200 bg-emerald-50 text-emerald-700">
+                            <span className="size-1.5 rounded-full bg-emerald-500" />
+                            Hoạt động
+                          </span>
+                        )}
                       </td>
 
                       <td className="px-6 py-4">

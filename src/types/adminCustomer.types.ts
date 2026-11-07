@@ -78,6 +78,7 @@ export interface BackendCustomer {
   phone?: string;
   role: "customer" | "admin" | "sales";
   address?: string;
+  status?: "active" | "locked" | string;
   created_at?: string;
   updated_at?: string;
 }
@@ -112,4 +113,5 @@ export interface UpdateCustomerPayload {
   email: string;
   phone: string;
   address?: string;
+  status?: CustomerStatus;
 }
