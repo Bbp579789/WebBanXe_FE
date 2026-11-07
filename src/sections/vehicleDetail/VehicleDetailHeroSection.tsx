@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ZoomIn,
   ShoppingBag,
   Home,
-  Zap,
-  CheckCircle2,
+  Zap
 } from 'lucide-react';
 import { useVehicleDetail } from '../../hooks/useVehicleDetail';
 import { LoginDialog } from '../../components/common/header/LoginDialog';
@@ -29,18 +28,18 @@ export const VehicleDetailHeroSection: React.FC = () => {
   );
   const [activeThumbIndex] = useState(0);
 
-  // State quản lý Toast thông báo góc trên bên phải
-  const [toast, setToast] = useState<{ show: boolean; message: string; carName: string } | null>(null);
+  // // State quản lý Toast thông báo góc trên bên phải
+  // const [toast, setToast] = useState<{ show: boolean; message: string; carName: string } | null>(null);
 
-  // Tự động tắt Toast thông báo sau 3 giây
-  useEffect(() => {
-    if (toast?.show) {
-      const timer = setTimeout(() => {
-        setToast(null);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toast]);
+  // // Tự động tắt Toast thông báo sau 3 giây
+  // useEffect(() => {
+  //   if (toast?.show) {
+  //     const timer = setTimeout(() => {
+  //       setToast(null);
+  //     }, 3000);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [toast]);
 
   const numericPrice = Number(vehicle?.price) || 4899000000;
   const originalPrice = numericPrice * 1.06;
@@ -66,15 +65,15 @@ const handleAddToCartClick = async (e: React.MouseEvent) => {
 
   if (!vehicle) return;
 
-  const success = await handleAddToCart(vehicle, quantity);
+  // const success = await handleAddToCart(vehicle, quantity);
 
-  if (success) {
-    setToast({
-      show: true,
-      message: 'Đã thêm thành công vào giỏ hàng!',
-      carName: `${brandName} ${modelName}`,
-    });
-  }
+  // if (success) {
+  //   setToast({
+  //     show: true,
+  //     message: 'Đã thêm thành công vào giỏ hàng!',
+  //     carName: `${brandName} ${modelName}`,
+  //   });
+  // }
 };
 
 // Đặt cọc (mua ngay)
@@ -315,7 +314,7 @@ const handleDepositClick = async (e: React.MouseEvent) => {
         </div>
       </section>
 
-      {/* TOAST THÔNG BÁO Ở GÓC TRÊN CÙNG BÊN PHẢI (TOP-6 RIGHT-6) */}
+      {/* TOAST THÔNG BÁO Ở GÓC TRÊN CÙNG BÊN PHẢI (TOP-6 RIGHT-6)
       {toast?.show && (
         <div className="fixed top-6 right-6 z-50 flex items-center gap-3 bg-zinc-950/95 backdrop-blur-md text-white px-5 py-4 rounded-2xl shadow-2xl border border-zinc-800 animate-in slide-in-from-top-5 fade-in duration-300">
           <div className="size-9 rounded-full bg-[#b8955a]/20 text-[#b8955a] flex items-center justify-center shrink-0">
@@ -326,7 +325,7 @@ const handleDepositClick = async (e: React.MouseEvent) => {
             <p className="text-[11px] font-mono text-zinc-400 mt-0.5">{toast.carName}</p>
           </div>
         </div>
-      )}
+      )} */}
 
       <LoginDialog
         isOpen={isLoginOpen}
