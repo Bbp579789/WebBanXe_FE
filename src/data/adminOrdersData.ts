@@ -1,4 +1,4 @@
-import type { AdminOrder, AdminOrderStatus, StatusConfig } from '../types/adminOrder.types';
+import type { AdminOrderStatus, StatusConfig } from '../types/adminOrder.types';
 
 export const ORDER_STATUS_CONFIG: Record<Exclude<AdminOrderStatus, 'all'>, StatusConfig> = {
   completed: {

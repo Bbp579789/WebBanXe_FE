@@ -201,12 +201,10 @@
 
 
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import {
   CalendarDays,
   MapPin,
   Car,
-  Eye,
   Package,
 } from "lucide-react";
 
@@ -361,7 +359,6 @@ const VehicleItem: React.FC<VehicleItemProps> = ({ vehicle }) => {
 const OrderListSection: React.FC<Props> = ({
   contracts = [],
 }) => {
-  const navigate = useNavigate();
 
   if (!contracts.length) {
     return (

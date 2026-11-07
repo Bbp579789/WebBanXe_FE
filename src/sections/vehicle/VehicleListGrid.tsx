@@ -26,7 +26,6 @@ export const VehicleListGrid: React.FC<VehicleListGridProps> = ({
     closeLogin,
     handleAddToCart: addVehicleToCart,
     handleLoginSuccess,
-    cartLoading,
   } = useVehicleDetail();
 
   const navigate = useNavigate();
