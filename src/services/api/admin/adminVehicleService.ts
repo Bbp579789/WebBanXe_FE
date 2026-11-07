@@ -52,7 +52,9 @@ export const adminVehicleService = {
    * Lấy danh sách xe dành cho Admin
    */
   getAll: async (): Promise<Vehicle[]> => {
-    const response = await apiClient.get(VEHICLES_ENDPOINT);
+    const response = await apiClient.get(VEHICLES_ENDPOINT, {
+      params: { page: 1, limit: 100 },
+    });
     return extractVehicleList(response);
   },
 
