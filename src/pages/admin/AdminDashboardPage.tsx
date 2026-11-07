@@ -48,9 +48,18 @@ export const AdminDashboardPage: React.FC = () => {
       if (customersRes.status === 'fulfilled') {
         setCustomers(customersRes.value);
       }
+
+      const failed: string[] = [];
+      if (contractsRes.status === 'rejected') failed.push('Hợp đồng');
+      if (vehiclesRes.status === 'rejected') failed.push('Xe');
+      if (customersRes.status === 'rejected') failed.push('Khách hàng');
+
+      if (failed.length > 0) {
+        setError(`Không thể tải dữ liệu: ${failed.join(', ')}. Vui lòng kiểm tra đăng nhập hoặc kết nối Backend.`);
+      }
     } catch (err: any) {
       console.error('Lỗi tải dữ liệu Dashboard:', err);
-      setError('Không thể tải một số dữ liệu từ máy chủ. Vui lòng thử lại.');
+      setError('Không thể tải dữ liệu từ máy chủ. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
