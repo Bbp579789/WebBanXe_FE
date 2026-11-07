@@ -117,7 +117,7 @@ export const OrderContentSection: React.FC = () => {
         <span className="text-zinc-300">/</span>
 
         <span className="text-[#b8955a] font-medium">
-          My Contracts
+          Hợp đồng
         </span>
       </nav>
 

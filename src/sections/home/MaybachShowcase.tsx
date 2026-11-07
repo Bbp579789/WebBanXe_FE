@@ -182,7 +182,7 @@ export const MaybachShowcase: React.FC = () => {
           </div>
         ) : vehicles.length === 0 ? (
           <div className="flex items-center justify-center rounded-3xl border border-dashed border-zinc-200 bg-zinc-50 py-20 font-sans text-sm text-zinc-400">
-            Backend chưa có dữ liệu xe.
+            Chưa có dữ liệu xe.
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">

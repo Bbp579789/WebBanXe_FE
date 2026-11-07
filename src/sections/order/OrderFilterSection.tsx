@@ -1,3 +1,4 @@
+
 import React from "react";
 
 interface Props {
@@ -12,30 +13,68 @@ export const OrderFilterSection: React.FC<Props> = ({
   counts,
 }) => {
   const tabs = [
-    { id: "all", label: "ALL CONTRACTS", count: counts.all },
-    { id: "pending", label: "PENDING", count: counts.pending },
-    { id: "active", label: "PROCESSING", count: counts.active },
-    { id: "shipping", label: "IN TRANSIT", count: counts.shipping },
-    { id: "delivered", label: "DELIVERED", count: counts.delivered },
-    { id: "completed", label: "COMPLETED", count: counts.completed },
-    { id: "cancelled", label: "CANCELLED", count: counts.cancelled },
+    { id: "all", label: "Tất cả" },
+    { id: "pending", label: "Chờ xác nhận" },
+    { id: "active", label: "Đang xử lý" },
+    { id: "shipping", label: "Đang giao" },
+    { id: "completed", label: "Hoàn tất" },
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-2.5 mb-8">
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => setFilter(tab.id)}
-          className={`px-4 py-2 rounded-full text-[10px] font-bold tracking-widest uppercase transition-all duration-200 ${
-            activeFilter === tab.id
-              ? "bg-zinc-950 text-white"
-              : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
-          }`}
-        >
-          {tab.label} ({tab.count ?? 0})
-        </button>
-      ))}
+    <div className="w-full mb-8">
+      <div className="flex flex-wrap items-center gap-2.5">
+        {tabs.map((tab) => {
+          const isActive = activeFilter === tab.id;
+          const count = counts[tab.id] ?? 0;
+
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setFilter(tab.id)}
+              className={`
+                min-h-[42px]
+                px-5 py-2.5
+                rounded-full
+                inline-flex items-center justify-center gap-2
+                text-[11px]
+                font-semibold
+                tracking-wide
+                whitespace-nowrap
+                font-sans
+                transition-all duration-300
+                border
+                ${
+                  isActive
+                    ? "bg-zinc-950 text-white border-zinc-950 shadow-sm"
+                    : "bg-white text-zinc-600 border-zinc-200 hover:border-[#b8955a] hover:text-[#a9854c]"
+                }
+              `}
+            >
+              <span>{tab.label}</span>
+
+              <span
+                className={`
+                  min-w-[21px] h-[21px]
+                  px-1.5
+                  rounded-full
+                  inline-flex items-center justify-center
+                  text-[10px]
+                  font-semibold
+                  tabular-nums
+                  ${
+                    isActive
+                      ? "bg-white/15 text-white"
+                      : "bg-zinc-100 text-zinc-500"
+                  }
+                `}
+              >
+                {count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };

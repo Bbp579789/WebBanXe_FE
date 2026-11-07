@@ -9,6 +9,18 @@ export const apiClient = axios.create({
   timeout: 15000,
 });
 
+// Tự động gửi JWT trong các request
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+// Trả về response.data
 apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => Promise.reject(error)

@@ -17,18 +17,18 @@ export const CartContainerSection: React.FC = () => {
   const totalDeposit = totalVehiclesCount * depositPerCar;
 
   // Thuế & phụ phí dự tính (Có thể tính theo % giá xe thực tế)
-  const bespokePrice = cartItems.length > 0 ? 64000000 : 0;
-  const vipDiscount = cartItems.length > 0 ? 100000000 : 0;
-  const registrationFee = cartItems.length > 0 ? 78000000 : 0;
-  const totalOnRoad = subtotal + bespokePrice - vipDiscount + registrationFee;
+  // const bespokePrice = cartItems.length > 0 ? 64000000 : 0;
+  // const vipDiscount = cartItems.length > 0 ? 100000000 : 0;
+  // const registrationFee = cartItems.length > 0 ? 78000000 : 0;
+  // const totalOnRoad = subtotal + bespokePrice - vipDiscount + registrationFee;
 
   if (cartItems.length === 0) {
     return (
       <div className="container mx-auto px-6 sm:px-10 lg:px-12 max-w-7xl pb-20">
         <div className="py-24 text-center bg-white rounded-3xl border border-zinc-200/80 shadow-xs p-8">
-          <h2 className="text-xl font-serif font-bold text-zinc-900">Giỏ hàng Bespoke của bạn đang trống</h2>
+          <h2 className="text-xl font-serif font-bold text-zinc-900">Giỏ hàng của bạn đang rỗng</h2>
           <p className="text-xs text-zinc-500 mt-2 max-w-sm mx-auto font-light">
-            Quý khách chưa lựa chọn cỗ máy Bespoke nào. Hãy khám phá bộ sưu tập Atelier độc bản.
+            Quý khách chưa lựa chọn xe của bạn
           </p>
           <Button
             type="button"
@@ -264,7 +264,7 @@ export const CartContainerSection: React.FC = () => {
               <span className="font-mono font-bold text-zinc-900">{subtotal.toLocaleString('vi-VN')} đ</span>
             </div>
 
-            <div className="flex justify-between text-zinc-600">
+            {/* <div className="flex justify-between text-zinc-600">
               <span>Trang bị Bespoke & Phụ kiện:</span>
               <span className="font-mono font-semibold text-zinc-900">+{bespokePrice.toLocaleString('vi-VN')} đ</span>
             </div>
@@ -280,16 +280,16 @@ export const CartContainerSection: React.FC = () => {
             <div className="flex justify-between text-zinc-600 border-b border-zinc-100 pb-4">
               <span>Thuế trước bạ & Biển số (tạm tính):</span>
               <span className="font-mono font-semibold text-zinc-900">+{registrationFee.toLocaleString('vi-VN')} đ</span>
-            </div>
+            </div> */}
 
-            <div className="flex justify-between items-baseline pt-1">
+            {/* <div className="flex justify-between items-baseline pt-1">
               <span className="text-xs font-bold text-zinc-900 uppercase tracking-wider">
                 TỔNG LĂN BÁNH:
               </span>
               <span className="font-mono text-xl font-extrabold text-zinc-950">
                 {totalOnRoad.toLocaleString('vi-VN')} đ
               </span>
-            </div>
+            </div> */}
           </div>
 
           {/* KHỐI ĐẶT CỌC NỔI BẬT */}
