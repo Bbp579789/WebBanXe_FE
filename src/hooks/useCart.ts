@@ -76,36 +76,37 @@
 
 // src/hooks/useCart.ts
 import { useState, useEffect, useCallback } from 'react';
-import { cartService } from '../services/api/user/cartService';
+import { cartService, getCartErrorMessage } from '../services/api/user/cartService';
 import type { CartItem, Vehicle } from '../types';
 
 export const useCart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartError, setCartError] = useState('');
 
   const loadCart = useCallback(async () => {
     try {
-      const rawItems = await cartService.getCartItems();
+      // Chưa đăng nhập thì giỏ rỗng, không gọi API
+      const isLoggedIn = Boolean(localStorage.getItem('access_token'));
+      const vehicles = await (isLoggedIn ? cartService.getCartItems() : Promise.resolve([]));
 
-      const formattedItems: CartItem[] = (
-        Array.isArray(rawItems) ? rawItems : []
-      ).map((item: any, index: number) => {
-        const vehicleObj = item?.vehicle || item?.car || item;
-
+      // Mỗi phần tử backend trả về là thông tin một chiếc xe
+      const formattedItems: CartItem[] = vehicles.map((item) => {
+        const vehicle = item as unknown as Vehicle;
         return {
-          ...item,
-          id: item?.id ?? vehicleObj?.id ?? index + 1,
-          cart_id: item?.cart_id ?? 1,
-          vehicle_id:
-            item?.vehicle_id ?? item?.vehicleId ?? vehicleObj?.id ?? 0,
-          quantity: Number(item?.quantity) || 1,
-          vehicle: vehicleObj as Vehicle,
+          id: Number(vehicle.id),
+          cart_id: 0,
+          vehicle_id: Number(vehicle.id),
+          quantity: 1,
+          vehicle: vehicle,
         };
       });
 
       setCartItems(formattedItems);
+      setCartError('');
     } catch (error) {
       console.error('Lỗi tải giỏ hàng:', error);
       setCartItems([]);
+      setCartError(getCartErrorMessage(error));
     }
   }, []);
 
@@ -116,69 +117,40 @@ export const useCart = () => {
       void loadCart();
     };
 
-    const handleAuthChange = () => {
-      void loadCart();
-    };
-
     window.addEventListener('cartChange', handleCartChange);
-    window.addEventListener('authChange', handleAuthChange);
+    window.addEventListener('authChange', handleCartChange);
 
     return () => {
       window.removeEventListener('cartChange', handleCartChange);
-      window.removeEventListener('authChange', handleAuthChange);
+      window.removeEventListener('authChange', handleCartChange);
     };
   }, [loadCart]);
 
-  const handleUpdateQuantity = async (
-    vehicle: Vehicle,
-    delta: number
-  ) => {
-    const existingItem = cartItems.find(
-      (item) => Number(item.vehicle_id) === Number(vehicle.id)
-    );
-
-    if (!existingItem) return;
-
-    const newQuantity = Number(existingItem.quantity || 1) + delta;
-
-    try {
-      if (newQuantity <= 0) {
-        await cartService.removeFromCart(vehicle.id);
-      } else {
-        // Chỉ cập nhật được khi backend có API cập nhật số lượng
-        await cartService.updateCartItem(
-          existingItem.id as number,
-          { quantity: newQuantity }
-        );
-      }
-
-      await loadCart();
-      window.dispatchEvent(new Event('cartChange'));
-    } catch (error) {
-      console.error('Lỗi cập nhật giỏ hàng:', error);
+  // Mỗi xe là một chiếc riêng (số lượng luôn là 1): giảm số lượng nghĩa là bỏ xe khỏi giỏ
+  const handleUpdateQuantity = async (vehicle: Vehicle, delta: number) => {
+    if (delta < 0) {
+      await handleRemove(vehicle.id);
     }
   };
 
   const handleRemove = async (vehicleId: number) => {
     try {
       await cartService.removeFromCart(vehicleId);
-      await loadCart();
       window.dispatchEvent(new Event('cartChange'));
     } catch (error) {
       console.error('Lỗi xóa xe khỏi giỏ hàng:', error);
+      alert(getCartErrorMessage(error));
     }
   };
 
   const subtotal = cartItems.reduce((sum, item) => {
-    const price = Number(item?.vehicle?.price) || 0;
-    const quantity = Number(item?.quantity) || 1;
-
-    return sum + price * quantity;
+    return sum + (Number(item?.vehicle?.price) || 0);
   }, 0);
 
   return {
     cartItems,
     subtotal,
+    cartError,
     handleUpdateQuantity,
     handleRemove,
     loadCart,

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Icon } from "../../ui/icon";
 import { cartService } from "../../../services/api/user/cartService";
-import type { CartItem, CartResponse } from "../../../services/api/user/cartService";
 
 export interface HeaderCartProps {
   cartCount?: number;
@@ -32,29 +31,11 @@ export const HeaderCart: React.FC<HeaderCartProps> = ({
       }
 
       try {
-        const data = await cartService.getCart();
-
-        let items: CartItem[] = [];
-
-        if (Array.isArray(data)) {
-          items = data;
-        } else {
-          const response = data as CartResponse;
-
-          if (Array.isArray(response.items)) {
-            items = response.items;
-          } else if (Array.isArray(response.cartItems)) {
-            items = response.cartItems;
-          }
-        }
-
-        const count = items.reduce(
-          (sum, item) => sum + Number(item.quantity || 0),
-          0
-        );
+        // Mỗi phần tử là một chiếc xe nên số xe chính là độ dài danh sách
+        const items = await cartService.getCartItems();
 
         if (active) {
-          setTotalCount(count);
+          setTotalCount(items.length);
         }
       } catch (err) {
         console.error("Không thể tải số lượng giỏ hàng:", err);
@@ -109,4 +90,4 @@ export const HeaderCart: React.FC<HeaderCartProps> = ({
   );
 };
 
-export default HeaderCart;
+export default HeaderCart;

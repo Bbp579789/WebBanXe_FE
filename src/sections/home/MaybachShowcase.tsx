@@ -5,7 +5,7 @@ import type { Vehicle } from "../../types";
 import { ProductCard } from "../../components/product/ProductCard";
 import { LoginDialog } from "../../components/common/header/LoginDialog";
 import { getVehicles } from "../../services/api/user/vehicleService";
-import { cartService } from "../../services/api/user/cartService";
+import { cartService, getCartErrorMessage, isVehicleAlreadyInCart } from "../../services/api/user/cartService";
 
 export const MaybachShowcase: React.FC = () => {
   const navigate = useNavigate();
@@ -94,18 +94,14 @@ export const MaybachShowcase: React.FC = () => {
     }
 
     try {
-      await cartService.addToCart(
-        Number(car.id),
-        1,
-        Number(car.price)
-      );
+      await cartService.addToCart(Number(car.id));
 
       window.dispatchEvent(new Event("cartChange"));
 
       alert(`Đã thêm ${car.brand} ${car.model} vào giỏ hàng!`);
     } catch (err) {
       console.error("Lỗi thêm xe vào giỏ hàng:", err);
-      alert("Xe này đã có trong giỏ hàng.");
+      alert(getCartErrorMessage(err));
     }
   };
 
@@ -117,18 +113,18 @@ export const MaybachShowcase: React.FC = () => {
     }
 
     try {
-      await cartService.addToCart(
-        Number(car.id),
-        1,
-        Number(car.price)
-      );
-
-      window.dispatchEvent(new Event("cartChange"));
-      navigate("/payment");
+      await cartService.addToCart(Number(car.id));
     } catch (err) {
-      console.error("Lỗi khi đặt cọc xe:", err);
-      alert("Không thể tiếp tục đặt cọc. Vui lòng thử lại.");
+      // Xe đã có trong giỏ thì vẫn sang trang thanh toán
+      if (!isVehicleAlreadyInCart(err)) {
+        console.error("Lỗi khi đặt cọc xe:", err);
+        alert(getCartErrorMessage(err));
+        return;
+      }
     }
+
+    window.dispatchEvent(new Event("cartChange"));
+    navigate("/payment");
   };
 
   // Đồng bộ trạng thái đăng nhập
