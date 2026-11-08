@@ -20,7 +20,7 @@ export interface AccountAvatarProps {
   userName?: string | null;
   avatarUrl?: string;
   onOpenLogin?: () => void;
-  onLogout?: () => void;
+  onLogout?: () => Promise<void>;
 }
 
 export interface CategorySheetProps {
