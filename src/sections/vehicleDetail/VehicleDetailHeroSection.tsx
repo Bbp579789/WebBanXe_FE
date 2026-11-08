@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   ZoomIn,
@@ -28,18 +28,18 @@ export const VehicleDetailHeroSection: React.FC = () => {
   );
   const [activeThumbIndex] = useState(0);
 
-  // // State quản lý Toast thông báo góc trên bên phải
-  // const [toast, setToast] = useState<{ show: boolean; message: string; carName: string } | null>(null);
+  // State quản lý Toast thông báo góc trên bên phải
+  const [toast, setToast] = useState<{ show: boolean; message: string; carName: string } | null>(null);
 
-  // // Tự động tắt Toast thông báo sau 3 giây
-  // useEffect(() => {
-  //   if (toast?.show) {
-  //     const timer = setTimeout(() => {
-  //       setToast(null);
-  //     }, 3000);
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [toast]);
+  // Tự động tắt Toast thông báo sau 3 giây
+  useEffect(() => {
+    if (toast?.show) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const numericPrice = Number(vehicle?.price) || 4899000000;
   const originalPrice = numericPrice * 1.06;
@@ -65,15 +65,15 @@ const handleAddToCartClick = async (e: React.MouseEvent) => {
 
   if (!vehicle) return;
 
-  // const success = await handleAddToCart(vehicle, quantity);
+  const success = await handleAddToCart(vehicle, quantity);
 
-  // if (success) {
-  //   setToast({
-  //     show: true,
-  //     message: 'Đã thêm thành công vào giỏ hàng!',
-  //     carName: `${brandName} ${modelName}`,
-  //   });
-  // }
+  if (success) {
+    setToast({
+      show: true,
+      message: 'Đã thêm thành công vào giỏ hàng!',
+      carName: `${brandName} ${modelName}`,
+    });
+  }
 };
 
 // Đặt cọc (mua ngay)
