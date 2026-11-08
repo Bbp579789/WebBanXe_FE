@@ -9,6 +9,7 @@ import { useScrollThreshold } from '../../hooks/useScrollThreshold';
 import type { HeaderProps } from '../../types/header.types';
 import { Link } from 'react-router-dom';
 import { authService } from '../../services/api/user/authService';
+import { telegramAuthService } from '../../services/api/user/telegramAuthService';
 
 export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSolid = false }) => {
   const isSolid = useScrollThreshold(20);
@@ -22,10 +23,22 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSo
     return localStorage.getItem('userName');
   });
 
-  // Khôi phục phiên Telegram từ HttpOnly cookie sau khi backend redirect về trang chủ.
+  // Đổi mã Telegram nếu vừa quay về, sau đó kiểm tra phiên khi tải trang bình thường.
   useEffect(() => {
-    void authService.getCurrentUser().catch(() => {
-      // Người dùng chưa đăng nhập cũng có thể truy cập trang chủ.
+    const restoreSession = async () => {
+      try {
+        const exchange = telegramAuthService.completeLoginFromRedirect();
+        if (exchange) {
+          await exchange;
+          return;
+        }
+      } catch {
+        // Nếu mã hết hạn, phiên cookie vẫn có thể dùng được.
+      }
+      await authService.getCurrentUser();
+    };
+    void restoreSession().catch(() => {
+      // Khách chưa đăng nhập vẫn có thể xem trang chủ.
     });
   }, []);
 
@@ -55,27 +68,9 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0, onSearch, forceSo
 
   // 3. Xử lý khi đăng nhập thành công ngay tại Header
   const handleLoginSuccess = (name: string) => {
-    localStorage.setItem('userName', name);
     setUserName(name);
     setIsLoginOpen(false);
-    window.dispatchEvent(new Event('authChange'));
   };
-
-const handleLogout = () => {
-  // 1. Xóa toàn bộ thông tin phiên đăng nhập
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('userName');
-  
-  // (Nếu muốn xóa luôn giỏ hàng của tài khoản khách khi đăng xuất thì mở cmt dòng dưới)
-  // localStorage.removeItem('valoir_cart_guest');
-
-  // 2. QUAN TRỌNG: Phát sự kiện để báo cho Header và useCart biết tài khoản đã thay đổi
-  window.dispatchEvent(new Event('authChange'));
-  window.dispatchEvent(new Event('cartChange'));
-
-  // 3. (Tùy chọn) Chuyển hướng người dùng về trang chủ
-  // navigate('/');
-};
 
   const active = isSolid || isHovered || forceSolid;
 
@@ -132,7 +127,7 @@ const handleLogout = () => {
           <AccountAvatar
             userName={userName}
             onOpenLogin={() => setIsLoginOpen(true)}
-            onLogout={handleLogout}
+            onLogout={authService.logout}
           />
         </div>
       </header>

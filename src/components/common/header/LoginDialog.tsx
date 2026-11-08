@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Info, X, CheckCircle2 } from 'lucide-react';
-import axios from 'axios';
+import { isAxiosError } from 'axios';
 import { Icon } from '../../ui/icon';
 import type { LoginDialogProps } from '../../../types/header.types';
 import { Link } from 'react-router-dom';
 import { telegramAuthService } from "../../../services/api/user/telegramAuthService";
+import { authService } from "../../../services/api/user/authService";
 
 export const LoginDialog: React.FC<LoginDialogProps> = ({
   isOpen,
@@ -56,48 +57,34 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
     setSuccessMsg(null);
 
     try {
-      const res = await axios.post('https://api.mercedezstudy.net/api/v1/auth/login', {
+      const userName = await authService.login({
         email: account.trim(),
         password: password.trim()
       });
-
-      // Lấy Token và User từ Response (Tùy cấu trúc Backend trả về)
-      const token = res.data?.token || res.data?.data?.token;
-      const user = res.data?.user || res.data?.data?.user;
-
-      if (token) {
-        localStorage.setItem('access_token', token);
-      }
-
-      // 1. Lấy thông tin Tên
-      const userName = user?.full_name || user?.name || account.trim().split('@')[0];
-      localStorage.setItem('userName', userName);
-
-      // 2. LƯU THÊM EMAIL VÀ PHONE ĐỂ TỰ ĐỘNG ĐIỀN Ở TRANG THANH TOÁN
-      localStorage.setItem('userEmail', user?.email || account.trim());
-      localStorage.setItem('userPhone', user?.phone || '');
-
-      // 3. Cập nhật lại UI Header (Đổi nút Đăng nhập thành Avatar/Tên)
-      window.dispatchEvent(new Event('authChange'));
-
-      // 4. Cập nhật lại Giỏ hàng (Đổi từ giỏ hàng khách sang giỏ hàng của user này)
-      window.dispatchEvent(new Event('cartChange'));
-
       onLoginSuccess(userName);
       onClose();
-    } catch (err: any) {
-      console.error('Lỗi đăng nhập:', err?.response?.data);
-      const backendMessage =
-        err?.response?.data?.error ||
-        err?.response?.data?.message ||
-        'Tài khoản hoặc mật khẩu không chính xác!';
-      setError(backendMessage);
+    } catch (err) {
+      const response = isAxiosError<{ error?: string; message?: string }>(err)
+        ? err.response?.data
+        : undefined;
+      const detail = err instanceof Error && !isAxiosError(err) ? err.message : undefined;
+      setError(response?.error || response?.message || detail || 'Không thể đăng nhập. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
   };
 
-
+  const handleTelegramLogin = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await telegramAuthService.login();
+    } catch {
+      setError('Không thể mở đăng nhập Telegram. Vui lòng thử lại.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
@@ -244,23 +231,23 @@ export const LoginDialog: React.FC<LoginDialogProps> = ({
                 <div className="flex-1 h-px bg-zinc-200" />
               </div>
 
-             {/* Nút Telegram */}
-<button
-  type="button"
-  onClick={telegramAuthService.login}
-  className="w-full h-12 rounded-full border border-[#229ED9]/30 bg-[#229ED9]/5 hover:bg-[#229ED9]/10 hover:border-[#229ED9] text-[#229ED9] font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.99] cursor-pointer"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className="w-5 h-5"
-  >
-    <path d="M21.8 3.2a1.5 1.5 0 0 0-1.6-.2L2.7 9.8c-1.2.5-1.2 1.3-.2 1.6l4.5 1.4 1.7 5.3c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.2-2.2 4.6 3.4c.9.5 1.5.2 1.7-.8l3-14.1c.2-.8-.1-1.3-.1-1.5ZM8.2 12.5l9.5-6c.5-.3.9-.1.5.2l-7.8 7.1-.3 3.2-1.9-4.5Z" />
-  </svg>
-
-  <span>Đăng nhập với Telegram</span>
-</button>
+              <button
+                type="button"
+                onClick={handleTelegramLogin}
+                disabled={loading}
+                className="w-full h-12 rounded-full border border-[#229ED9]/30 bg-[#229ED9]/5 hover:bg-[#229ED9]/10 hover:border-[#229ED9] text-[#229ED9] font-semibold text-sm flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.99] cursor-pointer disabled:opacity-70"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="w-5 h-5"
+                  aria-hidden="true"
+                >
+                  <path d="M21.8 3.2a1.5 1.5 0 0 0-1.6-.2L2.7 9.8c-1.2.5-1.2 1.3-.2 1.6l4.5 1.4 1.7 5.3c.2.6.1.8.7.8.5 0 .7-.2 1-.5l2.2-2.2 4.6 3.4c.9.5 1.5.2 1.7-.8l3-14.1c.2-.8-.1-1.3-.1-1.5ZM8.2 12.5l9.5-6c.5-.3.9-.1.5.2l-7.8 7.1-.3 3.2-1.9-4.5Z" />
+                </svg>
+                <span>Đăng nhập với Telegram</span>
+              </button>
             </div>
 
             <p className="text-center text-xs text-zinc-500 pt-2 font-normal">

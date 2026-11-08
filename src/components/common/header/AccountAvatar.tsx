@@ -10,7 +10,23 @@ export const AccountAvatar: React.FC<AccountAvatarProps> = ({
   onLogout,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState(false);
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    setLogoutError(false);
+    try {
+      await onLogout?.();
+      setIsOpen(false);
+      navigate('/');
+    } catch {
+      setLogoutError(true);
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
 
   if (!userName) {
     return (
@@ -112,20 +128,22 @@ export const AccountAvatar: React.FC<AccountAvatarProps> = ({
           {/* LOGOUT */}
           <button
             type="button"
-            onClick={() => {
-              setIsOpen(false);
-              onLogout?.();
-              navigate('/');
-            }}
-            className="w-full flex items-center gap-3 px-4 py-3 text-rose-400 hover:bg-rose-500/10 text-left"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full flex items-center gap-3 px-4 py-3 text-rose-400 hover:bg-rose-500/10 text-left disabled:opacity-70"
           >
             <Icon
               name="logout"
               className="size-4"
             />
 
-            <span>Đăng xuất</span>
+            <span>{isLoggingOut ? 'Đang đăng xuất…' : 'Đăng xuất'}</span>
           </button>
+          {logoutError && (
+            <p role="alert" className="px-4 pb-3 text-xs text-rose-400">
+              Chưa thể đăng xuất. Vui lòng thử lại.
+            </p>
+          )}
         </div>
       )}
     </div>

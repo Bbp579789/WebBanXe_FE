@@ -362,6 +362,7 @@
 
 
 
+import { isAxiosError } from "axios";
 import { apiClient } from "./apiClient";
 
 export interface RegisterDTO {
@@ -383,16 +384,15 @@ interface AuthUser {
   role?: string;
 }
 
-interface AuthResponse {
+interface AuthResponse extends AuthUser {
   token?: string;
   accessToken?: string;
   access_token?: string;
-  role?: string;
   user?: AuthUser;
   data?: AuthResponse;
 }
 
-const getAuthData = (response: any): AuthResponse => {
+const getAuthData = (response: AuthResponse): AuthResponse => {
   let result = response;
 
   while (
@@ -406,15 +406,55 @@ const getAuthData = (response: any): AuthResponse => {
   return result;
 };
 
-const saveUserProfile = (user: AuthUser) => {
-  const name = user.full_name || user.name || user.username;
+const notifyAuthChange = () => {
+  window.dispatchEvent(new Event("authChange"));
+  window.dispatchEvent(new Event("cartChange"));
+};
 
-  if (name) localStorage.setItem("userName", name);
-  if (user.email) localStorage.setItem("userEmail", user.email);
-  if (user.phone) localStorage.setItem("userPhone", user.phone);
-  if (user.role?.toLowerCase() === "customer") {
-    localStorage.setItem("userRole", "customer");
+const saveUserProfile = (user: AuthUser, newSession = false): string => {
+  const name = user.full_name || user.name || user.username || "";
+  const profile = {
+    userName: name,
+    userEmail: user.email || "",
+    userPhone: user.phone || "",
+    userRole: "customer",
+  };
+  let changed = false;
+  for (const [key, value] of Object.entries(profile)) {
+    if (localStorage.getItem(key) !== value) {
+      localStorage.setItem(key, value);
+      changed = true;
+    }
   }
+  if (changed || newSession) notifyAuthChange();
+  return name;
+};
+
+let sessionVersion = 0;
+let logoutRequest: Promise<void> | undefined;
+
+const clearCustomerSession = () => {
+  const keys = ["access_token", "accessToken", "userName", "userEmail", "userPhone"];
+  if (localStorage.getItem("userRole") === "customer") keys.push("userRole");
+  if (keys.some((key) => localStorage.getItem(key) !== null)) {
+    keys.forEach((key) => localStorage.removeItem(key));
+    notifyAuthChange();
+  }
+};
+
+const isAuthFailure = (error: unknown) =>
+  isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 403);
+
+export const saveCustomerSession = (token: string, user: AuthUser): string => {
+  if (user.role?.toLowerCase() !== "customer") {
+    throw new Error("Tài khoản này không có quyền đăng nhập website khách hàng.");
+  }
+  if (logoutRequest) throw new Error("Đang đăng xuất.");
+
+  sessionVersion += 1;
+  localStorage.setItem("access_token", token);
+  localStorage.setItem("accessToken", token);
+  return saveUserProfile(user, true);
 };
 
 // Đọc role từ JWT nếu Backend không trả role trong user.
@@ -452,8 +492,6 @@ export const authService = {
       credentials
     );
 
-    console.log("LOGIN RESPONSE:", response);
-
     const authData = getAuthData(response);
 
     const token =
@@ -475,8 +513,6 @@ export const authService = {
       authData.role ||
       getRoleFromToken(token);
 
-    console.log("LOGIN ROLE:", role);
-
     // Không xác định được role thì không cho đăng nhập.
     if (!role) {
       throw new Error(
@@ -484,87 +520,63 @@ export const authService = {
       );
     }
 
-    // Chỉ customer được đăng nhập website User.
-    if (role.toLowerCase() !== "customer") {
-      throw new Error(
-        "Tài khoản này không có quyền đăng nhập website khách hàng."
-      );
-    }
-
-    // Chỉ lưu token sau khi xác nhận đúng role customer.
-    localStorage.setItem("access_token", token);
-    localStorage.setItem("accessToken", token);
-    localStorage.setItem("userRole", "customer");
-
-    localStorage.setItem(
-      "userName",
-      user?.full_name ||
-        user?.username ||
-        credentials.email.split("@")[0]
-    );
-
-    localStorage.setItem(
-      "userEmail",
-      user?.email || credentials.email
-    );
-
-    localStorage.setItem(
-      "userPhone",
-      user?.phone || ""
-    );
-
-    window.dispatchEvent(new Event("authChange"));
-    window.dispatchEvent(new Event("cartChange"));
-
-    return response;
-  },
-
-  // Đăng xuất
-  logout: () => {
-    void apiClient.post("/auth/logout").catch((error: unknown) => {
-      console.error("Logout request failed:", error);
+    return saveCustomerSession(token, {
+      ...user,
+      role,
+      email: user?.email || credentials.email,
+      username: user?.username || credentials.email.split("@")[0],
     });
-
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userRole");
-
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userPhone");
-
-    window.dispatchEvent(new Event("authChange"));
-    window.dispatchEvent(new Event("cartChange"));
   },
 
-  // Kiểm tra phiên đăng nhập bằng HttpOnly cookie.
+  logout: () => {
+    if (logoutRequest) return logoutRequest;
+    sessionVersion += 1;
+    logoutRequest = apiClient.post("/auth/logout", {})
+      .then(clearCustomerSession)
+      .finally(() => {
+        logoutRequest = undefined;
+      });
+    return logoutRequest;
+  },
+
   getCurrentUser: async (): Promise<AuthUser> => {
-    let response: unknown;
+    const version = sessionVersion;
+    const token = localStorage.getItem("access_token");
+    const isCurrentSession = () =>
+      !logoutRequest && version === sessionVersion && token === localStorage.getItem("access_token");
+    if (!isCurrentSession()) throw new Error("Phiên đăng nhập đã thay đổi.");
+
+    let response: AuthResponse;
+    let usedCookie = false;
 
     try {
-      response = await apiClient.get<AuthUser>("/users/me");
-    } catch (error: unknown) {
-      const status = (error as { response?: { status?: number } })?.response?.status;
-
-      // Retry once with cookie authentication if an old local JWT was rejected.
-      if (status !== 401 && status !== 403) throw error;
-
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("accessToken");
-      response = await apiClient.get<AuthUser>("/users/me");
+      try {
+        response = await apiClient.get<AuthResponse>("/users/me");
+      } catch (error) {
+        if (!token || !isCurrentSession() || !isAuthFailure(error)) throw error;
+        // Thử cookie trước khi xóa JWT cũ khỏi phiên đang dùng.
+        response = await apiClient.get<AuthResponse>("/users/me", { headers: { Authorization: null } });
+        usedCookie = true;
+      }
+    } catch (error) {
+      if (isCurrentSession() && isAuthFailure(error)) clearCustomerSession();
+      throw error;
     }
 
+    if (!isCurrentSession()) throw new Error("Phiên đăng nhập đã thay đổi.");
     const data = getAuthData(response);
-    const user = data.user || (data as AuthUser);
+    const user = data?.user || data;
 
-    if (!user || typeof user !== "object") {
-      throw new Error("Backend không trả về thông tin người dùng.");
+    if (user?.role?.toLowerCase() !== "customer") {
+      clearCustomerSession();
+      throw new Error("Không có phiên khách hàng.");
+    }
+    if (usedCookie) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("accessToken");
     }
 
     saveUserProfile(user);
-    window.dispatchEvent(new Event("authChange"));
-    window.dispatchEvent(new Event("cartChange"));
-
     return user;
   },
 
