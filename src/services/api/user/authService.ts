@@ -363,7 +363,6 @@
 
 
 import { apiClient } from "./apiClient";
-import { TELEGRAM_AUTH_PENDING_KEY } from "./telegramAuthService";
 
 export interface RegisterDTO {
   username?: string;
@@ -541,15 +540,6 @@ export const authService = {
   // Kiểm tra phiên đăng nhập bằng HttpOnly cookie.
   getCurrentUser: async (): Promise<AuthUser> => {
     let response: unknown;
-    const isTelegramCallback =
-      sessionStorage.getItem(TELEGRAM_AUTH_PENDING_KEY) === "true";
-
-    // The Telegram callback authenticates with the HttpOnly cookie. Do not
-    // let an old browser token override that cookie on this first request.
-    if (isTelegramCallback) {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("accessToken");
-    }
 
     try {
       response = await apiClient.get<AuthUser>("/users/me");
@@ -572,9 +562,6 @@ export const authService = {
     }
 
     saveUserProfile(user);
-    if (isTelegramCallback) {
-      sessionStorage.removeItem(TELEGRAM_AUTH_PENDING_KEY);
-    }
     window.dispatchEvent(new Event("authChange"));
     window.dispatchEvent(new Event("cartChange"));
 

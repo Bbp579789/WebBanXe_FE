@@ -3,7 +3,6 @@ import apiClient from "./apiClient";
 
 const API_ORIGIN = "https://api.mercedezstudy.net";
 const TELEGRAM_LOGIN_URL = `${API_ORIGIN}/api/v1/auth/telegram/login`;
-export const TELEGRAM_AUTH_PENDING_KEY = "telegram_auth_pending";
 
 /* =========================================
    TELEGRAM TYPES
@@ -63,7 +62,6 @@ export const telegramAuthService = {
     localStorage.removeItem("access_token");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("userRole");
-    sessionStorage.setItem(TELEGRAM_AUTH_PENDING_KEY, "true");
     window.location.assign(TELEGRAM_LOGIN_URL);
   },
 
