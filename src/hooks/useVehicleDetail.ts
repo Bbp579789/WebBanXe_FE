@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { useVehicles } from './useVehicles';
 import type { Vehicle } from '../types';
-import { cartService } from '../services/api/user/cartService';
+import { cartService, getCartErrorMessage, isVehicleAlreadyInCart } from '../services/api/user/cartService';
 
 export function useVehicleDetail() {
   const { id } = useParams<{ id: string }>();
@@ -78,12 +78,7 @@ export function useVehicleDetail() {
     try {
       setCartLoading(true);
 
-      // cartService nhận vehicleId, quantity, price
-      await cartService.addToCart(
-        vehicleId,
-        qty,
-        Number(item.price)
-      );
+      await cartService.addToCart(vehicleId);
 
       // Thông báo cho các component khác cập nhật giỏ hàng
       window.dispatchEvent(new Event('cartChange'));
@@ -93,19 +88,18 @@ export function useVehicleDetail() {
       );
 
       return true;
-   } catch (error: any) {
-  console.error('Lỗi khi thêm xe vào giỏ hàng:', error);
+    } catch (error) {
+      console.error('Lỗi khi thêm xe vào giỏ hàng:', error);
 
-  const message = error.response?.data?.error;
+      // Xe đã có trong giỏ: báo cho khách, vẫn trả true để luồng đặt cọc đi tiếp
+      if (isVehicleAlreadyInCart(error)) {
+        alert(getCartErrorMessage(error));
+        return true;
+      }
 
-  if (message === 'Vehicle already exists in cart') {
-    alert('Xe này đã có trong giỏ hàng của bạn.');
-  } else {
-    alert('Không thể thêm xe vào giỏ hàng. Vui lòng thử lại.');
-  }
-
-  return false;
-} finally {
+      alert(getCartErrorMessage(error));
+      return false;
+    } finally {
   setCartLoading(false);
 }
   };
