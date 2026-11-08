@@ -19,15 +19,21 @@ const AI_URL = import.meta.env.VITE_AI_URL || (
 
 const GUEST_TOKEN_KEY = 'ai_guest_token';
 
+// Không gửi cookie sang ai-service: cookie đăng nhập thuộc tên miền của gateway, ai-service không đọc được,
+// và trình duyệt chặn request kèm cookie khi ai-service trả CORS "*". ai-service nhận token qua header.
 const aiClient = axios.create({
   baseURL: AI_URL,
-  withCredentials: true,
+  withCredentials: false,
   // Bot cần vài giây để trả lời, để rộng hơn các API khác
   timeout: 60000,
 });
 
 function userHeaders() {
   const headers: Record<string, string> = {};
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    headers.Authorization = 'Bearer ' + token;
+  }
   const guestToken = localStorage.getItem(GUEST_TOKEN_KEY);
   if (guestToken) {
     headers['X-Guest-Token'] = guestToken;
