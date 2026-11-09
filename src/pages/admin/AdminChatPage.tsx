@@ -321,8 +321,16 @@ export const AdminChatPage: React.FC = () => {
     setIsSending(true);
     setActionError('');
     try {
-      await aiInboxService.reply(activeId, content);
+      const sent = await aiInboxService.reply(activeId, content);
       if (!textToSend) setInputText('');
+      // Hội thoại Telegram mà máy chủ không gửi được: gửi tiếp qua trạm chuyển tiếp từ trình duyệt
+      if (sent.telegram_relay) {
+        try {
+          await aiInboxService.relayTelegram(sent.telegram_relay);
+        } catch {
+          setActionError('Đã lưu tin nhắn nhưng chưa gửi được tới Telegram của khách. Vui lòng thử lại.');
+        }
+      }
       await loadDetail();
       await loadConversations();
     } catch (error) {

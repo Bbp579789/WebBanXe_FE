@@ -6,8 +6,9 @@ import type {
   AiConversationDetail,
   AiHistoryResponse,
   AiKnowledgeDocument,
-  AiMessage,
+  AiStaffReply,
   AiSystemStatus,
+  AiTelegramRelay,
 } from '../../types/ai.types';
 
 // VITE_AI_URL must point to the deployed AI service (or its reverse proxy).
@@ -142,13 +143,31 @@ export const aiInboxService = {
     await aiClient.post('/ai/inbox/conversations/' + id + '/assign', null, { headers: adminHeaders() });
   },
 
-  async reply(id: number, content: string): Promise<AiMessage> {
-    const response = await aiClient.post<AiMessage>(
+  async reply(id: number, content: string): Promise<AiStaffReply> {
+    const response = await aiClient.post<AiStaffReply>(
       '/ai/inbox/conversations/' + id + '/reply',
       { content: content },
       { headers: adminHeaders() },
     );
     return response.data;
+  },
+
+  // Máy chủ ai-service không gửi ra Telegram được: trình duyệt gửi gói tin đã ký qua trạm chuyển tiếp
+  async relayTelegram(relay: AiTelegramRelay): Promise<void> {
+    const response = await fetch(relay.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: relay.chat_id,
+        text: relay.text,
+        expires: relay.expires,
+        signature: relay.signature,
+      }),
+    });
+    const data = await response.json();
+    if (!data.ok) {
+      throw new Error(data.error || 'Không gửi được tin tới Telegram');
+    }
   },
 
   async returnToBot(id: number): Promise<void> {
