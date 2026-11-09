@@ -11,18 +11,21 @@ import {
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
+  Inbox,
 } from 'lucide-react';
 import { aiInboxService, getAiErrorMessage } from '../../services/api/aiService';
 import type { AiConversation, AiConversationDetail, AiMessage } from '../../types/ai.types';
 
-// Hộp thư nhân viên: dữ liệu thật từ ai-service (kênh website và Telegram)
-type ChannelType = 'web' | 'telegram';
+// Hộp thư tập trung: hội thoại từ website và Telegram hiện chung một danh sách, lọc được theo kênh và mức khẩn
+type ChannelType = 'all' | 'web' | 'telegram';
 type StatusFilter = 'open' | 'ai_handling' | 'closed';
+type PriorityFilter = 'all' | 'urgent' | 'high' | 'medium' | 'low';
 
 const LIST_POLL_MS = 5000;
 const DETAIL_POLL_MS = 3000;
 
 const channels: { id: ChannelType; name: string }[] = [
+  { id: 'all', name: 'Tất cả kênh' },
   { id: 'web', name: 'Website Mercedes Live' },
   { id: 'telegram', name: 'Telegram Channel' },
 ];
@@ -53,6 +56,37 @@ const priorityLabels: Record<string, string> = {
   medium: 'Trung bình',
   low: 'Thấp',
 };
+
+const priorityColors: Record<string, string> = {
+  urgent: 'bg-rose-600 text-white',
+  high: 'bg-orange-500 text-white',
+  medium: 'bg-amber-200 text-amber-900',
+  low: 'bg-zinc-200 text-zinc-700',
+};
+
+const priorityFilters: { id: PriorityFilter; name: string }[] = [
+  { id: 'all', name: 'Tất cả' },
+  { id: 'urgent', name: 'Khẩn cấp' },
+  { id: 'high', name: 'Cao' },
+  { id: 'medium', name: 'Trung bình' },
+  { id: 'low', name: 'Thấp' },
+];
+
+// Hội thoại đã chuyển cho nhân viên mới có mức ưu tiên và hạn SLA
+function needsStaff(status: string) {
+  return status === 'escalated' || status === 'admin_handling';
+}
+
+// Thời gian còn lại tới hạn phản hồi, ví dụ "Còn 4 phút" hoặc "Trễ 12 phút"
+function slaText(dueAt: string | null, now: number) {
+  if (!dueAt) return '';
+  const minutes = Math.round((new Date(dueAt).getTime() - now) / 60000);
+  if (minutes >= 60) return 'Còn ' + Math.floor(minutes / 60) + ' giờ ' + (minutes % 60) + ' phút';
+  if (minutes >= 0) return 'Còn ' + minutes + ' phút';
+  const late = -minutes;
+  if (late >= 60) return 'Trễ ' + Math.floor(late / 60) + ' giờ ' + (late % 60) + ' phút';
+  return 'Trễ ' + late + ' phút';
+}
 
 const quickReplies = [
   'Dạ Mercedes-Benz kính chào Quý khách! Em là nhân viên tư vấn, em hỗ trợ gì cho mình ạ?',
@@ -168,8 +202,10 @@ const MessageBubble: React.FC<{ message: AiMessage; customerName: string }> = ({
 };
 
 export const AdminChatPage: React.FC = () => {
-  const [selectedChannel, setSelectedChannel] = useState<ChannelType>('web');
+  const [selectedChannel, setSelectedChannel] = useState<ChannelType>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('open');
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
+  const [now, setNow] = useState(() => Date.now());
   const [conversations, setConversations] = useState<AiConversation[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [detail, setDetail] = useState<AiConversationDetail | null>(null);
@@ -178,26 +214,33 @@ export const AdminChatPage: React.FC = () => {
   const [listError, setListError] = useState('');
   const [actionError, setActionError] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [waitingCount, setWaitingCount] = useState<Record<ChannelType, number>>({ web: 0, telegram: 0 });
+  const [waitingCount, setWaitingCount] = useState<Record<ChannelType, number>>({ all: 0, web: 0, telegram: 0 });
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Tải danh sách hội thoại theo kênh và bộ lọc trạng thái
   const loadConversations = useCallback(async () => {
     try {
+      // "Tất cả kênh" thì không gửi channel, ai-service trả cả website và Telegram
+      let channel: string | undefined = selectedChannel;
+      if (selectedChannel === 'all') {
+        channel = undefined;
+      }
+
       let rows: AiConversation[];
       if (statusFilter === 'open') {
         // Mặc định ai-service trả các hội thoại chưa đóng; giữ lại hội thoại cần nhân viên
-        const all = await aiInboxService.getConversations({ channel: selectedChannel });
-        rows = all.filter((item) => item.status === 'escalated' || item.status === 'admin_handling');
+        const all = await aiInboxService.getConversations({ channel: channel });
+        rows = all.filter((item) => needsStaff(item.status));
       } else {
-        rows = await aiInboxService.getConversations({ channel: selectedChannel, status: statusFilter });
+        rows = await aiInboxService.getConversations({ channel: channel, status: statusFilter });
       }
       setConversations(rows);
       setListError('');
+      setNow(Date.now());
 
       // Số hội thoại đang chờ nhân viên ở mỗi kênh, hiện ở thanh kênh bên trái
       const waiting = await aiInboxService.getConversations({ status: 'escalated' });
-      const counts: Record<ChannelType, number> = { web: 0, telegram: 0 };
+      const counts: Record<ChannelType, number> = { all: waiting.length, web: 0, telegram: 0 };
       for (const item of waiting) {
         counts[item.channel_type] = counts[item.channel_type] + 1;
       }
@@ -248,6 +291,13 @@ export const AdminChatPage: React.FC = () => {
 
   const handleSelectFilter = (filter: StatusFilter) => {
     setStatusFilter(filter);
+    setPriorityFilter('all');
+    setSelectedId(null);
+    setDetail(null);
+  };
+
+  const handleSelectPriority = (filter: PriorityFilter) => {
+    setPriorityFilter(filter);
     setSelectedId(null);
     setDetail(null);
   };
@@ -283,6 +333,9 @@ export const AdminChatPage: React.FC = () => {
   };
 
   const filteredConversations = conversations.filter((item) => {
+    if (priorityFilter !== 'all' && item.priority !== priorityFilter) {
+      return false;
+    }
     const query = searchQuery.toLowerCase();
     return (
       item.customer.name.toLowerCase().includes(query) ||
@@ -326,7 +379,9 @@ export const AdminChatPage: React.FC = () => {
                         : 'bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-700/80 opacity-60 hover:opacity-100'
                     }`}
                   >
-                    {channel.id === 'telegram' ? <TelegramIcon /> : <WebsiteIcon />}
+                    {channel.id === 'all' && <Inbox className="size-5" />}
+                    {channel.id === 'web' && <WebsiteIcon />}
+                    {channel.id === 'telegram' && <TelegramIcon />}
                   </div>
                   {count > 0 && (
                     <span className="absolute -top-1 -right-1 px-1.5 min-w-4 h-4 bg-rose-500 text-white text-[9px] font-black rounded-full flex items-center justify-center border border-[#0c0d0e] shadow-md animate-pulse">
@@ -376,6 +431,22 @@ export const AdminChatPage: React.FC = () => {
             ))}
           </div>
 
+          {statusFilter === 'open' && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {priorityFilters.map((filter) => (
+                <button
+                  key={filter.id}
+                  onClick={() => handleSelectPriority(filter.id)}
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-semibold transition ${
+                    priorityFilter === filter.id ? 'bg-white text-zinc-900 shadow' : 'bg-black/15 text-zinc-100 hover:bg-black/25'
+                  }`}
+                >
+                  {filter.name}
+                </button>
+              ))}
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-2.5 px-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-200">
               {channels.find((c) => c.id === selectedChannel)?.name}
@@ -410,14 +481,24 @@ export const AdminChatPage: React.FC = () => {
                       : 'hover:bg-black/15 text-zinc-100'
                   }`}
                 >
+                  <div className="relative shrink-0">
                   <div
-                    className={`size-12 rounded-full flex items-center justify-center font-bold text-sm tracking-wider shadow-md shrink-0 ${
+                    className={`size-12 rounded-full flex items-center justify-center font-bold text-sm tracking-wider shadow-md ${
                       isSelected
                         ? 'bg-gradient-to-br from-[#dfc399] to-[#a38048] text-zinc-950 ring-2 ring-white/70'
                         : 'bg-[#bfa780] text-zinc-900 border border-[#a89069]'
                     }`}
                   >
                     {getInitials(item.customer.name)}
+                  </div>
+                  <span
+                    title={item.channel_type === 'telegram' ? 'Telegram' : 'Website'}
+                    className={`absolute -bottom-0.5 -right-0.5 size-5 rounded-full flex items-center justify-center border-2 border-[#8c8983] [&_svg]:size-3 ${
+                      item.channel_type === 'telegram' ? 'bg-[#0088cc] text-white' : 'bg-[#b8955a] text-zinc-950'
+                    }`}
+                  >
+                    {item.channel_type === 'telegram' ? <TelegramIcon /> : <WebsiteIcon />}
+                  </span>
                   </div>
 
                   <div className="flex-1 min-w-0">
@@ -434,13 +515,19 @@ export const AdminChatPage: React.FC = () => {
                       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${statusColors[item.status]}`}>
                         {statusLabels[item.status]}
                       </span>
-                      {item.status === 'escalated' && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/80 text-zinc-800">
-                          Ưu tiên: {priorityLabels[item.priority]}
+                      {needsStaff(item.status) && (
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${priorityColors[item.priority]}`}>
+                          {priorityLabels[item.priority]}
                         </span>
                       )}
-                      {item.sla_overdue && (
-                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-600 text-white">Quá hạn</span>
+                      {item.status === 'escalated' && item.sla_due_at && (
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                            item.sla_overdue ? 'bg-rose-600 text-white' : 'bg-white/80 text-zinc-800'
+                          }`}
+                        >
+                          {slaText(item.sla_due_at, now)}
+                        </span>
                       )}
                     </div>
                   </div>
@@ -489,9 +576,14 @@ export const AdminChatPage: React.FC = () => {
                     <span className="text-xs text-[#8a6e3d] font-semibold">
                       Kênh: {conversation.channel_type === 'telegram' ? 'Telegram' : 'Website'}
                     </span>
+                    {needsStaff(conversation.status) && (
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${priorityColors[conversation.priority]}`}>
+                        Mức khẩn: {priorityLabels[conversation.priority]}
+                      </span>
+                    )}
                     {conversation.sla_due_at && conversation.status === 'escalated' && (
                       <span className={`text-xs ${conversation.sla_overdue ? 'text-rose-700 font-bold' : 'text-zinc-600'}`}>
-                        Hạn phản hồi: {new Date(conversation.sla_due_at).toLocaleString('vi-VN')}
+                        Hạn phản hồi: {new Date(conversation.sla_due_at).toLocaleString('vi-VN')} ({slaText(conversation.sla_due_at, now)})
                       </span>
                     )}
                   </div>
