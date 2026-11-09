@@ -49,6 +49,19 @@ export interface AiMessage {
   created_at: string;
 }
 
+// Gói tin ai-service ký sẵn để trang admin gửi qua trạm chuyển tiếp Telegram (Cloudflare Worker)
+export interface AiTelegramRelay {
+  url: string;
+  chat_id: string;
+  text: string;
+  expires: number;
+  signature: string;
+}
+
+export interface AiStaffReply extends AiMessage {
+  telegram_relay?: AiTelegramRelay | null;
+}
+
 export interface AiReply {
   id: number;
   sender_type: AiSenderType;
